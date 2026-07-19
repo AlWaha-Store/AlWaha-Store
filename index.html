@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>الواحة - Al-Waha | فاكهة وخضروات طازجة</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="متجر الواحة - أفضل خضروات وفاكهة طازجة، توصيل سريع، أسعار منافسة" />
+    <meta name="keywords" content="خضروات, فاكهة, توصيل, متجر, طازج, الواحة" />
+    <meta property="og:title" content="الواحة - خضروات وفاكهة طازجة" />
+    <meta property="og:description" content="تسوق أفضل الخضروات والفاكهة الطازجة مع التوصيل السريع" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://your-username.github.io/alwaha-store/" />
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+
+    <!-- ===== BACKGROUND STATIC ===== -->
+    <div id="bg-static">
+        <span style="--rot: -5deg;">🍎</span>
+        <span style="--rot: 8deg;">🥑</span>
+        <span style="--rot: -3deg;">🍋</span>
+        <span style="--rot: 10deg;">🥦</span>
+        <span style="--rot: -8deg;">🍊</span>
+        <span style="--rot: 5deg;">🥬</span>
+        <span style="--rot: -12deg;">🍇</span>
+        <span style="--rot: 6deg;">🥕</span>
+        <span style="--rot: -6deg;">🍓</span>
+        <span style="--rot: 9deg;">🌿</span>
+        <span style="--rot: -4deg;">🍍</span>
+        <span style="--rot: 7deg;">🥒</span>
+        <span style="--rot: -10deg;">🍌</span>
+        <span style="--rot: 4deg;">🥭</span>
+        <span style="--rot: -7deg;">🍅</span>
+        <span style="--rot: 11deg;">🥔</span>
+        <span style="--rot: -9deg;">🍈</span>
+        <span style="--rot: 3deg;">🥝</span>
+        <span style="--rot: -11deg;">🫑</span>
+        <span style="--rot: 8deg;">🍠</span>
+        <span style="--rot: -2deg;">🧅</span>
+        <span style="--rot: 13deg;">🧄</span>
+        <span style="--rot: -14deg;">🫒</span>
+        <span style="--rot: 6deg;">🌶️</span>
+        <span style="--rot: -5deg;">🍑</span>
+        <span style="--rot: 9deg;">🍒</span>
+        <span style="--rot: -8deg;">🍉</span>
+        <span style="--rot: 4deg;">🍐</span>
+        <span style="--rot: -6deg;">🥥</span>
+        <span style="--rot: 7deg;">🌽</span>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="header-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="ابحث..." oninput="filterProducts()" />
+            </div>
+        </div>
+        <div class="logo" onclick="handleLogoClick()">
+            <div class="arabic">الواحة 🌱</div>
+        </div>
+        <div class="header-actions">
+            <button class="theme-toggle" onclick="toggleTheme()" title="تبديل المظهر">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <button class="lang-toggle" onclick="toggleLang()" title="تبديل اللغة">
+                <i class="fas fa-globe"></i>
+            </button>
+            <a href="admin.html" class="admin-link" title="لوحة التحكم">
+                <i class="fas fa-cog"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge-art" id="heroEmojis">
+                <span>🥑</span> <span>🥦</span> <span>🍇</span> <span>🥬</span> <span>🍊</span> <span>🥕</span> <span>🍎</span> <span>🌶️</span>
+            </div>
+            <h1 class="hero-title" id="heroTitle">متجر الواحة</h1>
+            <p class="hero-subtitle" id="heroSubtitle">خضروات وفاكهة طازجة من قلب الطبيعة</p>
+        </div>
+    </section>
+
+    <!-- ===== CATEGORIES ===== -->
+    <section class="section" id="categories">
+        <h2 class="section-title" id="categoriesTitle"><i class="fas fa-th-large"></i> الأقسام</h2>
+        <div class="categories-grid" id="categoriesGrid">
+            <div class="category-card" data-target="fruits-section">
+                <span class="cat-icon">🍎</span>
+                <h4 id="catFruitTitle">فاكهة</h4>
+            </div>
+            <div class="category-card" data-target="vegetables-section">
+                <span class="cat-icon">🥬</span>
+                <h4 id="catVegTitle">خضروات</h4>
+            </div>
+            <div class="category-card" data-target="offers-section">
+                <span class="cat-icon">🏷️</span>
+                <h4 id="catOffersTitle">عروض</h4>
+            </div>
+            <div class="category-card" data-target="smart-kitchen">
+                <span class="cat-icon">🧑‍🍳</span>
+                <h4 id="catKitchenTitle">المطبخ الذكي</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PRODUCTS ===== -->
+    <section class="section" id="products">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+            <h2 class="section-title" id="productsTitle" style="margin-bottom:0;"><i class="fas fa-box"></i> منتجاتنا</h2>
+            <div class="filter-bar">
+                <label id="sortLabel">ترتيب:</label>
+                <select id="sortFilter" onchange="applySort()">
+                    <option value="default">الافتراضي</option>
+                    <option value="price-asc">السعر (من الأقل)</option>
+                    <option value="price-desc">السعر (من الأعلى)</option>
+                    <option value="popular">الأكثر طلباً</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="fruits-section">
+            <h3 class="section-title" id="fruitsSubTitle" style="font-size:16px;color:var(--gold);"><i class="fas fa-apple-alt"></i> الفاكهة</h3>
+            <div class="products-grid" id="fruitsGrid"></div>
+        </div>
+
+        <div id="vegetables-section" style="margin-top:16px;">
+            <h3 class="section-title" id="vegSubTitle" style="font-size:16px;color:var(--gold);"><i class="fas fa-carrot"></i> الخضروات</h3>
+            <div class="products-grid" id="vegetablesGrid"></div>
+        </div>
+
+        <div id="offers-section" style="margin-top:16px;">
+            <h3 class="section-title" id="offersSubTitle" style="font-size:16px;color:var(--gold);"><i class="fas fa-tag"></i> العروض والخصومات</h3>
+            <div class="products-grid" id="offersGrid"></div>
+        </div>
+    </section>
+
+    <!-- ===== SMART KITCHEN ===== -->
+    <section class="section" id="smart-kitchen">
+        <h2 class="section-title" id="kitchenTitle"><i class="fas fa-utensils"></i> المطبخ الذكي</h2>
+        <p id="kitchenSub" style="color:#5a7a5a;font-size:15px;margin-bottom:12px;">اختر المنتجات التي لديك وسنقترح لك وصفات مناسبة</p>
+        
+        <div id="kitchenSelector" style="background:var(--bg-card);backdrop-filter:blur(10px);border-radius:12px;padding:16px;border:1px solid var(--border-color);margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                <span style="font-weight:700;color:var(--primary);font-size:16px;"><i class="fas fa-box"></i> اختر المنتجات:</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="selectAllKitchen()" style="padding:4px 14px;border-radius:30px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;">تحديد الكل</button>
+                    <button onclick="deselectAllKitchen()" style="padding:4px 14px;border-radius:30px;border:1px solid #ccc;background:transparent;color:#666;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;">إلغاء الكل</button>
+                    <button onclick="loadCartProducts()" style="padding:4px 14px;border-radius:30px;border:1px solid var(--primary);background:var(--primary);color:white;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;">من السلة</button>
+                </div>
+            </div>
+            <div id="kitchenProducts" style="display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow-y:auto;padding:4px 0;"></div>
+        </div>
+        
+        <button onclick="findRecipes()" id="findRecipesBtn" style="background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--primary-dark);border:none;padding:12px 30px;border-radius:50px;font-size:18px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;box-shadow:0 4px 20px rgba(212,175,55,0.3);transition:var(--transition);width:100%;margin-bottom:16px;">
+            <i class="fas fa-search"></i> ابحث عن وصفات
+        </button>
+        
+        <div id="recipesResults" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:4px;"></div>
+    </section>
+
+    <!-- ===== OFFERS COUNTDOWN ===== -->
+    <section class="section" id="offersCountdown">
+        <div class="offers-section">
+            <h2 id="offersTitle"><i class="fas fa-tag"></i> عروض اليوم</h2>
+            <p id="offersDesc" style="opacity:0.9;font-size:15px;">خصم 20% على جميع الفواكه الموسمية</p>
+            <div class="countdown" id="countdown">
+                <div class="cd-item"><span>ساعات</span> 12</div>
+                <div class="cd-item"><span>دقائق</span> 30</div>
+                <div class="cd-item"><span>ثواني</span> 45</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="section" id="contact">
+        <div class="contact-section">
+            <h2 id="contactTitle"><i class="fas fa-phone"></i> تواصل معنا</h2>
+            <p id="contactSub">نحن هنا لخدمتك</p>
+            <div class="contact-info">
+                <a href="tel:+201229156909"><i class="fas fa-phone"></i> 01229156909</a>
+                <a href="https://wa.me/201229156909" target="_blank"><i class="fab fa-whatsapp"></i> واتساب</a>
+                <a href="mailto:info@alwaha.com"><i class="fas fa-envelope"></i> info@alwaha.com</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FLOATING ACTIONS ===== -->
+    <button class="floating-cart" id="floatingCart" onclick="toggleCart()" aria-label="عرض السلة">
+        <i class="fas fa-shopping-basket"></i>
+        <span class="fbadge" id="floatingBadge">0</span>
+    </button>
+
+    <button class="floating-checkout" id="floatingCheckout" onclick="openCheckout()" aria-label="إتمام الشراء">
+        <i class="fas fa-credit-card"></i>
+        <span id="floatingCheckoutText">شراء</span>
+    </button>
+
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()" aria-label="الرجوع للأعلى">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ===== CART SIDEBAR ===== -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <div class="cart-total-header" id="cartTotalHeader">
+                <span id="cartHeaderTotal">0 ج.م</span>
+                <small>المجموع بدون قيمة التوصيل</small>
+            </div>
+            <button class="btn-checkout-small" onclick="openCheckout()">
+                <i class="fas fa-credit-card"></i> شراء
+            </button>
+            <button class="close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items-list" id="cartItemsList">
+            <div class="empty-cart-msg" id="emptyCartMsg">
+                <i class="fas fa-shopping-cart"></i> سلتك فارغة
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span id="labelTotal">المجموع</span>
+                <span id="cartTotalPrice">0 ج.م</span>
+            </div>
+            <div class="cart-total-note">* المجموع بدون قيمة التوصيل</div>
+        </div>
+    </div>
+
+    <!-- ===== PRODUCT MODAL ===== -->
+    <div class="product-modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
+            <span class="modal-emoji" id="modalEmoji">🍎</span>
+            <h2 id="modalName">تفاح</h2>
+            <div style="text-align:center;">
+                <span class="modal-offer-tag" id="modalOfferTag" style="display:none;">🏷️ عرض خاص</span>
+            </div>
+            <div class="modal-price" id="modalPrice">25 <small>ج.م / كجم</small></div>
+            <p class="modal-desc" id="modalDesc">تفاح طازج من مزارعنا</p>
+            <div class="weight-input-group">
+                <label id="labelWeight">الوزن (كجم):</label>
+                <button class="qty-btn" onclick="changeModalWeight(-0.5)">−</button>
+                <input type="number" id="modalWeight" value="1" min="0.25" step="0.25" />
+                <button class="qty-btn" onclick="changeModalWeight(0.5)">+</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-add-modal" id="modalAddBtn" onclick="addFromModal()">
+                    <i class="fas fa-plus-circle"></i> إضافة
+                </button>
+                <div style="position:relative;">
+                    <button class="btn-share" onclick="toggleSharePopup()" aria-label="مشاركة المنتج">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <div class="share-popup" id="sharePopup">
+                        <a href="#" onclick="shareProduct('whatsapp')"><i class="fab fa-whatsapp"></i> واتساب</a>
+                        <a href="#" onclick="shareProduct('copy')"><i class="fas fa-copy"></i> نسخ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CHECKOUT MODAL ===== -->
+    <div class="checkout-modal-overlay" id="checkoutModal">
+        <div class="checkout-modal-box">
+            <h2 id="checkoutTitle"><i class="fas fa-clipboard-check"></i> تأكيد الطلب</h2>
+            <div class="sub" id="checkoutSub">املأ بياناتك لإتمام الطلب</div>
+
+            <div class="checkout-summary" id="checkoutSummary"></div>
+
+            <div class="form-group">
+                <label id="labelCustName">الاسم الكامل <span class="required">*</span></label>
+                <input type="text" id="custName" placeholder="أحمد محمد" oninput="validateCheckoutForm()" />
+            </div>
+
+            <div class="form-group">
+                <label id="labelCustPhone">رقم الجوال <span class="required">*</span></label>
+                <div class="phone-group">
+                    <select id="countryCode" onchange="validateCheckoutForm()">
+                        <option value="20">🇪🇬 +20 (مصر)</option>
+                        <option value="966">🇸🇦 +966 (السعودية)</option>
+                        <option value="971">🇦🇪 +971 (الإمارات)</option>
+                        <option value="974">🇶🇦 +974 (قطر)</option>
+                        <option value="965">🇰🇼 +965 (الكويت)</option>
+                        <option value="968">🇴🇲 +968 (عُمان)</option>
+                        <option value="973">🇧🇭 +973 (البحرين)</option>
+                        <option value="962">🇯🇴 +962 (الأردن)</option>
+                        <option value="961">🇱🇧 +961 (لبنان)</option>
+                        <option value="963">🇸🇾 +963 (سوريا)</option>
+                        <option value="970">🇵🇸 +970 (فلسطين)</option>
+                        <option value="218">🇱🇾 +218 (ليبيا)</option>
+                        <option value="216">🇹🇳 +216 (تونس)</option>
+                        <option value="213">🇩🇿 +213 (الجزائر)</option>
+                        <option value="212">🇲🇦 +212 (المغرب)</option>
+                        <option value="222">🇲🇷 +222 (موريتانيا)</option>
+                        <option value="249">🇸🇩 +249 (السودان)</option>
+                        <option value="252">🇸🇴 +252 (الصومال)</option>
+                        <option value="253">🇩🇯 +253 (جيبوتي)</option>
+                        <option value="967">🇾🇪 +967 (اليمن)</option>
+                        <option value="1">🇺🇸 +1 (الولايات المتحدة)</option>
+                        <option value="44">🇬🇧 +44 (المملكة المتحدة)</option>
+                        <option value="49">🇩🇪 +49 (ألمانيا)</option>
+                        <option value="33">🇫🇷 +33 (فرنسا)</option>
+                        <option value="39">🇮🇹 +39 (إيطاليا)</option>
+                        <option value="34">🇪🇸 +34 (إسبانيا)</option>
+                        <option value="7">🇷🇺 +7 (روسيا)</option>
+                        <option value="86">🇨🇳 +86 (الصين)</option>
+                        <option value="81">🇯🇵 +81 (اليابان)</option>
+                        <option value="91">🇮🇳 +91 (الهند)</option>
+                        <option value="55">🇧🇷 +55 (البرازيل)</option>
+                        <option value="61">🇦🇺 +61 (أستراليا)</option>
+                    </select>
+                    <input type="tel" id="custPhone" placeholder="" oninput="validateCheckoutForm()" />
+                </div>
+                <div class="phone-hint">
+                    <i class="fas fa-info-circle"></i> يُفضل كتابة الرقم بدون الصفر الأول
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="labelCustAddress">معلومات المكان <span class="required">*</span></label>
+                <textarea id="custAddress" placeholder="اكتب العنوان بالتفصيل..." oninput="validateCheckoutForm()"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label id="labelCustNotes">ملاحظات</label>
+                <textarea id="custNotes" placeholder="مثلاً: الاتصال قبل الوصول..."></textarea>
+            </div>
+
+            <label id="labelDeliveryTime" style="font-weight:600;color:var(--primary);font-size:14px;">وقت التوصيل <span class="required">*</span></label>
+            <div class="delivery-options" id="deliveryOptions">
+                <label class="selected" data-delivery="اسرع وقت">
+                    <input type="radio" name="delivery" value="اسرع وقت" checked />
+                    <i class="fas fa-clock"></i> أسرع وقت
+                </label>
+                <label data-delivery="وقت محدد">
+                    <input type="radio" name="delivery" value="وقت محدد" />
+                    <i class="fas fa-calendar-alt"></i> وقت محدد
+                </label>
+                <div class="delivery-time-input" id="deliveryTimeInput">
+                    <input type="datetime-local" id="deliveryTime" onchange="validateCheckoutForm()" />
+                </div>
+            </div>
+            <div class="delivery-note">
+                <i class="fas fa-info-circle"></i> قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة
+            </div>
+
+            <label id="labelPaymentMethod" style="font-weight:600;color:var(--primary);font-size:14px;margin-top:8px;display:block;">طريقة الدفع <span class="required">*</span></label>
+            <div class="payment-options" id="paymentOptions">
+                <label class="selected" data-payment="كاش عند التوصيل">
+                    <input type="radio" name="payment" value="كاش عند التوصيل" checked />
+                    <i class="fas fa-money-bill-wave"></i> كاش عند التوصيل
+                </label>
+                <label data-payment="إنستا باي">
+                    <input type="radio" name="payment" value="إنستا باي" />
+                    <i class="fas fa-mobile-alt"></i> إنستا باي
+                </label>
+                <label data-payment="محفظة إلكترونية">
+                    <input type="radio" name="payment" value="محفظة إلكترونية" />
+                    <i class="fas fa-wallet"></i> محفظة إلكترونية
+                </label>
+            </div>
+
+            <button class="btn-confirm-order" id="btnConfirmOrder" onclick="confirmOrder()" disabled>
+                <i class="fas fa-check-circle"></i> تأكيد الشراء
+            </button>
+            <button class="btn-close-checkout" id="btnCancelOrder" onclick="closeCheckout()">إلغاء</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

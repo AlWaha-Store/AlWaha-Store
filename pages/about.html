@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>عن المتجر - الواحة</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="تعرف على متجر الواحة - قصة متجرنا، رسالتنا، ورؤيتنا لتقديم أفضل الخضروات والفاكهة الطازجة" />
+    <meta name="keywords" content="عن المتجر, الواحة, خضروات, فاكهة, طازج, قصتنا" />
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    
+    <style>
+        /* ===== PAGE STYLES ===== */
+        .page-container {
+            max-width: 900px;
+            margin: 100px auto 40px;
+            padding: 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+        .page-container h1 {
+            font-size: 36px;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .page-container .subtitle {
+            text-align: center;
+            color: #5a7a5a;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .page-container .section {
+            margin-bottom: 25px;
+        }
+        .page-container .section h2 {
+            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-container .section h2 i {
+            color: var(--gold);
+        }
+        .page-container .section p {
+            line-height: 1.8;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        .page-container .section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .page-container .section ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+        .page-container .section ul li i {
+            color: var(--gold);
+            width: 20px;
+        }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .value-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        .value-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold);
+        }
+        .value-card i {
+            font-size: 32px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .value-card h4 {
+            color: var(--primary);
+            font-size: 17px;
+        }
+        .value-card p {
+            font-size: 13px;
+            color: #5a7a5a;
+            margin-top: 4px;
+        }
+        .back-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        .back-link:hover {
+            background: var(--gold);
+            color: var(--primary-dark);
+        }
+        @media (max-width: 768px) {
+            .page-container { margin: 80px 10px 20px; padding: 15px; }
+            .page-container h1 { font-size: 28px; }
+            .values-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .values-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="header-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="ابحث..." />
+            </div>
+        </div>
+        <div class="logo">
+            <a href="../index.html" style="text-decoration:none;">
+                <div class="arabic">الواحة 🌱</div>
+            </a>
+        </div>
+        <div class="header-actions">
+            <button class="theme-toggle" onclick="document.documentElement.toggleAttribute('data-theme')" title="تبديل المظهر">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="../index.html" class="admin-link" title="الرجوع للمتجر">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== PAGE CONTENT ===== -->
+    <div class="page-container">
+        <h1>🌿 عن متجر الواحة</h1>
+        <p class="subtitle">قصة متجرنا، رسالتنا، ورؤيتنا</p>
+
+        <!-- قصتنا -->
+        <div class="section">
+            <h2><i class="fas fa-book-open"></i> قصتنا</h2>
+            <p>
+                بدأ متجر <strong>الواحة</strong> من حبنا للطبيعة ورغبتنا في تقديم أفضل 
+                الخضروات والفاكهة الطازجة لعملائنا. نؤمن بأن الطعام الصحي يبدأ من 
+                مصدره، لذلك نختار بعناية كل منتج نقدمه لكم.
+            </p>
+            <p style="margin-top:8px;">
+                منذ انطلاقتنا، نعمل على بناء جسر من الثقة بين المزارع وعائلتكم، 
+                لنضمن لكم منتجات طازجة، آمنة، وبأسعار منافسة.
+            </p>
+        </div>
+
+        <!-- رسالتنا -->
+        <div class="section">
+            <h2><i class="fas fa-bullseye"></i> رسالتنا</h2>
+            <p>
+                تقديم خضروات وفاكهة طازجة عالية الجودة لعملائنا، مع ضمان 
+                أفضل خدمة توصيل وأسعار تنافسية، لنكون الخيار الأول لكل منزل 
+                يبحث عن الصحة والجودة.
+            </p>
+        </div>
+
+        <!-- رؤيتنا -->
+        <div class="section">
+            <h2><i class="fas fa-eye"></i> رؤيتنا</h2>
+            <p>
+                أن نكون المتجر الإلكتروني الرائد في مجال الخضروات والفاكهة 
+                الطازجة في العالم العربي، وأن نسهم في نشر ثقافة الغذاء الصحي 
+                من خلال توفير منتجات طبيعية 100%.
+            </p>
+        </div>
+
+        <!-- قيمنا -->
+        <div class="section">
+            <h2><i class="fas fa-heart"></i> قيمنا</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-leaf"></i>
+                    <h4>الجودة</h4>
+                    <p>نختار أفضل المنتجات بعناية</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-handshake"></i>
+                    <h4>الثقة</h4>
+                    <p>نبني علاقة ثقة مع عملائنا</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-clock"></i>
+                    <h4>السرعة</h4>
+                    <p>توصيل سريع وموثوق</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-smile"></i>
+                    <h4>الرضا</h4>
+                    <p>رضا العميل هو هدفنا الأول</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- لماذا تختارنا -->
+        <div class="section">
+            <h2><i class="fas fa-star"></i> لماذا تختار الواحة؟</h2>
+            <ul>
+                <li><i class="fas fa-check-circle"></i> منتجات طازجة يومياً من المزرعة مباشرة</li>
+                <li><i class="fas fa-check-circle"></i> أسعار منافسة تناسب جميع الميزانيات</li>
+                <li><i class="fas fa-check-circle"></i> خدمة توصيل سريعة وآمنة</li>
+                <li><i class="fas fa-check-circle"></i> فريق عمل متخصص ومحترف</li>
+                <li><i class="fas fa-check-circle"></i> دعم فني على مدار الساعة</li>
+                <li><i class="fas fa-check-circle"></i> منتجات طبيعية 100% بدون مواد حافظة</li>
+            </ul>
+        </div>
+
+        <!-- أرقامنا -->
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> إنجازاتنا</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:10px;">
+                <div style="text-align:center;background:var(--bg-card);padding:15px;border-radius:var(--radius);border:1px solid var(--border-color);">
+                    <div style="font-size:32px;font-weight:800;color:var(--gold);">+5,000</div>
+                    <div style="font-size:14px;color:#5a7a5a;">عميل سعيد</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-card);padding:15px;border-radius:var(--radius);border:1px solid var(--border-color);">
+                    <div style="font-size:32px;font-weight:800;color:var(--gold);">+10,000</div>
+                    <div style="font-size:14px;color:#5a7a5a;">طلب مكتمل</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-card);padding:15px;border-radius:var(--radius);border:1px solid var(--border-color);">
+                    <div style="font-size:32px;font-weight:800;color:var(--gold);">+50</div>
+                    <div style="font-size:14px;color:#5a7a5a;">منتج متنوع</div>
+                </div>
+                <div style="text-align:center;background:var(--bg-card);padding:15px;border-radius:var(--radius);border:1px solid var(--border-color);">
+                    <div style="font-size:32px;font-weight:800;color:var(--gold);">4.8★</div>
+                    <div style="font-size:14px;color:#5a7a5a;">تقييم العملاء</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;">
+            <a href="../index.html" class="back-link"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+        </div>
+    </div>
+
+    <script>
+        // تحميل الثيم المحفوظ
+        const savedTheme = localStorage.getItem('alwaha_theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        
+        // تبديل الثيم
+        document.querySelector('.theme-toggle').addEventListener('click', function() {
+            const isDark = document.documentElement.hasAttribute('data-theme');
+            document.documentElement.toggleAttribute('data-theme');
+            localStorage.setItem('alwaha_theme', isDark ? 'light' : 'dark');
+        });
+    </script>
+</body>
+</html>  

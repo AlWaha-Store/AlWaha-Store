@@ -1,11 +1,11 @@
 // ============================================================
-// admin-script.js - لوحة التحكم - متجر الواحة
+// admin-script.js - لوحة التحكم
 // ============================================================
 
 // ============================================================
-// 1. AUTHENTICATION - تسجيل الدخول
+// 1. AUTHENTICATION
 // ============================================================
-const ADMIN_PASSWORD = 'admin123'; // كلمة المرور الافتراضية
+const ADMIN_PASSWORD = 'QQZ#154p';
 
 // التحقق من تسجيل الدخول
 if (!sessionStorage.getItem('admin_logged_in')) {
@@ -34,7 +34,149 @@ function logout() {
 }
 
 // ============================================================
-// 2. DATA - قراءة البيانات من LocalStorage
+// 2. IP MANAGEMENT
+// ============================================================
+function getAllowedIPs() {
+    try {
+        return JSON.parse(localStorage.getItem('alwaha_allowed_ips') || '[]');
+    } catch { return []; }
+}
+
+function saveAllowedIPs(ips) {
+    localStorage.setItem('alwaha_allowed_ips', JSON.stringify(ips));
+}
+
+function getBlockedIPs() {
+    try {
+        return JSON.parse(localStorage.getItem('alwaha_blocked_ips') || '[]');
+    } catch { return []; }
+}
+
+function saveBlockedIPs(ips) {
+    localStorage.setItem('alwaha_blocked_ips', JSON.stringify(ips));
+}
+
+function addAllowedIP() {
+    const input = document.getElementById('ipInput');
+    const ip = input.value.trim();
+    if (!ip) {
+        alert('الرجاء إدخال عنوان IP');
+        return;
+    }
+    const ips = getAllowedIPs();
+    if (ips.includes(ip)) {
+        alert('هذا IP موجود بالفعل');
+        return;
+    }
+    ips.push(ip);
+    saveAllowedIPs(ips);
+    input.value = '';
+    renderAllowedIPs();
+    showToast('تم إضافة IP بنجاح', 'success');
+}
+
+function removeAllowedIP(ip) {
+    let ips = getAllowedIPs();
+    ips = ips.filter(i => i !== ip);
+    saveAllowedIPs(ips);
+    renderAllowedIPs();
+    showToast('تم حذف IP', 'success');
+}
+
+function clearAllowedIPs() {
+    if (!confirm('هل أنت متأكد من حذف جميع عناوين IP المسموحة؟')) return;
+    saveAllowedIPs([]);
+    renderAllowedIPs();
+    showToast('تم حذف جميع IPs', 'success');
+}
+
+function renderAllowedIPs() {
+    const container = document.getElementById('ipList');
+    const ips = getAllowedIPs();
+    if (ips.length === 0) {
+        container.innerHTML = '<div class="ip-item" style="color:#999;">لا توجد عناوين IP مسموحة</div>';
+        return;
+    }
+    container.innerHTML = ips.map(ip => `
+        <div class="ip-item">
+            <span><i class="fas fa-check-circle" style="color:#28a745;"></i> ${ip}</span>
+            <button class="btn btn-danger btn-sm" onclick="removeAllowedIP('${ip}')"><i class="fas fa-times"></i></button>
+        </div>
+    `).join('');
+}
+
+function addBlockedIP() {
+    const input = document.getElementById('blockedIpInput');
+    const ip = input.value.trim();
+    if (!ip) {
+        alert('الرجاء إدخال عنوان IP');
+        return;
+    }
+    const ips = getBlockedIPs();
+    if (ips.includes(ip)) {
+        alert('هذا IP محظور بالفعل');
+        return;
+    }
+    ips.push(ip);
+    saveBlockedIPs(ips);
+    input.value = '';
+    renderBlockedIPs();
+    showToast('تم حظر IP بنجاح', 'success');
+}
+
+function removeBlockedIP(ip) {
+    let ips = getBlockedIPs();
+    ips = ips.filter(i => i !== ip);
+    saveBlockedIPs(ips);
+    renderBlockedIPs();
+    showToast('تم إلغاء حظر IP', 'success');
+}
+
+function clearBlockedIPs() {
+    if (!confirm('هل أنت متأكد من إلغاء حظر جميع IPs؟')) return;
+    saveBlockedIPs([]);
+    renderBlockedIPs();
+    showToast('تم إلغاء حظر جميع IPs', 'success');
+}
+
+function renderBlockedIPs() {
+    const container = document.getElementById('blockedIpList');
+    const ips = getBlockedIPs();
+    if (ips.length === 0) {
+        container.innerHTML = '<div class="ip-item" style="color:#999;">لا توجد عناوين IP محظورة</div>';
+        return;
+    }
+    container.innerHTML = ips.map(ip => `
+        <div class="ip-item">
+            <span><i class="fas fa-ban" style="color:#dc3545;"></i> ${ip}</span>
+            <button class="btn btn-success btn-sm" onclick="removeBlockedIP('${ip}')"><i class="fas fa-check"></i></button>
+        </div>
+    `).join('');
+}
+
+function changeAdminPassword() {
+    const current = document.getElementById('adminCurrentPassword').value;
+    const newPass = document.getElementById('adminNewPassword').value;
+    if (!current || !newPass) {
+        alert('الرجاء إدخال كلمة المرور الحالية والجديدة');
+        return;
+    }
+    if (current !== ADMIN_PASSWORD) {
+        alert('كلمة المرور الحالية غير صحيحة');
+        return;
+    }
+    if (newPass.length < 6) {
+        alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+        return;
+    }
+    // حفظ كلمة المرور الجديدة
+    localStorage.setItem('alwaha_admin_password', newPass);
+    alert('تم تغيير كلمة المرور بنجاح! سيتم تحديث الصفحة.');
+    location.reload();
+}
+
+// ============================================================
+// 3. DATA
 // ============================================================
 function getOrders() {
     try {
@@ -67,7 +209,7 @@ function saveCustomers(customers) {
 }
 
 // ============================================================
-// 3. DASHBOARD - لوحة التحكم
+// 4. DASHBOARD
 // ============================================================
 function updateDashboard() {
     const orders = getOrders();
@@ -82,7 +224,6 @@ function updateDashboard() {
     document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice).length || 0;
     document.getElementById('totalVisits').textContent = Math.floor(Math.random() * 50) + 10;
     
-    // أحدث الطلبات
     const recentOrders = orders.slice(-5).reverse();
     const tbody = document.getElementById('recentOrders');
     if (recentOrders.length === 0) {
@@ -100,7 +241,6 @@ function updateDashboard() {
         `).join('');
     }
     
-    // المنتجات الأكثر مبيعاً
     const topProducts = products.sort((a, b) => (b.sales || 0) - (a.sales || 0)).slice(0, 5);
     const topTbody = document.getElementById('topProducts');
     if (topProducts.length === 0) {
@@ -111,7 +251,6 @@ function updateDashboard() {
         `).join('');
     }
     
-    // أحدث العملاء
     const recentCustomers = customers.slice(-5).reverse();
     const custTbody = document.getElementById('recentCustomers');
     if (recentCustomers.length === 0) {
@@ -134,7 +273,7 @@ function getStatusBadge(status) {
 }
 
 // ============================================================
-// 4. ORDERS - إدارة الطلبات
+// 5. ORDERS
 // ============================================================
 function renderOrders(filter = 'all') {
     const orders = getOrders();
@@ -220,10 +359,6 @@ function viewOrder(index) {
     modal.classList.add('open');
 }
 
-function printOrder() {
-    window.print();
-}
-
 function exportOrders() {
     const orders = getOrders();
     const csv = [
@@ -245,12 +380,8 @@ function exportOrders() {
     link.click();
 }
 
-function exportOrdersPDF() {
-    alert('جاري تحضير ملف PDF... (سيتم توفيره قريباً)');
-}
-
 // ============================================================
-// 5. PRODUCTS - إدارة المنتجات
+// 6. PRODUCTS
 // ============================================================
 function renderProductsTable() {
     const products = getProducts();
@@ -345,10 +476,6 @@ function deleteProduct(index) {
     showToast('تم حذف المنتج', 'success');
 }
 
-function importProducts() {
-    alert('سيتم فتح نافذة لاستيراد ملف JSON');
-}
-
 function exportProducts() {
     const products = getProducts();
     const blob = new Blob([JSON.stringify(products, null, 2)], { type: 'application/json' });
@@ -359,7 +486,7 @@ function exportProducts() {
 }
 
 // ============================================================
-// 6. OFFERS - إدارة العروض
+// 7. OFFERS
 // ============================================================
 function renderOffersTable() {
     const products = getProducts();
@@ -367,7 +494,7 @@ function renderOffersTable() {
     const tbody = document.getElementById('offersList');
     
     if (offers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">لا توجد عروض</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">لا توجد عروض</td></tr>';
         return;
     }
     
@@ -377,7 +504,6 @@ function renderOffersTable() {
             <td>${p.price || 0} ج.م</td>
             <td>${p.offerPrice || 0} ج.م</td>
             <td>${((p.price - p.offerPrice) / p.price * 100).toFixed(0)}%</td>
-            <td>${p.offerDuration || 'غير محدد'}</td>
             <td><span class="badge badge-success">نشط</span></td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="editProduct(${products.indexOf(p)})"><i class="fas fa-edit"></i></button>
@@ -403,14 +529,13 @@ function openAddOffer() {
 }
 
 // ============================================================
-// 7. CUSTOMERS - إدارة العملاء
+// 8. CUSTOMERS
 // ============================================================
 function renderCustomersTable() {
     const customers = getCustomers();
     const tbody = document.getElementById('customersList');
     const orders = getOrders();
     
-    // تحديث بيانات العملاء من الطلبات
     customers.forEach(c => {
         const customerOrders = orders.filter(o => o.phone === c.phone || o.customer === c.name);
         c.orders = customerOrders.length;
@@ -431,9 +556,7 @@ function renderCustomersTable() {
             <td>${c.orders || 0}</td>
             <td>${c.total || 0} ج.م</td>
             <td>${c.lastOrder || '--'}</td>
-            <td>
-                <button class="btn btn-primary btn-sm" onclick="viewCustomer(${i})"><i class="fas fa-eye"></i></button>
-            </td>
+            <td><button class="btn btn-primary btn-sm" onclick="viewCustomer(${i})"><i class="fas fa-eye"></i></button></td>
         </tr>
     `).join('');
 }
@@ -443,56 +566,22 @@ function viewCustomer(index) {
     const c = customers[index];
     if (!c) return;
     
-    const modal = document.getElementById('customerModal');
-    const details = document.getElementById('customerDetails');
-    
-    details.innerHTML = `
-        <div style="margin-bottom:10px;"><strong>الاسم:</strong> ${c.name || 'غير معروف'}</div>
-        <div style="margin-bottom:10px;"><strong>الهاتف:</strong> ${c.phone || 'غير معروف'}</div>
-        <div style="margin-bottom:10px;"><strong>عدد الطلبات:</strong> ${c.orders || 0}</div>
-        <div style="margin-bottom:10px;"><strong>إجمالي المشتريات:</strong> ${c.total || 0} ج.م</div>
-        <div style="margin-bottom:10px;"><strong>آخر طلب:</strong> ${c.lastOrder || '--'}</div>
-    `;
-    
-    modal.classList.add('open');
-}
-
-function exportCustomers() {
-    const customers = getCustomers();
-    const csv = [
-        ['#', 'الاسم', 'الهاتف', 'عدد الطلبات', 'إجمالي المشتريات'],
-        ...customers.map((c, i) => [
-            i + 1,
-            c.name || '',
-            c.phone || '',
-            c.orders || 0,
-            c.total || 0
-        ])
-    ].map(row => row.join(',')).join('\n');
-    
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `customers_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
+    alert(`👤 العميل: ${c.name}\n📱 الهاتف: ${c.phone}\n📦 عدد الطلبات: ${c.orders || 0}\n💰 إجمالي المشتريات: ${c.total || 0} ج.م`);
 }
 
 // ============================================================
-// 8. ANALYTICS - التحليلات
+// 9. ANALYTICS
 // ============================================================
 function updateAnalytics() {
     const orders = getOrders();
     const total = orders.reduce((sum, o) => sum + (o.total || 0), 0);
     const avg = orders.length > 0 ? total / orders.length : 0;
     document.getElementById('avgOrder').textContent = avg.toFixed(2) + ' ج.م';
-    
-    // محاكاة معدل النمو
     document.getElementById('growthRate').textContent = (Math.random() * 20 + 5).toFixed(1) + '%';
     document.getElementById('returnRate').textContent = (Math.random() * 30 + 20).toFixed(1) + '%';
     
-    // المبيعات الشهرية
-    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    const monthlyData = months.slice(0, 6).map((m, i) => ({
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+    const monthlyData = months.map((m, i) => ({
         month: m,
         orders: Math.floor(Math.random() * 20 + 5),
         revenue: Math.floor(Math.random() * 500 + 200)
@@ -510,7 +599,7 @@ function updateAnalytics() {
 }
 
 // ============================================================
-// 9. SETTINGS - الإعدادات
+// 10. SETTINGS
 // ============================================================
 function saveSettings(e) {
     e.preventDefault();
@@ -560,6 +649,8 @@ function backupData() {
         orders: getOrders(),
         customers: getCustomers(),
         settings: JSON.parse(localStorage.getItem('alwaha_settings') || '{}'),
+        allowedIPs: getAllowedIPs(),
+        blockedIPs: getBlockedIPs(),
         date: new Date().toISOString()
     };
     
@@ -572,13 +663,12 @@ function backupData() {
 }
 
 // ============================================================
-// 10. MODALS - النوافذ المنبثقة
+// 11. MODALS
 // ============================================================
 function closeModal(id) {
     document.getElementById(id).classList.remove('open');
 }
 
-// إغلاق المودال عند الضغط على الخلفية
 document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('open');
@@ -586,7 +676,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ============================================================
-// 11. TABS - التبويبات
+// 12. TABS
 // ============================================================
 document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
     item.addEventListener('click', function() {
@@ -604,13 +694,14 @@ document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
             'offers': 'العروض',
             'customers': 'العملاء',
             'analytics': 'التحليلات',
-            'settings': 'الإعدادات'
+            'settings': 'الإعدادات',
+            'security': 'الأمان'
         }[tab] || 'لوحة التحكم';
     });
 });
 
 // ============================================================
-// 12. TOAST - الإشعارات
+// 13. TOAST
 // ============================================================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -633,10 +724,9 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================
-// 13. INIT - التهيئة
+// 14. INIT
 // ============================================================
 function initAdmin() {
-    // إضافة أنماط إضافية للتويست
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideInRight {
@@ -653,4 +743,6 @@ function initAdmin() {
     renderCustomersTable();
     updateAnalytics();
     loadSettings();
-} 
+    renderAllowedIPs();
+    renderBlockedIPs();
+        } 

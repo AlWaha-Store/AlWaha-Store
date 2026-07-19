@@ -1,12 +1,11 @@
 // ============================================================
-// script.js - متجر الواحة - منطق المتجر بالكامل
+// script.js - متجر الواحة
 // ============================================================
 
 // ============================================================
-// 1. PRODUCTS DATA - قائمة المنتجات
+// 1. PRODUCTS DATA
 // ============================================================
 const productsData = [
-    // ===== فاكهة =====
     { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25,
         desc: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, offer: null },
     { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20,
@@ -25,7 +24,6 @@ const productsData = [
         desc: 'عنب أسود حلو', descEn: 'Sweet black grapes', popular: 110, offer: null },
     { id: 8, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 32,
         desc: 'رمان أحمر شهي', descEn: 'Delicious red pomegranate', popular: 75, offer: null },
-    // ===== خضروات =====
     { id: 9, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15,
         oldPrice: 20, desc: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190,
         offer: 'خصم 25%' },
@@ -48,7 +46,7 @@ const productsData = [
 ];
 
 // ============================================================
-// 2. CART - السلة
+// 2. CART
 // ============================================================
 let cart = [];
 let currentLang = 'ar';
@@ -72,7 +70,7 @@ function saveCart() {
 loadCart();
 
 // ============================================================
-// 3. TOAST - الإشعارات
+// 3. TOAST
 // ============================================================
 function showToast(message, type = 'success', icon = '') {
     const container = document.getElementById('toastContainer');
@@ -89,7 +87,7 @@ function showToast(message, type = 'success', icon = '') {
 }
 
 // ============================================================
-// 4. RENDER - عرض المنتجات
+// 4. RENDER
 // ============================================================
 function getProductName(p) { return currentLang === 'en' ? p.nameEn : p.name; }
 function getProductCategory(p) { return currentLang === 'en' ? p.categoryEn : p.category; }
@@ -133,17 +131,10 @@ function renderProducts(sort = currentSort, search = '') {
         items.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card' + (isOffer ? ' offer-product' : '');
-            let offerHtml = '';
-            if (p.offer) {
-                offerHtml = `<span class="offer-badge">عرض</span>`;
-            }
-            let priceHtml = '';
-            if (p.oldPrice) {
-                priceHtml =
-                    `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>`;
-            } else {
-                priceHtml = `${p.price} <small>${priceLabel}</small>`;
-            }
+            let offerHtml = p.offer ? `<span class="offer-badge">عرض</span>` : '';
+            let priceHtml = p.oldPrice ?
+                `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
+                `${p.price} <small>${priceLabel}</small>`;
             card.innerHTML = `
                 ${offerHtml}
                 <span class="product-emoji">${p.emoji}</span>
@@ -165,7 +156,7 @@ function renderProducts(sort = currentSort, search = '') {
 }
 
 // ============================================================
-// 5. FILTERS - التصفية والبحث
+// 5. FILTERS
 // ============================================================
 document.querySelectorAll('.category-card').forEach(card => {
     card.addEventListener('click', function() {
@@ -189,7 +180,7 @@ function applySort() {
 }
 
 // ============================================================
-// 6. PRODUCT MODAL - نافذة المنتج
+// 6. PRODUCT MODAL
 // ============================================================
 let modalProductId = null;
 let modalWeight = 1;
@@ -205,13 +196,9 @@ function openProductModal(id) {
     document.getElementById('modalEmoji').textContent = p.emoji;
     document.getElementById('modalName').textContent = getProductName(p);
     
-    let priceHtml = '';
-    if (p.oldPrice) {
-        priceHtml =
-            `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>`;
-    } else {
-        priceHtml = `${p.price} <small>${priceLabel}</small>`;
-    }
+    let priceHtml = p.oldPrice ?
+        `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
+        `${p.price} <small>${priceLabel}</small>`;
     document.getElementById('modalPrice').innerHTML = priceHtml;
     document.getElementById('modalDesc').textContent = getProductDesc(p);
     
@@ -258,7 +245,7 @@ document.getElementById('productModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 7. SHARE - المشاركة
+// 7. SHARE
 // ============================================================
 function toggleSharePopup() {
     document.getElementById('sharePopup').classList.toggle('show');
@@ -324,7 +311,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 8. ADD TO CART - إضافة للسلة
+// 8. ADD TO CART
 // ============================================================
 function addFromModal() {
     const p = productsData.find(item => item.id === modalProductId);
@@ -372,7 +359,7 @@ function addFromModal() {
 }
 
 // ============================================================
-// 9. CART UI - واجهة السلة
+// 9. CART UI
 // ============================================================
 function updateCartUI() {
     const list = document.getElementById('cartItemsList');
@@ -453,7 +440,7 @@ function updateCartUI() {
 }
 
 // ============================================================
-// 10. CART OPERATIONS - عمليات السلة
+// 10. CART OPERATIONS
 // ============================================================
 function changeQty(key, delta) {
     const idx = cart.findIndex(i => i.id === parseInt(key));
@@ -485,7 +472,7 @@ function removeItem(key) {
 }
 
 // ============================================================
-// 11. TOGGLE CART - فتح/غلق السلة
+// 11. TOGGLE CART
 // ============================================================
 function toggleCart() {
     const sidebar = document.getElementById('cartSidebar');
@@ -496,7 +483,7 @@ function toggleCart() {
 }
 
 // ============================================================
-// 12. CHECKOUT - الدفع
+// 12. CHECKOUT
 // ============================================================
 function openCheckout() {
     if (cart.length === 0) {
@@ -625,7 +612,7 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 13. CONFIRM ORDER - تأكيد الطلب
+// 13. CONFIRM ORDER
 // ============================================================
 function confirmOrder() {
     if (cart.length === 0) {
@@ -749,39 +736,45 @@ function confirmOrder() {
 }
 
 // ============================================================
-// 14. THEME - الوضع الليلي/النهاري
+// 14. THEME (مع زر المظهر الجديد)
 // ============================================================
 let currentTheme = 'light';
 
 function toggleTheme() {
     const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
+    const checkbox = document.getElementById('themeCheckbox');
     if (currentTheme === 'light') {
         html.setAttribute('data-theme', 'dark');
         currentTheme = 'dark';
-        icon.className = 'fas fa-sun';
+        checkbox.checked = true;
         document.getElementById('bg-static').style.opacity = '0.05';
         showToast(`${currentLang === 'en' ? 'Dark mode' : 'الوضع الليلي'}`, 'success', '🌙');
     } else {
         html.removeAttribute('data-theme');
         currentTheme = 'light';
-        icon.className = 'fas fa-moon';
+        checkbox.checked = false;
         document.getElementById('bg-static').style.opacity = '0.1';
         showToast(`${currentLang === 'en' ? 'Light mode' : 'الوضع النهاري'}`, 'success', '☀️');
     }
     localStorage.setItem('alwaha_theme', currentTheme);
 }
 
+// تحميل الثيم المحفوظ
 const savedTheme = localStorage.getItem('alwaha_theme');
 if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
     currentTheme = 'dark';
-    document.getElementById('themeIcon').className = 'fas fa-sun';
+    document.getElementById('themeCheckbox').checked = true;
     document.getElementById('bg-static').style.opacity = '0.05';
 }
 
+// ربط زر المظهر الجديد
+document.getElementById('themeCheckbox').addEventListener('change', function() {
+    toggleTheme();
+});
+
 // ============================================================
-// 15. LANGUAGE - الترجمة
+// 15. LANGUAGE
 // ============================================================
 function toggleLang() {
     const html = document.documentElement;
@@ -804,13 +797,9 @@ function toggleLang() {
         if (p) {
             const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م / كجم';
             document.getElementById('modalName').textContent = getProductName(p);
-            let priceHtml = '';
-            if (p.oldPrice) {
-                priceHtml =
-                    `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>`;
-            } else {
-                priceHtml = `${p.price} <small>${priceLabel}</small>`;
-            }
+            let priceHtml = p.oldPrice ?
+                `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
+                `${p.price} <small>${priceLabel}</small>`;
             document.getElementById('modalPrice').innerHTML = priceHtml;
             document.getElementById('modalDesc').textContent = getProductDesc(p);
             document.getElementById('modalAddBtn').innerHTML =
@@ -821,7 +810,7 @@ function toggleLang() {
 
 function updateLanguage(lang) {
     const isEn = lang === 'en';
-    document.querySelector('.header .logo .arabic').innerHTML = isEn ? 'Al-Waha 🌱' : 'الواحة 🌱';
+    document.querySelector('.header .logo .logo-text').innerHTML = isEn ? 'Al-Waha 🌱' : 'الواحة 🌱';
     document.getElementById('searchInput').placeholder = isEn ? 'Search...' : 'ابحث...';
     document.querySelector('.hero .hero-title').innerHTML = isEn ? 'Al-Waha Store' : 'متجر الواحة';
     document.querySelector('.hero .hero-subtitle').innerHTML = isEn ? 'Fresh fruits & vegetables from nature' : 'خضروات وفاكهة طازجة من قلب الطبيعة';
@@ -831,7 +820,6 @@ function updateLanguage(lang) {
     document.getElementById('catFruitTitle').textContent = isEn ? 'Fruits' : 'فاكهة';
     document.getElementById('catVegTitle').textContent = isEn ? 'Vegetables' : 'خضروات';
     document.getElementById('catOffersTitle').textContent = isEn ? 'Offers' : 'عروض';
-    document.getElementById('catKitchenTitle').textContent = isEn ? 'Smart Kitchen' : 'المطبخ الذكي';
 
     document.getElementById('productsTitle').innerHTML = `<i class="fas fa-box"></i> ${isEn ? 'Our Products' : 'منتجاتنا'}`;
     document.getElementById('fruitsSubTitle').innerHTML = `<i class="fas fa-apple-alt"></i> ${isEn ? 'Fruits' : 'الفاكهة'}`;
@@ -852,10 +840,6 @@ function updateLanguage(lang) {
 
     document.getElementById('contactTitle').innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
     document.getElementById('contactSub').textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
-
-    document.getElementById('kitchenTitle').innerHTML = `<i class="fas fa-utensils"></i> ${isEn ? 'Smart Kitchen' : 'المطبخ الذكي'}`;
-    document.getElementById('kitchenSub').textContent = isEn ? 'Select products and get recipes' : 'اختر المنتجات التي لديك وسنقترح لك وصفات مناسبة';
-    document.getElementById('findRecipesBtn').innerHTML = `<i class="fas fa-search"></i> ${isEn ? 'Find Recipes' : 'ابحث عن وصفات'}`;
 
     document.getElementById('cartTotalHeader').innerHTML = 
         `<span id="cartHeaderTotal">${document.getElementById('cartTotalPrice').textContent}</span>
@@ -925,175 +909,7 @@ if (savedLang === 'en') {
 }
 
 // ============================================================
-// 16. SMART KITCHEN - المطبخ الذكي
-// ============================================================
-function renderKitchenProducts() {
-    const container = document.getElementById('kitchenProducts');
-    container.innerHTML = '';
-    
-    productsData.forEach(p => {
-        const label = document.createElement('label');
-        label.className = 'kitchen-item';
-        label.dataset.id = p.id;
-        label.innerHTML = `
-            <input type="checkbox" value="${p.id}" />
-            ${p.emoji} ${p.name}
-        `;
-        label.addEventListener('click', function(e) {
-            const checkbox = this.querySelector('input');
-            checkbox.checked = !checkbox.checked;
-            this.classList.toggle('selected', checkbox.checked);
-        });
-        container.appendChild(label);
-    });
-}
-
-function selectAllKitchen() {
-    document.querySelectorAll('#kitchenProducts .kitchen-item input').forEach(cb => {
-        cb.checked = true;
-        cb.closest('.kitchen-item').classList.add('selected');
-    });
-}
-
-function deselectAllKitchen() {
-    document.querySelectorAll('#kitchenProducts .kitchen-item input').forEach(cb => {
-        cb.checked = false;
-        cb.closest('.kitchen-item').classList.remove('selected');
-    });
-}
-
-function loadCartProducts() {
-    document.querySelectorAll('#kitchenProducts .kitchen-item input').forEach(cb => {
-        cb.checked = false;
-        cb.closest('.kitchen-item').classList.remove('selected');
-    });
-    
-    const cartIds = cart.map(item => item.id);
-    document.querySelectorAll('#kitchenProducts .kitchen-item input').forEach(cb => {
-        if (cartIds.includes(parseInt(cb.value))) {
-            cb.checked = true;
-            cb.closest('.kitchen-item').classList.add('selected');
-        }
-    });
-}
-
-function findRecipes() {
-    const selected = document.querySelectorAll('#kitchenProducts .kitchen-item input:checked');
-    const selectedNames = Array.from(selected).map(cb => {
-        const label = cb.closest('.kitchen-item');
-        return label.textContent.trim().replace(/^[^\s]+\s/, '');
-    });
-    
-    if (selectedNames.length === 0) {
-        showToast('اختر منتجات أولاً!', 'error', '⚠️');
-        return;
-    }
-    
-    const container = document.getElementById('recipesResults');
-    container.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:30px;color:#5a7a5a;">
-            <i class="fas fa-utensils" style="font-size:40px;display:block;margin-bottom:10px;color:var(--gold);"></i>
-            جاري البحث عن وصفات مناسبة...<br>
-            <span style="font-size:13px;">المنتجات المختارة: ${selectedNames.join('، ')}</span>
-        </div>
-    `;
-    
-    setTimeout(() => {
-        const recipes = [
-            {
-                name: 'سلطة خضار طازجة',
-                emoji: '🥗',
-                ingredients: ['طماطم', 'خيار', 'خس', 'فلفل', 'ليمون', 'زيت زيتون'],
-                steps: ['اغسل جميع الخضروات', 'قطع الخضروات إلى مكعبات', 'اخلط مع الليمون والزيت'],
-                difficulty: 'سهل',
-                time: '15 دقيقة',
-                tips: 'أضف زيتون أسود للنكهة'
-            },
-            {
-                name: 'شوربة خضار مغذية',
-                emoji: '🍲',
-                ingredients: ['جزر', 'بطاطس', 'كوسة', 'بصل', 'طماطم', 'ثوم'],
-                steps: ['قطع الخضروات', 'احمس البصل والثوم', 'أضف الخضروات والماء', 'اتركها تغلي 20 دقيقة'],
-                difficulty: 'متوسط',
-                time: '40 دقيقة',
-                tips: 'يمكن هرس الشوربة للقوام الكريمي'
-            }
-        ];
-        
-        renderRecipes(recipes, selectedNames);
-    }, 1500);
-}
-
-function renderRecipes(recipes, selectedProducts) {
-    const container = document.getElementById('recipesResults');
-    
-    if (!recipes || recipes.length === 0) {
-        container.innerHTML = `
-            <div style="grid-column:1/-1;text-align:center;padding:30px;color:#5a7a5a;">
-                <i class="fas fa-utensils" style="font-size:40px;display:block;margin-bottom:10px;color:var(--gold);"></i>
-                لا توجد وصفات مطابقة للمنتجات المختارة
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = '';
-    recipes.forEach((recipe, index) => {
-        const searchQuery = encodeURIComponent(`طريقة عمل ${recipe.name}`);
-        const videoUrl1 = `https://www.youtube.com/results?search_query=${searchQuery}`;
-        const videoUrl2 = `https://www.youtube.com/results?search_query=${searchQuery}+منزلية`;
-
-        const card = document.createElement('div');
-        card.className = 'recipe-card';
-        card.style.animation = `modalIn 0.3s ease ${index * 0.1}s both`;
-        
-        card.innerHTML = `
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="recipe-emoji">${recipe.emoji || '🍳'}</span>
-                <div style="flex:1;">
-                    <h4>${recipe.name}</h4>
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#5a7a5a;margin-top:2px;">
-                        <span>⏱️ ${recipe.time || 'غير محدد'}</span>
-                        <span>📊 ${recipe.difficulty || 'متوسط'}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="recipe-ingredients" style="margin-top:8px;">
-                <strong>المكونات:</strong>
-                <ul style="margin:4px 0 0 15px;padding-right:15px;list-style-type:disc;">
-                    ${recipe.ingredients ? recipe.ingredients.map(ing => `<li style="font-size:13px;margin-bottom:2px;">${ing}</li>`).join('') : 'لا توجد مكونات محددة'}
-                </ul>
-            </div>
-            
-            <div class="recipe-steps" style="margin-top:8px;">
-                <strong>طريقة التحضير:</strong>
-                <ol style="margin:4px 0 0 20px;padding-right:20px;list-style-type:decimal;font-size:13px;line-height:1.8;">
-                    ${recipe.steps ? recipe.steps.map(step => `<li>${step}</li>`).join('') : 'لا توجد خطوات محددة'}
-                </ol>
-            </div>
-            
-            ${recipe.tips ? `
-                <div style="margin-top:8px;padding:8px 12px;background:rgba(212,175,55,0.08);border-radius:8px;border-right:3px solid var(--gold);font-size:13px;">
-                    💡 <strong>نصيحة:</strong> ${recipe.tips}
-                </div>
-            ` : ''}
-            
-            <div class="recipe-videos" style="margin-top:10px;">
-                <a href="${videoUrl1}" target="_blank" class="youtube1" style="flex:1;min-width:100px;padding:6px 12px;border-radius:30px;background:#ff0000;color:white;text-decoration:none;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--transition);font-family:'Tajawal',sans-serif;">
-                    <i class="fab fa-youtube"></i> فيديو 1
-                </a>
-                <a href="${videoUrl2}" target="_blank" class="youtube2" style="flex:1;min-width:100px;padding:6px 12px;border-radius:30px;background:#c4302b;color:white;text-decoration:none;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--transition);font-family:'Tajawal',sans-serif;">
-                    <i class="fab fa-youtube"></i> فيديو 2
-                </a>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-// ============================================================
-// 17. SCROLL TO TOP - الرجوع للأعلى
+// 16. SCROLL TO TOP
 // ============================================================
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1105,7 +921,7 @@ window.addEventListener('scroll', function() {
 });
 
 // ============================================================
-// 18. COUNTDOWN - العد التنازلي
+// 17. COUNTDOWN
 // ============================================================
 let countdownInterval;
 
@@ -1132,27 +948,47 @@ function startCountdown() {
 }
 
 // ============================================================
-// 19. ADMIN LINK - فتح لوحة التحكم
+// 18. ADMIN ACCESS (5 نقرات على الشعار)
 // ============================================================
 let logoClickCount = 0;
+let clickTimer = null;
 
-function handleLogoClick() {
+document.getElementById('logoTrigger').addEventListener('click', function(e) {
+    e.preventDefault();
     logoClickCount++;
+    
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => {
+        logoClickCount = 0;
+    }, 3000);
+
     if (logoClickCount >= 5) {
-        window.location.href = 'admin.html';
+        const password = prompt('🔐 أدخل كلمة مرور لوحة التحكم:');
+        if (password === 'QQZ#154p') {
+            window.location.href = 'admin.html';
+        } else if (password !== null) {
+            showToast('❌ كلمة المرور غير صحيحة!', 'error', '⚠️');
+        }
         logoClickCount = 0;
     }
-    setTimeout(() => { logoClickCount = 0; }, 3000);
-}
+});
 
 // ============================================================
-// 20. INIT - التهيئة
+// 19. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     renderProducts('default', '');
     updateCartUI();
-    renderKitchenProducts();
     startCountdown();
+
+    // توليد الخلفية الثابتة
+    const bgStatic = document.getElementById('bg-static');
+    const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', '🧅', '🧄', '🫒', '🌶️', '🍑', '🍒', '🍉', '🍐', '🥥', '🌽'];
+    const rotations = [-14, -12, -10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14];
+    bgStatic.innerHTML = emojis.map((emoji, i) => {
+        const rot = rotations[i % rotations.length] + (Math.random() * 6 - 3);
+        return `<span style="--rot: ${rot}deg;">${emoji}</span>`;
+    }).join('');
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

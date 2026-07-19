@@ -1,0 +1,71 @@
+{
+    "settings": {
+        "storeName": "الواحة",
+        "storeNameEn": "Al-Waha",
+        "storeDescription": "خضروات وفاكهة طازجة",
+        "storeDescriptionEn": "Fresh fruits and vegetables",
+        "phone": "01229156909",
+        "whatsapp": "201229156909",
+        "email": "info@alwaha.com",
+        "address": "القاهرة، مصر",
+        "addressEn": "Cairo, Egypt",
+        "theme": {
+            "primaryColor": "#1A5C3A",
+            "goldColor": "#D4AF37",
+            "bgColor": "#F5F0E1",
+            "fontFamily": "Tajawal",
+            "darkMode": false
+        },
+        "delivery": {
+            "fee": 15,
+            "freeDeliveryMin": 200,
+            "maxFee": 30,
+            "deliveryHours": {
+                "start": "08:00",
+                "end": "22:00"
+            },
+            "deliveryDays": ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"],
+            "areas": [
+                "القاهرة",
+                "الجيزة",
+                "الإسكندرية",
+                "المنصورة",
+                "طنطا",
+                "المحلة"
+            ]
+        },
+        "payment": {
+            "methods": [
+                "كاش عند التوصيل",
+                "إنستا باي",
+                "محفظة إلكترونية"
+            ],
+            "instapayNumber": "01005777923"
+        },
+        "social": {
+            "facebook": "https://facebook.com/alwahastore",
+            "instagram": "https://instagram.com/alwahastore",
+            "twitter": "https://twitter.com/alwahastore",
+            "youtube": "https://youtube.com/alwahastore",
+            "whatsapp": "https://wa.me/201229156909"
+        },
+        "admin": {
+            "username": "admin",
+            "password": "admin123",
+            "lastLogin": "2024-01-16T14:00:00.000Z",
+            "email": "admin@alwaha.com"
+        },
+        "seo": {
+            "title": "الواحة - خضروات وفاكهة طازجة",
+            "titleEn": "Al-Waha - Fresh fruits and vegetables",
+            "description": "متجر الواحة - أفضل خضروات وفاكهة طازجة، توصيل سريع، أسعار منافسة",
+            "descriptionEn": "Al-Waha store - Best fresh vegetables and fruits, fast delivery",
+            "keywords": "خضروات, فاكهة, توصيل, متجر, طازج, الواحة",
+            "keywordsEn": "vegetables, fruits, delivery, store, fresh, Al-Waha"
+        },
+        "welcomeMessage": "مرحباً بكم في متجر الواحة، نتمنى لكم تسوقاً ممتعاً",
+        "welcomeMessageEn": "Welcome to Al-Waha store, happy shopping",
+        "lastUpdated": "2024-01-16T14:00:00.000Z",
+        "version": "1.0.0"
+    }
+}  

@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* ===== ADMIN STYLES ===== */
         :root {
             --admin-primary: #1A5C3A;
             --admin-gold: #D4AF37;
@@ -17,7 +16,6 @@
             --admin-text: #1a2a1a;
             --admin-border: #e9ecef;
         }
-
         * {
             margin: 0;
             padding: 0;
@@ -29,8 +27,6 @@
             color: var(--admin-text);
             direction: rtl;
         }
-
-        /* ===== LOGIN PAGE ===== */
         .login-page {
             display: flex !important;
             align-items: center;
@@ -98,8 +94,6 @@
         .login-box .btn-gold:hover {
             background: #e8c94a;
         }
-
-        /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed;
             top: 0;
@@ -150,8 +144,6 @@
             margin-top: 20px;
             color: #ff6b6b;
         }
-
-        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-right: 250px;
             padding: 20px;
@@ -188,8 +180,6 @@
             font-weight: 700;
             font-size: 18px;
         }
-
-        /* ===== STATS CARDS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -218,8 +208,6 @@
             color: #D4AF37;
             margin-bottom: 8px;
         }
-
-        /* ===== TABLES ===== */
         .table-container {
             background: var(--admin-card);
             border-radius: 12px;
@@ -255,8 +243,6 @@
         .table-container table tr:hover td {
             background: #f8f9fa;
         }
-
-        /* ===== BADGES ===== */
         .badge {
             padding: 3px 10px;
             border-radius: 30px;
@@ -267,8 +253,6 @@
         .badge-warning { background: #fff3cd; color: #856404; }
         .badge-danger { background: #f8d7da; color: #721c24; }
         .badge-info { background: #d1ecf1; color: #0c5460; }
-
-        /* ===== BUTTONS ===== */
         .btn {
             padding: 6px 14px;
             border: none;
@@ -291,8 +275,6 @@
         .btn-sm { padding: 4px 10px; font-size: 12px; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; }
-
-        /* ===== FORMS ===== */
         .form-group {
             margin-bottom: 15px;
         }
@@ -329,8 +311,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-
-        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -376,8 +356,6 @@
             flex: 1;
             justify-content: center;
         }
-
-        /* ===== RESPONSIVE ===== */
         .hamburger {
             display: none;
             background: none;
@@ -386,38 +364,16 @@
             color: #1A5C3A;
             cursor: pointer;
         }
-
         @media (max-width: 768px) {
-            .sidebar {
-                right: -250px;
-            }
-            .sidebar.open {
-                right: 0;
-            }
-            .main-content {
-                margin-right: 0;
-                padding: 15px;
-            }
-            .hamburger {
-                display: block !important;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
+            .sidebar { right: -250px; }
+            .sidebar.open { right: 0; }
+            .main-content { margin-right: 0; padding: 15px; }
+            .hamburger { display: block !important; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
         }
-
-        /* ===== TABS ===== */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ===== CHART PLACEHOLDER ===== */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .chart-placeholder {
             background: #f8f9fa;
             border-radius: 8px;
@@ -426,11 +382,27 @@
             color: #999;
             border: 2px dashed #e9ecef;
         }
+        .ip-management {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .ip-management .ip-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .ip-management .ip-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ===== LOGIN PAGE ===== -->
     <div id="loginPage" class="login-page" style="display:none;">
         <div class="login-box">
             <div class="logo"><i class="fas fa-leaf"></i></div>
@@ -445,7 +417,6 @@
         </div>
     </div>
 
-    <!-- ===== ADMIN PANEL ===== -->
     <div id="adminPanel" style="display:none;">
         <div class="sidebar" id="sidebar">
             <div class="logo"><i class="fas fa-leaf"></i> الواحة</div>
@@ -456,6 +427,7 @@
             <div class="menu-item" data-tab="customers"><i class="fas fa-users"></i> العملاء</div>
             <div class="menu-item" data-tab="analytics"><i class="fas fa-chart-line"></i> التحليلات</div>
             <div class="menu-item" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+            <div class="menu-item" data-tab="security"><i class="fas fa-shield-alt"></i> الأمان</div>
             <div class="menu-item logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
         </div>
 
@@ -473,7 +445,6 @@
                 </div>
             </div>
 
-            <!-- TAB: DASHBOARD -->
             <div class="tab-content active" id="tab-dashboard">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -511,55 +482,23 @@
                 <div class="table-container">
                     <h3><i class="fas fa-clock"></i> أحدث الطلبات</h3>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>العميل</th>
-                                <th>المبلغ</th>
-                                <th>الحالة</th>
-                                <th>التاريخ</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentOrders">
-                            <tr><td colspan="6" style="text-align:center;color:#999;">لا توجد طلبات حتى الآن</td></tr>
-                        </tbody>
+                        <thead><tr><th>#</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+                        <tbody id="recentOrders"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد طلبات حتى الآن</td></tr></tbody>
                     </table>
                 </div>
                 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
                     <div class="table-container">
                         <h3><i class="fas fa-fire"></i> أكثر المنتجات مبيعاً</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>المنتج</th>
-                                    <th>المبيعات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="topProducts">
-                                <tr><td colspan="2" style="text-align:center;color:#999;">لا توجد بيانات</td></tr>
-                            </tbody>
-                        </table>
+                        <table><thead><tr><th>المنتج</th><th>المبيعات</th></tr></thead><tbody id="topProducts"><tr><td colspan="2" style="text-align:center;color:#999;">لا توجد بيانات</td></tr></tbody></table>
                     </div>
                     <div class="table-container">
                         <h3><i class="fas fa-star"></i> أحدث العملاء</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>الاسم</th>
-                                    <th>الهاتف</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentCustomers">
-                                <tr><td colspan="2" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr>
-                            </tbody>
-                        </table>
+                        <table><thead><tr><th>الاسم</th><th>الهاتف</th></tr></thead><tbody id="recentCustomers"><tr><td colspan="2" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr></tbody></table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: ORDERS -->
             <div class="tab-content" id="tab-orders">
                 <div class="table-container">
                     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
@@ -573,59 +512,31 @@
                                 <option value="ملغي">ملغي</option>
                             </select>
                             <button class="btn btn-primary btn-sm" onclick="exportOrders()"><i class="fas fa-file-export"></i> تصدير</button>
-                            <button class="btn btn-success btn-sm" onclick="exportOrdersPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
                         </div>
                     </div>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>العميل</th>
-                                <th>المنتجات</th>
-                                <th>المبلغ</th>
-                                <th>الحالة</th>
-                                <th>التاريخ</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="allOrders">
-                            <tr><td colspan="7" style="text-align:center;color:#999;">لا توجد طلبات</td></tr>
-                        </tbody>
+                        <thead><tr><th>#</th><th>العميل</th><th>المنتجات</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+                        <tbody id="allOrders"><tr><td colspan="7" style="text-align:center;color:#999;">لا توجد طلبات</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: PRODUCTS -->
             <div class="tab-content" id="tab-products">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                     <h3><i class="fas fa-box"></i> إدارة المنتجات</h3>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-gold" onclick="openAddProduct()"><i class="fas fa-plus"></i> إضافة منتج</button>
-                        <button class="btn btn-primary btn-sm" onclick="importProducts()"><i class="fas fa-file-import"></i> استيراد</button>
                         <button class="btn btn-success btn-sm" onclick="exportProducts()"><i class="fas fa-file-export"></i> تصدير</button>
                     </div>
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>المنتج</th>
-                                <th>التصنيف</th>
-                                <th>السعر</th>
-                                <th>حالة العرض</th>
-                                <th>المخزون</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsList">
-                            <tr><td colspan="7" style="text-align:center;color:#999;">لا توجد منتجات</td></tr>
-                        </tbody>
+                        <thead><tr><th>#</th><th>المنتج</th><th>التصنيف</th><th>السعر</th><th>حالة العرض</th><th>المخزون</th><th>إجراء</th></tr></thead>
+                        <tbody id="productsList"><tr><td colspan="7" style="text-align:center;color:#999;">لا توجد منتجات</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: OFFERS -->
             <div class="tab-content" id="tab-offers">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                     <h3><i class="fas fa-tag"></i> إدارة العروض</h3>
@@ -633,149 +544,62 @@
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>المنتج</th>
-                                <th>السعر الأصلي</th>
-                                <th>سعر العرض</th>
-                                <th>الخصم</th>
-                                <th>المدة</th>
-                                <th>الحالة</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="offersList">
-                            <tr><td colspan="7" style="text-align:center;color:#999;">لا توجد عروض</td></tr>
-                        </tbody>
+                        <thead><tr><th>المنتج</th><th>السعر الأصلي</th><th>سعر العرض</th><th>الخصم</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                        <tbody id="offersList"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد عروض</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: CUSTOMERS -->
             <div class="tab-content" id="tab-customers">
                 <div class="table-container">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
-                        <h3 style="margin-bottom:0;"><i class="fas fa-users"></i> العملاء</h3>
-                        <button class="btn btn-primary btn-sm" onclick="exportCustomers()"><i class="fas fa-file-export"></i> تصدير</button>
-                    </div>
+                    <h3><i class="fas fa-users"></i> العملاء</h3>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>الاسم</th>
-                                <th>رقم الجوال</th>
-                                <th>عدد الطلبات</th>
-                                <th>إجمالي المشتريات</th>
-                                <th>آخر طلب</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customersList">
-                            <tr><td colspan="7" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr>
-                        </tbody>
+                        <thead><tr><th>#</th><th>الاسم</th><th>رقم الجوال</th><th>عدد الطلبات</th><th>إجمالي المشتريات</th><th>آخر طلب</th><th>إجراء</th></tr></thead>
+                        <tbody id="customersList"><tr><td colspan="7" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: ANALYTICS -->
             <div class="tab-content" id="tab-analytics">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
-                        <div class="stat-number" id="avgOrder">0 ج.م</div>
-                        <div class="stat-label">متوسط قيمة الطلب</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
-                        <div class="stat-number" id="growthRate">0%</div>
-                        <div class="stat-label">معدل النمو</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-undo"></i></div>
-                        <div class="stat-number" id="returnRate">0%</div>
-                        <div class="stat-label">نسبة العملاء المتكررين</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-bar"></i></div><div class="stat-number" id="avgOrder">0 ج.م</div><div class="stat-label">متوسط قيمة الطلب</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-arrow-up"></i></div><div class="stat-number" id="growthRate">0%</div><div class="stat-label">معدل النمو</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-undo"></i></div><div class="stat-number" id="returnRate">0%</div><div class="stat-label">نسبة العملاء المتكررين</div></div>
                 </div>
                 <div class="table-container">
                     <h3><i class="fas fa-calendar"></i> المبيعات الشهرية</h3>
                     <div style="margin-top:15px;overflow-x:auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>الشهر</th>
-                                    <th>عدد الطلبات</th>
-                                    <th>الإيراد</th>
-                                    <th>نسبة التغير</th>
-                                </tr>
-                            </thead>
-                            <tbody id="monthlySales">
-                                <tr><td colspan="4" style="text-align:center;color:#999;">لا توجد بيانات كافية</td></tr>
-                            </tbody>
-                        </table>
+                        <table><thead><tr><th>الشهر</th><th>عدد الطلبات</th><th>الإيراد</th><th>نسبة التغير</th></tr></thead><tbody id="monthlySales"><tr><td colspan="4" style="text-align:center;color:#999;">لا توجد بيانات كافية</td></tr></tbody></table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: SETTINGS -->
             <div class="tab-content" id="tab-settings">
                 <div class="table-container">
                     <h3><i class="fas fa-cog"></i> إعدادات المتجر</h3>
                     <form id="settingsForm" onsubmit="saveSettings(event)">
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>اسم المتجر</label>
-                                <input type="text" id="shopName" value="الواحة" />
-                            </div>
-                            <div class="form-group">
-                                <label>وصف المتجر</label>
-                                <input type="text" id="shopDesc" value="خضروات وفاكهة طازجة" />
-                            </div>
+                            <div class="form-group"><label>اسم المتجر</label><input type="text" id="shopName" value="الواحة" /></div>
+                            <div class="form-group"><label>وصف المتجر</label><input type="text" id="shopDesc" value="خضروات وفاكهة طازجة" /></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>رقم الهاتف</label>
-                                <input type="text" id="shopPhone" value="01229156909" />
-                            </div>
-                            <div class="form-group">
-                                <label>رقم الواتساب</label>
-                                <input type="text" id="shopWhatsapp" value="201229156909" />
-                            </div>
+                            <div class="form-group"><label>رقم الهاتف</label><input type="text" id="shopPhone" value="01229156909" /></div>
+                            <div class="form-group"><label>رقم الواتساب</label><input type="text" id="shopWhatsapp" value="201229156909" /></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>اللون الأساسي</label>
-                                <input type="color" id="primaryColor" value="#1A5C3A" />
-                            </div>
-                            <div class="form-group">
-                                <label>اللون الذهبي</label>
-                                <input type="color" id="goldColor" value="#D4AF37" />
-                            </div>
+                            <div class="form-group"><label>اللون الأساسي</label><input type="color" id="primaryColor" value="#1A5C3A" /></div>
+                            <div class="form-group"><label>اللون الذهبي</label><input type="color" id="goldColor" value="#D4AF37" /></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>قيمة التوصيل الافتراضية</label>
-                                <input type="number" id="deliveryFee" value="15" />
-                            </div>
-                            <div class="form-group">
-                                <label>الحد الأدنى للطلب المجاني</label>
-                                <input type="number" id="freeDeliveryMin" value="200" />
-                            </div>
+                            <div class="form-group"><label>قيمة التوصيل الافتراضية</label><input type="number" id="deliveryFee" value="15" /></div>
+                            <div class="form-group"><label>الحد الأدنى للطلب المجاني</label><input type="number" id="freeDeliveryMin" value="200" /></div>
                         </div>
-                        <div class="form-group">
-                            <label>رسالة الترحيب</label>
-                            <textarea id="welcomeMessage" rows="2">مرحباً بكم في متجر الواحة</textarea>
-                        </div>
+                        <div class="form-group"><label>رسالة الترحيب</label><textarea id="welcomeMessage" rows="2">مرحباً بكم في متجر الواحة</textarea></div>
                         <hr style="margin:20px 0;border-color:#e9ecef;" />
                         <h4 style="color:#1A5C3A;margin-bottom:10px;">تغيير كلمة المرور</h4>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>كلمة المرور الحالية</label>
-                                <input type="password" id="currentPassword" placeholder="••••••••" />
-                            </div>
-                            <div class="form-group">
-                                <label>كلمة المرور الجديدة</label>
-                                <input type="password" id="newPassword" placeholder="••••••••" />
-                            </div>
+                            <div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="currentPassword" placeholder="••••••••" /></div>
+                            <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="newPassword" placeholder="••••••••" /></div>
                         </div>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
                             <button type="submit" class="btn btn-gold" style="padding:10px 30px;"><i class="fas fa-save"></i> حفظ</button>
@@ -785,54 +609,75 @@
                     </form>
                 </div>
             </div>
+
+            <div class="tab-content" id="tab-security">
+                <div class="table-container">
+                    <h3><i class="fas fa-shield-alt"></i> إعدادات الأمان</h3>
+                    
+                    <div style="margin-bottom:20px;">
+                        <h4 style="color:#1A5C3A;margin-bottom:8px;">🔑 تغيير كلمة مرور لوحة التحكم</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="adminCurrentPassword" placeholder="••••••••" /></div>
+                            <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="adminNewPassword" placeholder="••••••••" /></div>
+                        </div>
+                        <button class="btn btn-gold" onclick="changeAdminPassword()"><i class="fas fa-key"></i> تغيير كلمة المرور</button>
+                    </div>
+
+                    <hr style="margin:20px 0;border-color:#e9ecef;" />
+
+                    <div>
+                        <h4 style="color:#1A5C3A;margin-bottom:8px;">🌐 إدارة عناوين IP المسموحة</h4>
+                        <p style="font-size:13px;color:#5a7a5a;margin-bottom:10px;">أضف عناوين IP المسموح لها بدخول لوحة التحكم</p>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                            <input type="text" id="ipInput" placeholder="مثال: 192.168.1.1" style="flex:1;padding:8px 12px;border:2px solid #e9ecef;border-radius:8px;font-family:'Tajawal',sans-serif;" />
+                            <button class="btn btn-success" onclick="addAllowedIP()"><i class="fas fa-plus"></i> إضافة IP</button>
+                        </div>
+                        <div class="ip-management" id="ipList">
+                            <div class="ip-item" style="color:#999;">لا توجد عناوين IP مسموحة</div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <button class="btn btn-danger btn-sm" onclick="clearAllowedIPs()"><i class="fas fa-trash"></i> حذف الكل</button>
+                        </div>
+                    </div>
+
+                    <hr style="margin:20px 0;border-color:#e9ecef;" />
+
+                    <div>
+                        <h4 style="color:#1A5C3A;margin-bottom:8px;">🚫 حظر IP من المتجر</h4>
+                        <p style="font-size:13px;color:#5a7a5a;margin-bottom:10px;">أضف عناوين IP المحظورة من دخول المتجر بالكامل</p>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                            <input type="text" id="blockedIpInput" placeholder="مثال: 192.168.1.1" style="flex:1;padding:8px 12px;border:2px solid #e9ecef;border-radius:8px;font-family:'Tajawal',sans-serif;" />
+                            <button class="btn btn-danger" onclick="addBlockedIP()"><i class="fas fa-ban"></i> حظر IP</button>
+                        </div>
+                        <div class="ip-management" id="blockedIpList">
+                            <div class="ip-item" style="color:#999;">لا توجد عناوين IP محظورة</div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <button class="btn btn-danger btn-sm" onclick="clearBlockedIPs()"><i class="fas fa-trash"></i> إلغاء حظر الكل</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- ===== MODALS ===== -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-box">
             <h3 id="productModalTitle">إضافة منتج جديد</h3>
             <form id="productForm" onsubmit="saveProduct(event)">
                 <input type="hidden" id="editProductId" />
-                <div class="form-group">
-                    <label>اسم المنتج <span style="color:red;">*</span></label>
-                    <input type="text" id="productName" required />
-                </div>
+                <div class="form-group"><label>اسم المنتج <span style="color:red;">*</span></label><input type="text" id="productName" required /></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>السعر (ج.م) <span style="color:red;">*</span></label>
-                        <input type="number" id="productPrice" required />
-                    </div>
-                    <div class="form-group">
-                        <label>التصنيف <span style="color:red;">*</span></label>
-                        <select id="productCategory">
-                            <option value="فاكهة">فاكهة</option>
-                            <option value="خضار">خضار</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>السعر (ج.م) <span style="color:red;">*</span></label><input type="number" id="productPrice" required /></div>
+                    <div class="form-group"><label>التصنيف <span style="color:red;">*</span></label><select id="productCategory"><option value="فاكهة">فاكهة</option><option value="خضار">خضار</option></select></div>
                 </div>
-                <div class="form-group">
-                    <label>الرمز التعبيري</label>
-                    <input type="text" id="productEmoji" placeholder="🍎" maxlength="2" />
-                </div>
-                <div class="form-group">
-                    <label>الوصف</label>
-                    <textarea id="productDesc"></textarea>
-                </div>
+                <div class="form-group"><label>الرمز التعبيري</label><input type="text" id="productEmoji" placeholder="🍎" maxlength="2" /></div>
+                <div class="form-group"><label>الوصف</label><textarea id="productDesc"></textarea></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>سعر العرض (اختياري)</label>
-                        <input type="number" id="productOfferPrice" />
-                    </div>
-                    <div class="form-group">
-                        <label>نص العرض</label>
-                        <input type="text" id="productOfferText" placeholder="خصم 20%" />
-                    </div>
+                    <div class="form-group"><label>سعر العرض (اختياري)</label><input type="number" id="productOfferPrice" /></div>
+                    <div class="form-group"><label>نص العرض</label><input type="text" id="productOfferText" placeholder="خصم 20%" /></div>
                 </div>
-                <div class="form-group">
-                    <label>الكمية في المخزون</label>
-                    <input type="number" id="productStock" value="100" />
-                </div>
+                <div class="form-group"><label>الكمية في المخزون</label><input type="number" id="productStock" value="100" /></div>
                 <div class="btn-row">
                     <button type="submit" class="btn btn-gold">حفظ</button>
                     <button type="button" class="btn btn-danger" onclick="closeModal('productModal')">إلغاء</button>
@@ -846,22 +691,11 @@
             <h3>تفاصيل الطلب</h3>
             <div id="orderDetails"></div>
             <div class="btn-row">
-                <button class="btn btn-primary" onclick="printOrder()"><i class="fas fa-print"></i> طباعة</button>
-                <button class="btn btn-danger" onclick="closeModal('orderModal')">إغلاق</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="customerModal">
-        <div class="modal-box">
-            <h3>تفاصيل العميل</h3>
-            <div id="customerDetails"></div>
-            <div class="btn-row">
-                <button class="btn btn-danger" onclick="closeModal('customerModal')">إغلاق</button>
+                <button class="btn btn-primary" onclick="closeModal('orderModal')">إغلاق</button>
             </div>
         </div>
     </div>
 
     <script src="admin-script.js"></script>
 </body>
-</html> 
+                                                                                                                                   </html> 

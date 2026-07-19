@@ -745,4 +745,4 @@ function initAdmin() {
     loadSettings();
     renderAllowedIPs();
     renderBlockedIPs();
-        } 
+}

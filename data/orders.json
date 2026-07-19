@@ -1,0 +1,220 @@
+{
+    "orders": [
+        {
+            "id": "ORD-2024-001",
+            "customer": "أحمد محمد",
+            "phone": "201012345678",
+            "address": "شارع النيل، المعادي، القاهرة",
+            "items": [
+                {
+                    "name": "تفاح",
+                    "weight": 2,
+                    "price": 25,
+                    "total": 50
+                },
+                {
+                    "name": "موز",
+                    "weight": 1.5,
+                    "price": 28,
+                    "total": 42
+                }
+            ],
+            "total": 92,
+            "deliveryFee": 15,
+            "grandTotal": 107,
+            "status": "تم التوصيل",
+            "payment": "كاش عند التوصيل",
+            "deliveryTime": "اسرع وقت",
+            "notes": "الاتصال قبل الوصول",
+            "date": "2024-01-15T14:30:00.000Z",
+            "deliveredAt": "2024-01-15T15:45:00.000Z"
+        },
+        {
+            "id": "ORD-2024-002",
+            "customer": "سارة علي",
+            "phone": "201098765432",
+            "address": "شارع الثورة، الدقي، الجيزة",
+            "items": [
+                {
+                    "name": "فراولة",
+                    "weight": 1,
+                    "price": 35,
+                    "total": 35
+                },
+                {
+                    "name": "عنب",
+                    "weight": 0.5,
+                    "price": 38,
+                    "total": 19
+                },
+                {
+                    "name": "رمان",
+                    "weight": 1,
+                    "price": 32,
+                    "total": 32
+                }
+            ],
+            "total": 86,
+            "deliveryFee": 20,
+            "grandTotal": 106,
+            "status": "قيد التجهيز",
+            "payment": "إنستا باي",
+            "deliveryTime": "وقت محدد",
+            "deliveryTimeValue": "2024-01-16T18:00:00.000Z",
+            "notes": "",
+            "date": "2024-01-16T10:15:00.000Z",
+            "deliveredAt": null
+        },
+        {
+            "id": "ORD-2024-003",
+            "customer": "محمد خالد",
+            "phone": "201055512345",
+            "address": "شارع السودان، المهندسين، الجيزة",
+            "items": [
+                {
+                    "name": "طماطم",
+                    "weight": 3,
+                    "price": 15,
+                    "total": 45
+                },
+                {
+                    "name": "خيار",
+                    "weight": 2,
+                    "price": 15,
+                    "total": 30
+                },
+                {
+                    "name": "خس",
+                    "weight": 1,
+                    "price": 10,
+                    "total": 10
+                }
+            ],
+            "total": 85,
+            "deliveryFee": 25,
+            "grandTotal": 110,
+            "status": "جديد",
+            "payment": "كاش عند التوصيل",
+            "deliveryTime": "اسرع وقت",
+            "notes": "الجرس مكسور، اتصل عند الوصول",
+            "date": "2024-01-16T11:30:00.000Z",
+            "deliveredAt": null
+        },
+        {
+            "id": "ORD-2024-004",
+            "customer": "نورا ياسر",
+            "phone": "201077723456",
+            "address": "شارع التسعين، التجمع الخامس، القاهرة",
+            "items": [
+                {
+                    "name": "مانجو",
+                    "weight": 2,
+                    "price": 30,
+                    "total": 60
+                },
+                {
+                    "name": "أناناس",
+                    "weight": 1,
+                    "price": 40,
+                    "total": 40
+                },
+                {
+                    "name": "كيوي",
+                    "weight": 0.5,
+                    "price": 30,
+                    "total": 15
+                }
+            ],
+            "total": 115,
+            "deliveryFee": 30,
+            "grandTotal": 145,
+            "status": "تم التوصيل",
+            "payment": "محفظة إلكترونية",
+            "deliveryTime": "وقت محدد",
+            "deliveryTimeValue": "2024-01-15T19:00:00.000Z",
+            "notes": "أرجو اختيار مانجو ناضجة",
+            "date": "2024-01-15T16:45:00.000Z",
+            "deliveredAt": "2024-01-15T19:15:00.000Z"
+        },
+        {
+            "id": "ORD-2024-005",
+            "customer": "عمرو سامي",
+            "phone": "201066634567",
+            "address": "شارع البحر، الإسكندرية",
+            "items": [
+                {
+                    "name": "بطاطس",
+                    "weight": 5,
+                    "price": 16,
+                    "total": 80
+                },
+                {
+                    "name": "جزر",
+                    "weight": 2,
+                    "price": 18,
+                    "total": 36
+                },
+                {
+                    "name": "بنجر",
+                    "weight": 1,
+                    "price": 20,
+                    "total": 20
+                }
+            ],
+            "total": 136,
+            "deliveryFee": 25,
+            "grandTotal": 161,
+            "status": "ملغي",
+            "payment": "كاش عند التوصيل",
+            "deliveryTime": "اسرع وقت",
+            "notes": "العميل ألغى الطلب",
+            "date": "2024-01-14T09:00:00.000Z",
+            "deliveredAt": null
+        },
+        {
+            "id": "ORD-2024-006",
+            "customer": "ليلى عمر",
+            "phone": "201088845678",
+            "address": "شارع الجامعة، المنصورة",
+            "items": [
+                {
+                    "name": "فراولة",
+                    "weight": 2,
+                    "price": 35,
+                    "total": 70
+                },
+                {
+                    "name": "برتقال",
+                    "weight": 3,
+                    "price": 20,
+                    "total": 60
+                },
+                {
+                    "name": "موز",
+                    "weight": 2,
+                    "price": 28,
+                    "total": 56
+                }
+            ],
+            "total": 186,
+            "deliveryFee": 20,
+            "grandTotal": 206,
+            "status": "قيد التجهيز",
+            "payment": "إنستا باي",
+            "deliveryTime": "وقت محدد",
+            "deliveryTimeValue": "2024-01-17T16:00:00.000Z",
+            "notes": "توصيل للدور الرابع",
+            "date": "2024-01-16T13:20:00.000Z",
+            "deliveredAt": null
+        }
+    ],
+    "totalOrders": 6,
+    "lastUpdated": "2024-01-16T14:00:00.000Z",
+    "stats": {
+        "totalRevenue": 835,
+        "averageOrderValue": 139.17,
+        "completedOrders": 2,
+        "pendingOrders": 3,
+        "cancelledOrders": 1
+    }
+} 

@@ -1,0 +1,108 @@
+{
+    "customers": [
+        {
+            "id": "CUST-001",
+            "name": "أحمد محمد",
+            "phone": "201012345678",
+            "email": "ahmed@email.com",
+            "address": "شارع النيل، المعادي، القاهرة",
+            "ordersCount": 3,
+            "totalSpent": 321,
+            "lastOrder": "2024-01-15T14:30:00.000Z",
+            "joinedDate": "2023-12-01T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["تفاح", "موز", "طماطم"],
+                "preferredDeliveryTime": "اسرع وقت",
+                "notes": "يطلب عادة في الصباح"
+            },
+            "isActive": true
+        },
+        {
+            "id": "CUST-002",
+            "name": "سارة علي",
+            "phone": "201098765432",
+            "email": "sara@email.com",
+            "address": "شارع الثورة، الدقي، الجيزة",
+            "ordersCount": 2,
+            "totalSpent": 192,
+            "lastOrder": "2024-01-16T10:15:00.000Z",
+            "joinedDate": "2023-12-15T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["فراولة", "عنب", "رمان"],
+                "preferredDeliveryTime": "وقت محدد",
+                "notes": "تطلب عصراً"
+            },
+            "isActive": true
+        },
+        {
+            "id": "CUST-003",
+            "name": "محمد خالد",
+            "phone": "201055512345",
+            "email": "mohamed@email.com",
+            "address": "شارع السودان، المهندسين، الجيزة",
+            "ordersCount": 1,
+            "totalSpent": 110,
+            "lastOrder": "2024-01-16T11:30:00.000Z",
+            "joinedDate": "2024-01-10T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["طماطم", "خيار"],
+                "preferredDeliveryTime": "اسرع وقت",
+                "notes": ""
+            },
+            "isActive": true
+        },
+        {
+            "id": "CUST-004",
+            "name": "نورا ياسر",
+            "phone": "201077723456",
+            "email": "nora@email.com",
+            "address": "شارع التسعين، التجمع الخامس، القاهرة",
+            "ordersCount": 2,
+            "totalSpent": 280,
+            "lastOrder": "2024-01-15T16:45:00.000Z",
+            "joinedDate": "2023-11-20T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["مانجو", "أناناس"],
+                "preferredDeliveryTime": "وقت محدد",
+                "notes": "تطلب فواكه استوائية"
+            },
+            "isActive": true
+        },
+        {
+            "id": "CUST-005",
+            "name": "عمرو سامي",
+            "phone": "201066634567",
+            "email": "amr@email.com",
+            "address": "شارع البحر، الإسكندرية",
+            "ordersCount": 1,
+            "totalSpent": 161,
+            "lastOrder": "2024-01-14T09:00:00.000Z",
+            "joinedDate": "2024-01-05T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["بطاطس", "جزر"],
+                "preferredDeliveryTime": "اسرع وقت",
+                "notes": ""
+            },
+            "isActive": false
+        },
+        {
+            "id": "CUST-006",
+            "name": "ليلى عمر",
+            "phone": "201088845678",
+            "email": "laila@email.com",
+            "address": "شارع الجامعة، المنصورة",
+            "ordersCount": 1,
+            "totalSpent": 206,
+            "lastOrder": "2024-01-16T13:20:00.000Z",
+            "joinedDate": "2024-01-12T00:00:00.000Z",
+            "preferences": {
+                "favoriteProducts": ["فراولة", "برتقال"],
+                "preferredDeliveryTime": "وقت محدد",
+                "notes": "عميلة جديدة"
+            },
+            "isActive": true
+        }
+    ],
+    "totalCustomers": 6,
+    "lastUpdated": "2024-01-16T14:00:00.000Z"
+} 

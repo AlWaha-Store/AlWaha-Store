@@ -51,6 +51,52 @@ const productsData = [
 let cart = [];
 let currentLang = 'ar';
 let currentSort = 'default';
+let appliedCoupon = null;
+
+// ============================================================
+// 3. COUPONS SYSTEM
+// ============================================================
+const coupons = {
+    'SAVE10': { discount: 10, type: 'percentage' },
+    'SAVE20': { discount: 20, type: 'percentage' },
+    'SAVE50': { discount: 50, type: 'fixed' },
+    'WELCOME': { discount: 15, type: 'percentage' },
+};
+
+function applyCoupon() {
+    const input = document.getElementById('couponCode');
+    const code = input.value.trim().toUpperCase();
+    const msg = document.getElementById('couponMessage');
+
+    if (!code) {
+        msg.textContent = '⚠️ الرجاء إدخال كود الخصم';
+        msg.style.color = '#e74c3c';
+        return;
+    }
+
+    if (coupons[code]) {
+        appliedCoupon = { code, ...coupons[code] };
+        msg.textContent = `✅ تم تطبيق كود "${code}" بنجاح! خصم ${coupons[code].discount}${coupons[code].type === 'percentage' ? '%' : ' ج.م'}`;
+        msg.style.color = '#27ae60';
+        input.style.borderColor = '#27ae60';
+        updateCheckoutTotal();
+    } else {
+        appliedCoupon = null;
+        msg.textContent = '❌ كود غير صحيح أو منتهي الصلاحية';
+        msg.style.color = '#e74c3c';
+        input.style.borderColor = '#e74c3c';
+        updateCheckoutTotal();
+    }
+}
+
+function getDiscountedTotal(total) {
+    if (!appliedCoupon) return total;
+    if (appliedCoupon.type === 'percentage') {
+        return total - (total * appliedCoupon.discount / 100);
+    } else {
+        return Math.max(0, total - appliedCoupon.discount);
+    }
+}
 
 function loadCart() {
     try {
@@ -70,7 +116,7 @@ function saveCart() {
 loadCart();
 
 // ============================================================
-// 3. TOAST
+// 4. TOAST
 // ============================================================
 function showToast(message, type = 'success', icon = '') {
     const container = document.getElementById('toastContainer');
@@ -87,7 +133,7 @@ function showToast(message, type = 'success', icon = '') {
 }
 
 // ============================================================
-// 4. RENDER
+// 5. RENDER
 // ============================================================
 function getProductName(p) { return currentLang === 'en' ? p.nameEn : p.name; }
 function getProductCategory(p) { return currentLang === 'en' ? p.categoryEn : p.category; }
@@ -156,7 +202,7 @@ function renderProducts(sort = currentSort, search = '') {
 }
 
 // ============================================================
-// 5. FILTERS
+// 6. FILTERS
 // ============================================================
 document.querySelectorAll('.category-card').forEach(card => {
     card.addEventListener('click', function() {
@@ -180,7 +226,7 @@ function applySort() {
 }
 
 // ============================================================
-// 6. PRODUCT MODAL
+// 7. PRODUCT MODAL
 // ============================================================
 let modalProductId = null;
 let modalWeight = 1;
@@ -245,7 +291,7 @@ document.getElementById('productModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 7. SHARE
+// 8. SHARE
 // ============================================================
 function toggleSharePopup() {
     document.getElementById('sharePopup').classList.toggle('show');
@@ -311,7 +357,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 8. ADD TO CART
+// 9. ADD TO CART
 // ============================================================
 function addFromModal() {
     const p = productsData.find(item => item.id === modalProductId);
@@ -359,7 +405,7 @@ function addFromModal() {
 }
 
 // ============================================================
-// 9. CART UI
+// 10. CART UI
 // ============================================================
 function updateCartUI() {
     const list = document.getElementById('cartItemsList');
@@ -440,7 +486,7 @@ function updateCartUI() {
 }
 
 // ============================================================
-// 10. CART OPERATIONS
+// 11. CART OPERATIONS
 // ============================================================
 function changeQty(key, delta) {
     const idx = cart.findIndex(i => i.id === parseInt(key));
@@ -472,7 +518,7 @@ function removeItem(key) {
 }
 
 // ============================================================
-// 11. TOGGLE CART
+// 12. TOGGLE CART
 // ============================================================
 function toggleCart() {
     const sidebar = document.getElementById('cartSidebar');
@@ -483,7 +529,7 @@ function toggleCart() {
 }
 
 // ============================================================
-// 12. CHECKOUT
+// 13. CHECKOUT
 // ============================================================
 function openCheckout() {
     if (cart.length === 0) {
@@ -522,8 +568,18 @@ function openCheckout() {
         summaryHtml +=
             `<div class="cs-item"><span>${item.emoji} ${productName} (${totalWeight.toFixed(2)} ${kgLabel})</span><span>${priceDisplay}</span></div>`;
     });
+    
+    // تطبيق الخصم
+    const discountedTotal = getDiscountedTotal(total);
+    if (appliedCoupon) {
+        summaryHtml +=
+            `<div class="cs-item" style="color:#27ae60;border-top:1px dashed #27ae60;padding-top:4px;margin-top:4px;">
+                <span>💰 خصم ${appliedCoupon.type === 'percentage' ? appliedCoupon.discount + '%' : appliedCoupon.discount + ' ج.م'}</span>
+                <span>- ${(total - discountedTotal).toFixed(2)} ${currency}</span>
+            </div>`;
+    }
     summaryHtml +=
-        `<div class="cs-total"><span>${currentLang === 'en' ? 'Total' : 'الإجمالي'}</span><span>${total.toFixed(2)} ${currency}</span></div>`;
+        `<div class="cs-total"><span>${currentLang === 'en' ? 'Total' : 'الإجمالي'}</span><span>${discountedTotal.toFixed(2)} ${currency}</span></div>`;
     summaryHtml +=
         `<div class="cs-total-note">${currentLang === 'en' ? '* Total without delivery fee' : '* الإجمالي بدون قيمة التوصيل'}</div>`;
     document.getElementById('checkoutSummary').innerHTML = summaryHtml;
@@ -612,7 +668,7 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 13. CONFIRM ORDER
+// 14. CONFIRM ORDER (مع حفظ الأوردرات)
 // ============================================================
 function confirmOrder() {
     if (cart.length === 0) {
@@ -630,6 +686,7 @@ function confirmOrder() {
     const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
     let delivery = deliveryRadio ? deliveryRadio.value : (currentLang === 'en' ? 'Fastest time' : 'اسرع وقت');
     const deliveryTime = document.getElementById('deliveryTime')?.value || '';
+    const couponCode = appliedCoupon ? appliedCoupon.code : null;
 
     if (!phoneInput) {
         showToast(`${currentLang === 'en' ? 'Enter phone number' : 'أدخل رقم الجوال'}`, 'error', '⚠️');
@@ -655,6 +712,8 @@ function confirmOrder() {
     const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
     const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
 
+    // حساب الإجمالي مع الخصم
+    let total = 0;
     const grouped = {};
     cart.forEach(item => {
         const key = `${item.id}`;
@@ -667,15 +726,54 @@ function confirmOrder() {
         }
     });
     const groupedItems = Object.values(grouped);
+    groupedItems.forEach(item => {
+        total += item.price * item.weight * item.qty;
+    });
+    const discountedTotal = getDiscountedTotal(total);
 
+    // ===== حفظ الطلب =====
+    const order = {
+        id: 'ORD-' + Date.now().toString().slice(-8),
+        customer: name,
+        phone: fullPhone,
+        address: address,
+        items: groupedItems.map(item => ({
+            name: item.name,
+            nameEn: item.nameEn,
+            emoji: item.emoji,
+            weight: item.weight * item.qty,
+            price: item.price,
+            oldPrice: item.oldPrice,
+            total: item.price * item.weight * item.qty
+        })),
+        total: total,
+        discountedTotal: discountedTotal,
+        coupon: couponCode,
+        discount: appliedCoupon ? (total - discountedTotal) : 0,
+        payment: payment,
+        delivery: delivery,
+        deliveryTime: deliveryTime,
+        notes: notes,
+        status: 'جديد',
+        date: new Date().toISOString(),
+        dateAr: new Date().toLocaleString('ar-EG')
+    };
+
+    // حفظ في localStorage
+    let orders = [];
+    try {
+        orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+    } catch (e) { orders = []; }
+    orders.unshift(order);
+    localStorage.setItem('alwaha_orders', JSON.stringify(orders));
+
+    // ===== بناء رسالة واتساب =====
     let msg = `🌿 *طلب جديد من متجر ${shopName}* 🛒\n`;
     msg += `───────────────────\n`;
     msg += `🛍 *المنتجات المطلوبة:*\n`;
-    let total = 0;
     groupedItems.forEach(item => {
         const totalWeight = item.weight * item.qty;
         const itemTotal = item.price * totalWeight;
-        total += itemTotal;
         const productName = currentLang === 'en' ? item.nameEn : item.name;
         msg += `• ${item.emoji} *${productName}*:\n`;
         msg += `   - الوزن: ${totalWeight.toFixed(2)} ${kgLabel}\n`;
@@ -689,6 +787,10 @@ function confirmOrder() {
     });
     msg += `───────────────────\n`;
     msg += `💰 *الإجمالي:* ${total.toFixed(2)} ${currency}\n`;
+    if (appliedCoupon) {
+        msg += `💸 *الخصم:* -${(total - discountedTotal).toFixed(2)} ${currency}\n`;
+        msg += `🛒 *الإجمالي بعد الخصم:* ${discountedTotal.toFixed(2)} ${currency}\n`;
+    }
     msg += `🚚 *قيمة التوصيل:* حسب المسافة (تتراوح بين 15ج إلى 30ج)\n`;
     msg += `───────────────────\n`;
     msg += `👤 *معلومات العميل الشخصية:*\n`;
@@ -722,6 +824,9 @@ function confirmOrder() {
     const whatsappUrl = `https://wa.me/${shopNumber}?text=${encodeURIComponent(msg)}`;
 
     cart = [];
+    appliedCoupon = null;
+    document.getElementById('couponCode').value = '';
+    document.getElementById('couponMessage').textContent = '';
     saveCart();
     updateCartUI();
 
@@ -736,7 +841,7 @@ function confirmOrder() {
 }
 
 // ============================================================
-// 14. THEME (مع زر المظهر الجديد)
+// 15. THEME
 // ============================================================
 let currentTheme = 'light';
 
@@ -759,7 +864,6 @@ function toggleTheme() {
     localStorage.setItem('alwaha_theme', currentTheme);
 }
 
-// تحميل الثيم المحفوظ
 const savedTheme = localStorage.getItem('alwaha_theme');
 if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -768,13 +872,12 @@ if (savedTheme === 'dark') {
     document.getElementById('bg-static').style.opacity = '0.05';
 }
 
-// ربط زر المظهر الجديد
 document.getElementById('themeCheckbox').addEventListener('change', function() {
     toggleTheme();
 });
 
 // ============================================================
-// 15. LANGUAGE
+// 16. LANGUAGE
 // ============================================================
 function toggleLang() {
     const html = document.documentElement;
@@ -901,6 +1004,12 @@ function updateLanguage(lang) {
 
     document.querySelector('.theme-toggle').title = isEn ? 'Toggle theme' : 'تبديل المظهر';
     document.querySelector('.lang-toggle').title = isEn ? 'Toggle language' : 'تبديل اللغة';
+    
+    // كوبونات
+    document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
+    document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
+    document.querySelector('#checkoutModal .btn-confirm-order').innerHTML = 
+        `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
 }
 
 const savedLang = localStorage.getItem('alwaha_lang');
@@ -909,7 +1018,7 @@ if (savedLang === 'en') {
 }
 
 // ============================================================
-// 16. SCROLL TO TOP
+// 17. SCROLL TO TOP
 // ============================================================
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -921,7 +1030,7 @@ window.addEventListener('scroll', function() {
 });
 
 // ============================================================
-// 17. COUNTDOWN
+// 18. COUNTDOWN
 // ============================================================
 let countdownInterval;
 
@@ -948,7 +1057,7 @@ function startCountdown() {
 }
 
 // ============================================================
-// 18. ADMIN ACCESS (5 نقرات على الشعار)
+// 19. ADMIN ACCESS
 // ============================================================
 let logoClickCount = 0;
 let clickTimer = null;
@@ -974,14 +1083,13 @@ document.getElementById('logoTrigger').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 19. INIT
+// 20. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     renderProducts('default', '');
     updateCartUI();
     startCountdown();
 
-    // توليد الخلفية الثابتة
     const bgStatic = document.getElementById('bg-static');
     const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', '🧅', '🧄', '🫒', '🌶️', '🍑', '🍒', '🍉', '🍐', '🥥', '🌽'];
     const rotations = [-14, -12, -10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14];

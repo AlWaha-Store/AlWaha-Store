@@ -125,7 +125,7 @@ body {
 /* ===== HEADER LOGO ===== */
 .header .logo .logo-text {
     font-family: 'Aref Ruqaa', serif;
-    font-size: 48px;
+    font-size: 36px;
     font-weight: 700;
     color: var(--gold);
     text-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.05);
@@ -138,7 +138,7 @@ body {
     transform: scale(1.03);
 }
 .header .logo .logo-text i {
-    font-size: 40px;
+    font-size: 28px;
 }
 @keyframes logoGlow {
     0%, 100% { text-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.05); }
@@ -204,16 +204,16 @@ body {
     transform: scale(1.05);
 }
 
-/* ===== THEME SWITCH - تصغير الحجم ===== */
+/* ===== THEME SWITCH ===== */
 .theme-switch {
-    --toggle-size: 16px;
-    --container-width: 3.4em;
-    --container-height: 1.6em;
+    --toggle-size: 14px;
+    --container-width: 3em;
+    --container-height: 1.5em;
     --container-radius: 6.25em;
     --container-light-bg: #3D7EAE;
     --container-night-bg: #1D1F2C;
-    --circle-container-diameter: 2.1em;
-    --sun-moon-diameter: 1.3em;
+    --circle-container-diameter: 1.9em;
+    --sun-moon-diameter: 1.1em;
     --sun-bg: #ECCA2F;
     --moon-bg: #C4C9D1;
     --spot-color: #959DB1;
@@ -1388,6 +1388,20 @@ body {
     color: var(--primary-dark);
 }
 
+/* ===== تعديلات الهيدر ===== */
+.header .logo .logo-text {
+    font-size: 36px !important;
+}
+.header .logo .logo-text i {
+    font-size: 28px !important;
+}
+
+/* ===== زر المظهر حجم أصغر ===== */
+.theme-switch {
+    --toggle-size: 14px !important;
+}
+
+/* ===== تحسينات للهواتف ===== */
 @media (max-width: 1024px) {
     .hero .hero-title { font-size: 58px; }
     .hero-badge-art { font-size: 34px; padding: 6px 16px; }
@@ -1395,9 +1409,23 @@ body {
 }
 
 @media (max-width: 768px) {
-    .header .logo .logo-text { font-size: 36px; }
-    .header .header-actions .search-box input { width: 70px; font-size: 13px; }
-    .header .header-actions .lang-toggle { width: 26px; height: 26px; font-size: 12px; }
+    .header .logo .logo-text {
+        font-size: 28px !important;
+    }
+    .header .logo .logo-text i {
+        font-size: 22px !important;
+    }
+    .theme-switch {
+        --toggle-size: 12px !important;
+    }
+    .header .guest-menu .login-btn {
+        font-size: 11px !important;
+        padding: 4px 10px !important;
+    }
+    .header .user-menu .user-name {
+        max-width: 50px !important;
+        font-size: 12px !important;
+    }
     .hero { margin-top: 62px; padding: 18px 12px 14px; }
     .hero .hero-title { font-size: 46px; }
     .hero .hero-subtitle { font-size: 17px; }
@@ -1421,14 +1449,46 @@ body {
     .section { padding: 12px 10px; }
     #bg-static { font-size: 28px; gap: 15px 25px; padding: 20px; }
     .theme-switch { --toggle-size: 14px; }
+    .auth-modal-box {
+        padding: 20px 16px !important;
+    }
+    .auth-modal-box .auth-header h2 {
+        font-size: 20px !important;
+    }
+    .auth-modal-box .auth-form .form-group input {
+        font-size: 14px !important;
+        padding: 10px 12px !important;
+    }
+    .auth-modal-box .auth-form .btn-auth {
+        font-size: 14px !important;
+        padding: 12px !important;
+    }
 }
 
 @media (max-width: 480px) {
+    .header .logo .logo-text {
+        font-size: 22px !important;
+    }
+    .header .logo .logo-text i {
+        font-size: 18px !important;
+    }
+    .theme-switch {
+        --toggle-size: 10px !important;
+    }
+    .header .guest-menu .login-btn {
+        font-size: 10px !important;
+        padding: 3px 8px !important;
+    }
+    .header .user-menu .user-name {
+        max-width: 40px !important;
+        font-size: 11px !important;
+    }
+    .header .user-menu .avatar {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 11px !important;
+    }
     .header { padding: 6px 10px; }
-    .header .logo .logo-text { font-size: 28px; }
-    .header .header-actions .search-box input { width: 55px; font-size: 12px; padding: 2px 4px; }
-    .header .header-actions .search-box { padding: 2px 8px; }
-    .header .header-actions .lang-toggle { width: 24px; height: 24px; font-size: 11px; }
     .hero { margin-top: 56px; padding: 14px 10px 10px; }
     .hero .hero-title { font-size: 34px; }
     .hero .hero-subtitle { font-size: 15px; }
@@ -1480,7 +1540,27 @@ body {
     .share-popup { min-width: 90px; }
     .share-popup a { font-size: 11px; padding: 4px 8px; }
     #bg-static { font-size: 18px; gap: 10px 15px; padding: 15px; }
-    .theme-switch { --toggle-size: 12px; }
+    .auth-modal-box {
+        padding: 16px 12px !important;
+    }
+    .auth-modal-box .auth-header h2 {
+        font-size: 18px !important;
+    }
+    .auth-modal-box .auth-header p {
+        font-size: 12px !important;
+    }
+    .auth-modal-box .auth-tabs button {
+        font-size: 12px !important;
+        padding: 8px !important;
+    }
+    .auth-modal-box .auth-form .form-group input {
+        font-size: 13px !important;
+        padding: 8px 10px !important;
+    }
+    .auth-modal-box .auth-form .btn-auth {
+        font-size: 13px !important;
+        padding: 10px !important;
+    }
 }
 
 @media (max-width: 380px) {
@@ -1491,7 +1571,8 @@ body {
     .product-card .price { font-size: 13px; }
     .product-card .btn-detail { font-size: 10px; padding: 4px 6px; }
     .hero .hero-title { font-size: 28px; }
-    .header .logo .logo-text { font-size: 22px; }
+    .header .logo .logo-text { font-size: 20px !important; }
+    .header .logo .logo-text i { font-size: 16px !important; }
 }
 
 [lang="en"] .header .logo .logo-text {

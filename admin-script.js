@@ -7,7 +7,6 @@
 // ============================================================
 const ADMIN_PASSWORD = 'QQZ#154p';
 
-// التحقق من تسجيل الدخول
 if (!sessionStorage.getItem('admin_logged_in')) {
     document.getElementById('loginPage').style.display = 'flex';
     document.getElementById('adminPanel').style.display = 'none';
@@ -515,7 +514,105 @@ function backupData() {
 }
 
 // ============================================================
-// 9. MODALS
+// 9. FIREBASE SYNC - دوال المزامنة مع Firebase
+// ============================================================
+async function loadProductsFromFirebase() {
+    try {
+        if (typeof db === 'undefined') {
+            showToast('Firebase غير متصل', 'error');
+            return;
+        }
+        const snapshot = await db.collection('products').get();
+        const products = [];
+        snapshot.forEach(doc => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
+        localStorage.setItem('alwaha_products', JSON.stringify(products));
+        renderProductsTable();
+        updateDashboard();
+        showToast('تم جلب المنتجات من Firebase ✅', 'success');
+    } catch (error) {
+        console.error('خطأ في جلب المنتجات:', error);
+        showToast('خطأ في جلب المنتجات من Firebase', 'error');
+    }
+}
+
+async function loadOrdersFromFirebase() {
+    try {
+        if (typeof db === 'undefined') {
+            showToast('Firebase غير متصل', 'error');
+            return;
+        }
+        const snapshot = await db.collection('orders')
+            .orderBy('createdAt', 'desc')
+            .get();
+        const orders = [];
+        snapshot.forEach(doc => {
+            orders.push({ id: doc.id, ...doc.data() });
+        });
+        localStorage.setItem('alwaha_orders', JSON.stringify(orders));
+        renderOrders(document.getElementById('orderFilter')?.value || 'all');
+        updateDashboard();
+        showToast('تم جلب الطلبات من Firebase ✅', 'success');
+    } catch (error) {
+        console.error('خطأ في جلب الطلبات:', error);
+        showToast('خطأ في جلب الطلبات من Firebase', 'error');
+    }
+}
+
+async function loadCouponsFromFirebase() {
+    try {
+        if (typeof db === 'undefined') {
+            showToast('Firebase غير متصل', 'error');
+            return;
+        }
+        const snapshot = await db.collection('coupons').get();
+        const coupons = [];
+        snapshot.forEach(doc => {
+            coupons.push({ id: doc.id, ...doc.data() });
+        });
+        localStorage.setItem('alwaha_coupons', JSON.stringify(coupons));
+        renderCouponsTable();
+        updateDashboard();
+        showToast('تم جلب الكوبونات من Firebase ✅', 'success');
+    } catch (error) {
+        console.error('خطأ في جلب الكوبونات:', error);
+        showToast('خطأ في جلب الكوبونات من Firebase', 'error');
+    }
+}
+
+function addSyncButton() {
+    const header = document.querySelector('.main-content .header');
+    if (header) {
+        const btn = document.createElement('button');
+        btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
+        btn.className = 'btn btn-gold';
+        btn.style.marginRight = '10px';
+        btn.style.padding = '8px 16px';
+        btn.style.fontSize = '14px';
+        btn.onclick = async function() {
+            if (typeof db === 'undefined') {
+                showToast('⚠️ Firebase غير متصل، تأكد من الإعدادات', 'error');
+                return;
+            }
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
+            this.disabled = true;
+            await loadProductsFromFirebase();
+            await loadOrdersFromFirebase();
+            await loadCouponsFromFirebase();
+            this.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
+            this.disabled = false;
+            showToast('تمت المزامنة بنجاح ✅', 'success');
+        };
+        const adminInfo = header.querySelector('.admin-info');
+        if (adminInfo) {
+            adminInfo.prepend(btn);
+        }
+    }
+}
+
+// ============================================================
+// 10. MODALS
 // ============================================================
 function closeModal(id) {
     document.getElementById(id).classList.remove('open');
@@ -528,7 +625,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ============================================================
-// 10. TABS
+// 11. TABS
 // ============================================================
 document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
     item.addEventListener('click', function() {
@@ -551,7 +648,7 @@ document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
 });
 
 // ============================================================
-// 11. TOAST
+// 12. TOAST
 // ============================================================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -574,7 +671,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================
-// 12. INIT
+// 13. INIT
 // ============================================================
 function initAdmin() {
     const style = document.createElement('style');
@@ -592,4 +689,33 @@ function initAdmin() {
     renderOffersTable();
     renderCouponsTable();
     loadSettings();
-        } 
+    
+    // إضافة زر المزامنة بعد تحميل الصفحة
+    setTimeout(addSyncButton, 1000);
+}
+
+// تصدير الدوال للاستخدام العام
+window.logout = logout;
+window.login = login;
+window.openAddProduct = openAddProduct;
+window.saveProduct = saveProduct;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.exportProducts = exportProducts;
+window.openAddOffer = openAddOffer;
+window.removeOffer = removeOffer;
+window.openAddCoupon = openAddCoupon;
+window.saveCoupon = saveCoupon;
+window.deleteCoupon = deleteCoupon;
+window.filterOrders = filterOrders;
+window.updateOrderStatus = updateOrderStatus;
+window.deleteOrder = deleteOrder;
+window.viewOrder = viewOrder;
+window.exportOrders = exportOrders;
+window.closeModal = closeModal;
+window.saveSettings = saveSettings;
+window.resetSettings = resetSettings;
+window.backupData = backupData;
+window.loadProductsFromFirebase = loadProductsFromFirebase;
+window.loadOrdersFromFirebase = loadOrdersFromFirebase;
+window.loadCouponsFromFirebase = loadCouponsFromFirebase; 

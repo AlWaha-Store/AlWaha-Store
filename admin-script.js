@@ -34,145 +34,87 @@ function logout() {
 }
 
 // ============================================================
-// 2. IP MANAGEMENT
+// 2. COUPONS
 // ============================================================
-function getAllowedIPs() {
+function getCoupons() {
     try {
-        return JSON.parse(localStorage.getItem('alwaha_allowed_ips') || '[]');
+        return JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
     } catch { return []; }
 }
 
-function saveAllowedIPs(ips) {
-    localStorage.setItem('alwaha_allowed_ips', JSON.stringify(ips));
+function saveCoupons(coupons) {
+    localStorage.setItem('alwaha_coupons', JSON.stringify(coupons));
 }
 
-function getBlockedIPs() {
-    try {
-        return JSON.parse(localStorage.getItem('alwaha_blocked_ips') || '[]');
-    } catch { return []; }
-}
-
-function saveBlockedIPs(ips) {
-    localStorage.setItem('alwaha_blocked_ips', JSON.stringify(ips));
-}
-
-function addAllowedIP() {
-    const input = document.getElementById('ipInput');
-    const ip = input.value.trim();
-    if (!ip) {
-        alert('الرجاء إدخال عنوان IP');
+function renderCouponsTable() {
+    const coupons = getCoupons();
+    const tbody = document.getElementById('couponsList');
+    
+    if (coupons.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">لا توجد كوبونات</td></tr>';
         return;
     }
-    const ips = getAllowedIPs();
-    if (ips.includes(ip)) {
-        alert('هذا IP موجود بالفعل');
-        return;
-    }
-    ips.push(ip);
-    saveAllowedIPs(ips);
-    input.value = '';
-    renderAllowedIPs();
-    showToast('تم إضافة IP بنجاح', 'success');
-}
-
-function removeAllowedIP(ip) {
-    let ips = getAllowedIPs();
-    ips = ips.filter(i => i !== ip);
-    saveAllowedIPs(ips);
-    renderAllowedIPs();
-    showToast('تم حذف IP', 'success');
-}
-
-function clearAllowedIPs() {
-    if (!confirm('هل أنت متأكد من حذف جميع عناوين IP المسموحة؟')) return;
-    saveAllowedIPs([]);
-    renderAllowedIPs();
-    showToast('تم حذف جميع IPs', 'success');
-}
-
-function renderAllowedIPs() {
-    const container = document.getElementById('ipList');
-    const ips = getAllowedIPs();
-    if (ips.length === 0) {
-        container.innerHTML = '<div class="ip-item" style="color:#999;">لا توجد عناوين IP مسموحة</div>';
-        return;
-    }
-    container.innerHTML = ips.map(ip => `
-        <div class="ip-item">
-            <span><i class="fas fa-check-circle" style="color:#28a745;"></i> ${ip}</span>
-            <button class="btn btn-danger btn-sm" onclick="removeAllowedIP('${ip}')"><i class="fas fa-times"></i></button>
-        </div>
+    
+    tbody.innerHTML = coupons.map((c, i) => `
+        <tr>
+            <td><span class="coupon-code">${c.code}</span></td>
+            <td>${c.discount}${c.type === 'percentage' ? '%' : ' ج.م'}</td>
+            <td>${c.type === 'percentage' ? 'نسبة مئوية' : 'قيمة ثابتة'}</td>
+            <td>${c.used || 0}</td>
+            <td><span class="badge badge-success">نشط</span></td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${i})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
     `).join('');
 }
 
-function addBlockedIP() {
-    const input = document.getElementById('blockedIpInput');
-    const ip = input.value.trim();
-    if (!ip) {
-        alert('الرجاء إدخال عنوان IP');
-        return;
-    }
-    const ips = getBlockedIPs();
-    if (ips.includes(ip)) {
-        alert('هذا IP محظور بالفعل');
-        return;
-    }
-    ips.push(ip);
-    saveBlockedIPs(ips);
-    input.value = '';
-    renderBlockedIPs();
-    showToast('تم حظر IP بنجاح', 'success');
+function openAddCoupon() {
+    document.getElementById('couponModalTitle').textContent = 'إضافة كوبون جديد';
+    document.getElementById('editCouponIndex').value = '';
+    document.getElementById('couponForm').reset();
+    document.getElementById('couponModal').classList.add('open');
 }
 
-function removeBlockedIP(ip) {
-    let ips = getBlockedIPs();
-    ips = ips.filter(i => i !== ip);
-    saveBlockedIPs(ips);
-    renderBlockedIPs();
-    showToast('تم إلغاء حظر IP', 'success');
+function saveCoupon(e) {
+    e.preventDefault();
+    const code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
+    const discount = parseFloat(document.getElementById('couponDiscount').value);
+    const type = document.getElementById('couponType').value;
+    const index = document.getElementById('editCouponIndex').value;
+    
+    if (!code || !discount) {
+        alert('الرجاء إدخال جميع البيانات');
+        return;
+    }
+    
+    const coupons = getCoupons();
+    
+    if (index === '') {
+        if (coupons.find(c => c.code === code)) {
+            alert('هذا الكود موجود بالفعل');
+            return;
+        }
+        coupons.push({ code, discount, type, used: 0 });
+    } else {
+        coupons[parseInt(index)] = { code, discount, type, used: coupons[parseInt(index)].used || 0 };
+    }
+    
+    saveCoupons(coupons);
+    renderCouponsTable();
+    updateDashboard();
+    closeModal('couponModal');
+    showToast('تم حفظ الكوبون بنجاح', 'success');
 }
 
-function clearBlockedIPs() {
-    if (!confirm('هل أنت متأكد من إلغاء حظر جميع IPs؟')) return;
-    saveBlockedIPs([]);
-    renderBlockedIPs();
-    showToast('تم إلغاء حظر جميع IPs', 'success');
-}
-
-function renderBlockedIPs() {
-    const container = document.getElementById('blockedIpList');
-    const ips = getBlockedIPs();
-    if (ips.length === 0) {
-        container.innerHTML = '<div class="ip-item" style="color:#999;">لا توجد عناوين IP محظورة</div>';
-        return;
-    }
-    container.innerHTML = ips.map(ip => `
-        <div class="ip-item">
-            <span><i class="fas fa-ban" style="color:#dc3545;"></i> ${ip}</span>
-            <button class="btn btn-success btn-sm" onclick="removeBlockedIP('${ip}')"><i class="fas fa-check"></i></button>
-        </div>
-    `).join('');
-}
-
-function changeAdminPassword() {
-    const current = document.getElementById('adminCurrentPassword').value;
-    const newPass = document.getElementById('adminNewPassword').value;
-    if (!current || !newPass) {
-        alert('الرجاء إدخال كلمة المرور الحالية والجديدة');
-        return;
-    }
-    if (current !== ADMIN_PASSWORD) {
-        alert('كلمة المرور الحالية غير صحيحة');
-        return;
-    }
-    if (newPass.length < 6) {
-        alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
-        return;
-    }
-    // حفظ كلمة المرور الجديدة
-    localStorage.setItem('alwaha_admin_password', newPass);
-    alert('تم تغيير كلمة المرور بنجاح! سيتم تحديث الصفحة.');
-    location.reload();
+function deleteCoupon(index) {
+    if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return;
+    const coupons = getCoupons();
+    coupons.splice(index, 1);
+    saveCoupons(coupons);
+    renderCouponsTable();
+    updateDashboard();
+    showToast('تم حذف الكوبون', 'success');
 }
 
 // ============================================================
@@ -198,33 +140,22 @@ function saveProducts(products) {
     localStorage.setItem('alwaha_products', JSON.stringify(products));
 }
 
-function getCustomers() {
-    try {
-        return JSON.parse(localStorage.getItem('alwaha_customers') || '[]');
-    } catch { return []; }
-}
-
-function saveCustomers(customers) {
-    localStorage.setItem('alwaha_customers', JSON.stringify(customers));
-}
-
 // ============================================================
 // 4. DASHBOARD
 // ============================================================
 function updateDashboard() {
     const orders = getOrders();
     const products = getProducts();
-    const customers = getCustomers();
+    const coupons = getCoupons();
     
     document.getElementById('totalOrders').textContent = orders.length;
     document.getElementById('totalRevenue').textContent = 
-        orders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2) + ' ج.م';
-    document.getElementById('totalCustomers').textContent = customers.length || 0;
+        orders.reduce((sum, o) => sum + (o.discountedTotal || o.total || 0), 0).toFixed(2) + ' ج.م';
     document.getElementById('totalProducts').textContent = products.length || 0;
     document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice).length || 0;
-    document.getElementById('totalVisits').textContent = Math.floor(Math.random() * 50) + 10;
+    document.getElementById('totalCoupons').textContent = coupons.length || 0;
     
-    const recentOrders = orders.slice(-5).reverse();
+    const recentOrders = orders.slice(0, 5);
     const tbody = document.getElementById('recentOrders');
     if (recentOrders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">لا توجد طلبات حتى الآن</td></tr>';
@@ -233,31 +164,11 @@ function updateDashboard() {
             <tr>
                 <td>${i + 1}</td>
                 <td>${o.customer || 'عميل'}</td>
-                <td>${o.total || 0} ج.م</td>
+                <td>${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م</td>
                 <td><span class="badge ${getStatusBadge(o.status || 'جديد')}">${o.status || 'جديد'}</span></td>
-                <td>${o.date || '--'}</td>
+                <td>${o.dateAr || o.date || '--'}</td>
                 <td><button class="btn btn-primary btn-sm" onclick="viewOrder(${orders.indexOf(o)})">عرض</button></td>
             </tr>
-        `).join('');
-    }
-    
-    const topProducts = products.sort((a, b) => (b.sales || 0) - (a.sales || 0)).slice(0, 5);
-    const topTbody = document.getElementById('topProducts');
-    if (topProducts.length === 0) {
-        topTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#999;">لا توجد بيانات</td></tr>';
-    } else {
-        topTbody.innerHTML = topProducts.map(p => `
-            <tr><td>${p.emoji || '🍎'} ${p.name}</td><td>${p.sales || 0}</td></tr>
-        `).join('');
-    }
-    
-    const recentCustomers = customers.slice(-5).reverse();
-    const custTbody = document.getElementById('recentCustomers');
-    if (recentCustomers.length === 0) {
-        custTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr>';
-    } else {
-        custTbody.innerHTML = recentCustomers.map(c => `
-            <tr><td>${c.name || 'غير معروف'}</td><td>${c.phone || '--'}</td></tr>
         `).join('');
     }
 }
@@ -281,7 +192,7 @@ function renderOrders(filter = 'all') {
     const tbody = document.getElementById('allOrders');
     
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">لا توجد طلبات</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#999;">لا توجد طلبات</td></tr>';
         return;
     }
     
@@ -290,16 +201,19 @@ function renderOrders(filter = 'all') {
             <td>${i + 1}</td>
             <td>${o.customer || 'عميل'}</td>
             <td>${o.items ? o.items.length : 0} منتج</td>
-            <td>${o.total || 0} ج.م</td>
+            <td>${(o.total || 0).toFixed(2)} ج.م</td>
+            <td>${(o.discount || 0).toFixed(2)} ج.م</td>
+            <td>${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م</td>
+            <td>${o.coupon || '--'}</td>
             <td>
-                <select onchange="updateOrderStatus(${orders.indexOf(o)}, this.value)" style="padding:4px 8px;border-radius:30px;border:1px solid #e9ecef;font-family:'Tajawal',sans-serif;font-size:12px;">
+                <select onchange="updateOrderStatus(${orders.indexOf(o)}, this.value)" style="padding:4px 8px;border-radius:30px;border:1px solid rgba(26,92,58,0.08);font-family:'Tajawal',sans-serif;font-size:12px;background:rgba(255,255,255,0.4);">
                     <option value="جديد" ${(o.status || 'جديد') === 'جديد' ? 'selected' : ''}>جديد</option>
                     <option value="قيد التجهيز" ${o.status === 'قيد التجهيز' ? 'selected' : ''}>قيد التجهيز</option>
                     <option value="تم التوصيل" ${o.status === 'تم التوصيل' ? 'selected' : ''}>تم التوصيل</option>
                     <option value="ملغي" ${o.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
                 </select>
             </td>
-            <td>${o.date || '--'}</td>
+            <td>${o.dateAr || o.date || '--'}</td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="viewOrder(${orders.indexOf(o)})"><i class="fas fa-eye"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteOrder(${orders.indexOf(o)})"><i class="fas fa-trash"></i></button>
@@ -343,17 +257,24 @@ function viewOrder(index) {
     const details = document.getElementById('orderDetails');
     
     details.innerHTML = `
-        <div style="margin-bottom:10px;"><strong>العميل:</strong> ${order.customer || 'غير معروف'}</div>
-        <div style="margin-bottom:10px;"><strong>الهاتف:</strong> ${order.phone || 'غير معروف'}</div>
-        <div style="margin-bottom:10px;"><strong>العنوان:</strong> ${order.address || 'غير معروف'}</div>
-        <div style="margin-bottom:10px;"><strong>المنتجات:</strong></div>
-        <ul style="padding-right:20px;margin-bottom:10px;">
-            ${order.items ? order.items.map(item => `<li>${item.name || 'منتج'} - ${item.weight || 0} كجم - ${item.price || 0} ج.م</li>`).join('') : 'لا توجد منتجات'}
+        <div style="margin-bottom:8px;"><strong>رقم الطلب:</strong> ${order.id || '--'}</div>
+        <div style="margin-bottom:8px;"><strong>العميل:</strong> ${order.customer || 'غير معروف'}</div>
+        <div style="margin-bottom:8px;"><strong>الهاتف:</strong> ${order.phone || 'غير معروف'}</div>
+        <div style="margin-bottom:8px;"><strong>العنوان:</strong> ${order.address || 'غير معروف'}</div>
+        <div style="margin-bottom:8px;"><strong>المنتجات:</strong></div>
+        <ul style="padding-right:20px;margin-bottom:8px;">
+            ${order.items ? order.items.map(item => `<li>${item.emoji || '📦'} ${item.name || 'منتج'} - ${item.weight || 0} كجم - ${(item.total || 0).toFixed(2)} ج.م</li>`).join('') : 'لا توجد منتجات'}
         </ul>
-        <div style="font-weight:700;font-size:18px;color:#1A5C3A;"><strong>الإجمالي:</strong> ${order.total || 0} ج.م</div>
-        <div style="margin-top:10px;"><strong>الحالة:</strong> <span class="badge ${getStatusBadge(order.status || 'جديد')}">${order.status || 'جديد'}</span></div>
-        <div style="margin-top:10px;"><strong>التاريخ:</strong> ${order.date || '--'}</div>
-        ${order.notes ? `<div style="margin-top:10px;"><strong>ملاحظات:</strong> ${order.notes}</div>` : ''}
+        <div style="margin-bottom:4px;"><strong>المجموع:</strong> ${(order.total || 0).toFixed(2)} ج.م</div>
+        ${order.discount ? `<div style="margin-bottom:4px;color:#27ae60;"><strong>الخصم:</strong> -${(order.discount || 0).toFixed(2)} ج.م</div>` : ''}
+        ${order.coupon ? `<div style="margin-bottom:4px;"><strong>كوبون:</strong> ${order.coupon}</div>` : ''}
+        <div style="margin-bottom:8px;font-weight:700;font-size:18px;color:#1A5C3A;"><strong>الإجمالي بعد الخصم:</strong> ${(order.discountedTotal || order.total || 0).toFixed(2)} ج.م</div>
+        <div style="margin-bottom:4px;"><strong>طريقة الدفع:</strong> ${order.payment || '--'}</div>
+        <div style="margin-bottom:4px;"><strong>وقت التوصيل:</strong> ${order.delivery || '--'}</div>
+        ${order.deliveryTime ? `<div style="margin-bottom:4px;"><strong>الموعد:</strong> ${new Date(order.deliveryTime).toLocaleString('ar-EG')}</div>` : ''}
+        <div style="margin-bottom:4px;"><strong>الحالة:</strong> <span class="badge ${getStatusBadge(order.status || 'جديد')}">${order.status || 'جديد'}</span></div>
+        <div style="margin-bottom:4px;"><strong>التاريخ:</strong> ${order.dateAr || order.date || '--'}</div>
+        ${order.notes ? `<div style="margin-top:8px;"><strong>ملاحظات:</strong> ${order.notes}</div>` : ''}
     `;
     
     modal.classList.add('open');
@@ -362,14 +283,17 @@ function viewOrder(index) {
 function exportOrders() {
     const orders = getOrders();
     const csv = [
-        ['#', 'العميل', 'الهاتف', 'المبلغ', 'الحالة', 'التاريخ'],
+        ['#', 'العميل', 'الهاتف', 'المجموع', 'الخصم', 'الإجمالي', 'كوبون', 'الحالة', 'التاريخ'],
         ...orders.map((o, i) => [
             i + 1,
             o.customer || '',
             o.phone || '',
-            o.total || 0,
+            (o.total || 0).toFixed(2),
+            (o.discount || 0).toFixed(2),
+            (o.discountedTotal || o.total || 0).toFixed(2),
+            o.coupon || '',
             o.status || 'جديد',
-            o.date || ''
+            o.dateAr || o.date || ''
         ])
     ].map(row => row.join(',')).join('\n');
     
@@ -529,77 +453,7 @@ function openAddOffer() {
 }
 
 // ============================================================
-// 8. CUSTOMERS
-// ============================================================
-function renderCustomersTable() {
-    const customers = getCustomers();
-    const tbody = document.getElementById('customersList');
-    const orders = getOrders();
-    
-    customers.forEach(c => {
-        const customerOrders = orders.filter(o => o.phone === c.phone || o.customer === c.name);
-        c.orders = customerOrders.length;
-        c.total = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-        c.lastOrder = customerOrders.length > 0 ? customerOrders[customerOrders.length - 1].date : '--';
-    });
-    
-    if (customers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">لا يوجد عملاء</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = customers.map((c, i) => `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${c.name || 'غير معروف'}</td>
-            <td>${c.phone || '--'}</td>
-            <td>${c.orders || 0}</td>
-            <td>${c.total || 0} ج.م</td>
-            <td>${c.lastOrder || '--'}</td>
-            <td><button class="btn btn-primary btn-sm" onclick="viewCustomer(${i})"><i class="fas fa-eye"></i></button></td>
-        </tr>
-    `).join('');
-}
-
-function viewCustomer(index) {
-    const customers = getCustomers();
-    const c = customers[index];
-    if (!c) return;
-    
-    alert(`👤 العميل: ${c.name}\n📱 الهاتف: ${c.phone}\n📦 عدد الطلبات: ${c.orders || 0}\n💰 إجمالي المشتريات: ${c.total || 0} ج.م`);
-}
-
-// ============================================================
-// 9. ANALYTICS
-// ============================================================
-function updateAnalytics() {
-    const orders = getOrders();
-    const total = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-    const avg = orders.length > 0 ? total / orders.length : 0;
-    document.getElementById('avgOrder').textContent = avg.toFixed(2) + ' ج.م';
-    document.getElementById('growthRate').textContent = (Math.random() * 20 + 5).toFixed(1) + '%';
-    document.getElementById('returnRate').textContent = (Math.random() * 30 + 20).toFixed(1) + '%';
-    
-    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
-    const monthlyData = months.map((m, i) => ({
-        month: m,
-        orders: Math.floor(Math.random() * 20 + 5),
-        revenue: Math.floor(Math.random() * 500 + 200)
-    }));
-    
-    const tbody = document.getElementById('monthlySales');
-    tbody.innerHTML = monthlyData.map((d, i) => `
-        <tr>
-            <td>${d.month}</td>
-            <td>${d.orders}</td>
-            <td>${d.revenue} ج.م</td>
-            <td>${i > 0 ? ((d.revenue - monthlyData[i-1].revenue) / monthlyData[i-1].revenue * 100).toFixed(1) + '%' : '--'}</td>
-        </tr>
-    `).join('');
-}
-
-// ============================================================
-// 10. SETTINGS
+// 8. SETTINGS
 // ============================================================
 function saveSettings(e) {
     e.preventDefault();
@@ -647,10 +501,8 @@ function backupData() {
     const data = {
         products: getProducts(),
         orders: getOrders(),
-        customers: getCustomers(),
+        coupons: getCoupons(),
         settings: JSON.parse(localStorage.getItem('alwaha_settings') || '{}'),
-        allowedIPs: getAllowedIPs(),
-        blockedIPs: getBlockedIPs(),
         date: new Date().toISOString()
     };
     
@@ -663,7 +515,7 @@ function backupData() {
 }
 
 // ============================================================
-// 11. MODALS
+// 9. MODALS
 // ============================================================
 function closeModal(id) {
     document.getElementById(id).classList.remove('open');
@@ -676,7 +528,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ============================================================
-// 12. TABS
+// 10. TABS
 // ============================================================
 document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
     item.addEventListener('click', function() {
@@ -692,16 +544,14 @@ document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
             'orders': 'الطلبات',
             'products': 'المنتجات',
             'offers': 'العروض',
-            'customers': 'العملاء',
-            'analytics': 'التحليلات',
-            'settings': 'الإعدادات',
-            'security': 'الأمان'
+            'coupons': 'الكوبونات',
+            'settings': 'الإعدادات'
         }[tab] || 'لوحة التحكم';
     });
 });
 
 // ============================================================
-// 13. TOAST
+// 11. TOAST
 // ============================================================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -724,7 +574,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================
-// 14. INIT
+// 12. INIT
 // ============================================================
 function initAdmin() {
     const style = document.createElement('style');
@@ -740,9 +590,6 @@ function initAdmin() {
     renderOrders();
     renderProductsTable();
     renderOffersTable();
-    renderCustomersTable();
-    updateAnalytics();
+    renderCouponsTable();
     loadSettings();
-    renderAllowedIPs();
-    renderBlockedIPs();
-}
+        } 

@@ -1,5 +1,5 @@
 /* ============================================================
-   style.css - متجر الواحة
+   style.css - متجر الواحة - التنسيقات الرئيسية
    ============================================================ */
 
 :root {
@@ -122,56 +122,27 @@ body {
     line-height: 1;
 }
 
-.logo-loader {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-}
-.logo-loader svg {
-    height: 40px;
-    width: 40px;
-}
-.logo-loader .logo-text {
+/* ===== HEADER LOGO ===== */
+.header .logo .logo-text {
     font-family: 'Aref Ruqaa', serif;
-    font-size: 28px;
+    font-size: 48px;
     font-weight: 700;
     color: var(--gold);
-    margin-right: 4px;
-    text-shadow: 0 2px 12px rgba(212, 175, 55, 0.15);
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.05);
+    letter-spacing: 2px;
+    animation: logoGlow 3s ease-in-out infinite;
+    display: inline-block;
+    transition: all 0.3s ease;
 }
-
-.logo-y {
-    animation: dashArray 6s ease-in-out infinite, dashOffset 6s linear infinite;
+.header .logo .logo-text:hover {
+    transform: scale(1.03);
 }
-.logo-o {
-    animation: spinDashArray 6s ease-in-out infinite, spin 12s ease-in-out infinite, dashOffset 6s linear infinite;
-    transform-origin: center;
+.header .logo .logo-text i {
+    font-size: 40px;
 }
-.logo-u {
-    animation: dashArray 6s ease-in-out infinite, dashOffset 6s linear infinite;
-}
-
-@keyframes dashArray {
-    0% { stroke-dasharray: 0 1 359 0; }
-    50% { stroke-dasharray: 0 359 1 0; }
-    100% { stroke-dasharray: 359 1 0 0; }
-}
-@keyframes spinDashArray {
-    0% { stroke-dasharray: 270 90; }
-    50% { stroke-dasharray: 0 360; }
-    100% { stroke-dasharray: 270 90; }
-}
-@keyframes dashOffset {
-    0% { stroke-dashoffset: 365; }
-    100% { stroke-dashoffset: 5; }
-}
-@keyframes spin {
-    0% { rotate: 0deg; }
-    12.5%, 25% { rotate: 270deg; }
-    37.5%, 50% { rotate: 540deg; }
-    62.5%, 75% { rotate: 810deg; }
-    87.5%, 100% { rotate: 1080deg; }
+@keyframes logoGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.05); }
+    50% { text-shadow: 0 0 40px rgba(212, 175, 55, 0.25), 0 0 60px rgba(212, 175, 55, 0.1), 0 0 80px rgba(212, 175, 55, 0.05); }
 }
 
 .header .header-actions {
@@ -216,12 +187,12 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.04);
     color: white;
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     cursor: pointer;
     transition: var(--transition);
-    font-size: 15px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -233,16 +204,16 @@ body {
     transform: scale(1.05);
 }
 
-/* ===== THEME SWITCH ===== */
+/* ===== THEME SWITCH - تصغير الحجم ===== */
 .theme-switch {
-    --toggle-size: 28px;
-    --container-width: 5.2em;
-    --container-height: 2.3em;
+    --toggle-size: 16px;
+    --container-width: 3.4em;
+    --container-height: 1.6em;
     --container-radius: 6.25em;
     --container-light-bg: #3D7EAE;
     --container-night-bg: #1D1F2C;
-    --circle-container-diameter: 3.1em;
-    --sun-moon-diameter: 1.9em;
+    --circle-container-diameter: 2.1em;
+    --sun-moon-diameter: 1.3em;
     --sun-bg: #ECCA2F;
     --moon-bg: #C4C9D1;
     --spot-color: #959DB1;
@@ -280,6 +251,7 @@ body {
     box-shadow: 0em 0.05em 0.187em rgba(0,0,0,0.25) inset, 0em 0.05em 0.187em rgba(0,0,0,0.25) inset;
     border-radius: var(--container-radius);
 }
+
 .theme-switch__checkbox { display: none; }
 
 .theme-switch__circle-container {
@@ -379,6 +351,7 @@ body {
     transform: translateY(-50%);
 }
 
+/* ===== باقي التنسيقات ===== */
 .hero {
     margin-top: 68px;
     padding: 20px 16px 16px;
@@ -1422,10 +1395,9 @@ body {
 }
 
 @media (max-width: 768px) {
-    .header .logo svg { height: 32px; width: 32px; }
-    .logo-loader .logo-text { font-size: 22px; }
+    .header .logo .logo-text { font-size: 36px; }
     .header .header-actions .search-box input { width: 70px; font-size: 13px; }
-    .header .header-actions .lang-toggle { width: 30px; height: 30px; font-size: 13px; }
+    .header .header-actions .lang-toggle { width: 26px; height: 26px; font-size: 12px; }
     .hero { margin-top: 62px; padding: 18px 12px 14px; }
     .hero .hero-title { font-size: 46px; }
     .hero .hero-subtitle { font-size: 17px; }
@@ -1448,16 +1420,15 @@ body {
     .category-card h4 { font-size: 13px; }
     .section { padding: 12px 10px; }
     #bg-static { font-size: 28px; gap: 15px 25px; padding: 20px; }
-    .theme-switch { --toggle-size: 24px; }
+    .theme-switch { --toggle-size: 14px; }
 }
 
 @media (max-width: 480px) {
     .header { padding: 6px 10px; }
-    .header .logo svg { height: 26px; width: 26px; }
-    .logo-loader .logo-text { font-size: 18px; }
+    .header .logo .logo-text { font-size: 28px; }
     .header .header-actions .search-box input { width: 55px; font-size: 12px; padding: 2px 4px; }
     .header .header-actions .search-box { padding: 2px 8px; }
-    .header .header-actions .lang-toggle { width: 26px; height: 26px; font-size: 12px; }
+    .header .header-actions .lang-toggle { width: 24px; height: 24px; font-size: 11px; }
     .hero { margin-top: 56px; padding: 14px 10px 10px; }
     .hero .hero-title { font-size: 34px; }
     .hero .hero-subtitle { font-size: 15px; }
@@ -1509,7 +1480,7 @@ body {
     .share-popup { min-width: 90px; }
     .share-popup a { font-size: 11px; padding: 4px 8px; }
     #bg-static { font-size: 18px; gap: 10px 15px; padding: 15px; }
-    .theme-switch { --toggle-size: 20px; }
+    .theme-switch { --toggle-size: 12px; }
 }
 
 @media (max-width: 380px) {
@@ -1520,8 +1491,7 @@ body {
     .product-card .price { font-size: 13px; }
     .product-card .btn-detail { font-size: 10px; padding: 4px 6px; }
     .hero .hero-title { font-size: 28px; }
-    .header .logo svg { height: 22px; width: 22px; }
-    .logo-loader .logo-text { font-size: 14px; }
+    .header .logo .logo-text { font-size: 22px; }
 }
 
 [lang="en"] .header .logo .logo-text {

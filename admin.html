@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
+    
+    <!-- ===== Firebase SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <style>
         /* ===== ADMIN STYLES ===== */
         :root {
@@ -447,6 +453,133 @@
             color: #5a7a5a;
             font-size: 13px;
         }
+
+        /* ===== FIREBASE SYNC BUTTON ===== */
+        .sync-btn {
+            background: linear-gradient(135deg, #1A5C3A, #2a7a4e);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(26, 92, 58, 0.3);
+        }
+        .sync-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== DARK MODE SUPPORT ===== */
+        [data-theme="dark"] .login-box {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .login-box h2 {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .login-box p {
+            color: #8a9a8a;
+        }
+        [data-theme="dark"] .login-box .form-group input {
+            background: rgba(255,255,255,0.05);
+            color: #e8e8e8;
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .login-box .form-group input::placeholder {
+            color: #666;
+        }
+        [data-theme="dark"] .main-content {
+            background: #121212;
+        }
+        [data-theme="dark"] .main-content .header {
+            background: rgba(40, 40, 40, 0.85);
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .main-content .header h1 {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .stat-card {
+            background: rgba(40, 40, 40, 0.8);
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .stat-card .stat-number {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .stat-card .stat-label {
+            color: #8a9a8a;
+        }
+        [data-theme="dark"] .table-container {
+            background: rgba(40, 40, 40, 0.8);
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .table-container h3 {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .table-container table th {
+            background: rgba(255,255,255,0.03);
+            color: #e8c94a;
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .table-container table td {
+            color: #c8c8c8;
+            border-color: rgba(255,255,255,0.03);
+        }
+        [data-theme="dark"] .table-container table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        [data-theme="dark"] .modal-box {
+            background: rgba(30, 30, 30, 0.97);
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .modal-box h3 {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .form-group label {
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] .form-group textarea {
+            background: rgba(255,255,255,0.05);
+            color: #e8e8e8;
+            border-color: rgba(255,255,255,0.05);
+        }
+        [data-theme="dark"] .form-group input::placeholder,
+        [data-theme="dark"] .form-group textarea::placeholder {
+            color: #666;
+        }
+        [data-theme="dark"] .sidebar {
+            background: rgba(10, 30, 15, 0.95);
+            border-color: rgba(255,255,255,0.03);
+        }
+        [data-theme="dark"] .badge-success { background: #1a3a2a; color: #7ae0a0; }
+        [data-theme="dark"] .badge-warning { background: #3a2a0a; color: #e8c94a; }
+        [data-theme="dark"] .badge-danger { background: #3a1a1a; color: #ff6b6b; }
+        [data-theme="dark"] .badge-info { background: #1a2a3a; color: #6bc8ff; }
+        [data-theme="dark"] .btn-primary { background: #2a7a4e; }
+        [data-theme="dark"] .btn-primary:hover { background: #3a9a6e; }
+        [data-theme="dark"] .coupon-item .coupon-code {
+            background: rgba(212, 175, 55, 0.15);
+            color: #e8c94a;
+        }
+        [data-theme="dark"] .login-box .btn-gold {
+            background: linear-gradient(135deg, #b8962a, #d4af37);
+            color: #1A5C3A;
+        }
+        [data-theme="dark"] .login-box .btn-gold:hover {
+            background: linear-gradient(135deg, #c8a63a, #e8c94a);
+        }
     </style>
 </head>
 <body>
@@ -693,6 +826,31 @@
         </div>
     </div>
 
+    <!-- ===== FIREBASE CONFIG ===== -->
+    <script>
+        // 🔑 استبدل هذه القيم بقيم مشروعك من Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyB...",
+            authDomain: "alwaha-store.firebaseapp.com",
+            projectId: "alwaha-store",
+            storageBucket: "alwaha-store.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // تمكين المزامنة دون اتصال
+        db.enablePersistence({
+            synchronizeTabs: true
+        }).catch(err => {
+            console.warn('Firestore persistence error:', err);
+        });
+    </script>
+
     <script src="admin-script.js"></script>
 </body>
-                                                                                               </html>
+                                                                                                                               </html> 

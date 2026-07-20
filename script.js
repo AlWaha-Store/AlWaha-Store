@@ -1,5 +1,5 @@
 // ============================================================
-// script.js - متجر الواحة
+// script.js - متجر الواحة - النسخة النهائية مع Firebase
 // ============================================================
 
 // ============================================================
@@ -111,6 +111,9 @@ function loadCart() {
 function saveCart() {
     try {
         localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
+        if (typeof auth !== 'undefined' && auth.currentUser) {
+            saveCartToFirebase();
+        }
     } catch (e) {}
 }
 loadCart();
@@ -139,14 +142,26 @@ function getProductName(p) { return currentLang === 'en' ? p.nameEn : p.name; }
 function getProductCategory(p) { return currentLang === 'en' ? p.categoryEn : p.category; }
 function getProductDesc(p) { return currentLang === 'en' ? p.descEn : p.desc; }
 
+function getProductsData() {
+    let stored = localStorage.getItem('alwaha_products');
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch { /* fallback */ }
+    }
+    localStorage.setItem('alwaha_products', JSON.stringify(productsData));
+    return productsData;
+}
+
 function renderProducts(sort = currentSort, search = '') {
+    const products = getProductsData();
     const fruitsGrid = document.getElementById('fruitsGrid');
     const vegGrid = document.getElementById('vegetablesGrid');
     const offersGrid = document.getElementById('offersGrid');
 
-    let fruits = productsData.filter(p => p.category === 'فاكهة');
-    let vegetables = productsData.filter(p => p.category === 'خضار');
-    let offers = productsData.filter(p => p.offer !== null);
+    let fruits = products.filter(p => p.category === 'فاكهة');
+    let vegetables = products.filter(p => p.category === 'خضار');
+    let offers = products.filter(p => p.offer !== null);
 
     if (search.trim()) {
         const s = search.trim().toLowerCase();
@@ -191,7 +206,7 @@ function renderProducts(sort = currentSort, search = '') {
             `;
             grid.appendChild(card);
             card.querySelector('.btn-detail').addEventListener('click', function() {
-                openProductModal(p.id);
+                openProductModal(parseInt(this.dataset.id));
             });
         });
     };
@@ -233,7 +248,8 @@ let modalWeight = 1;
 let shareProductData = null;
 
 function openProductModal(id) {
-    const p = productsData.find(item => item.id === id);
+    const products = getProductsData();
+    const p = products.find(item => item.id === id);
     if (!p) return;
     modalProductId = p.id;
     shareProductData = p;
@@ -360,7 +376,8 @@ document.addEventListener('click', function(e) {
 // 9. ADD TO CART
 // ============================================================
 function addFromModal() {
-    const p = productsData.find(item => item.id === modalProductId);
+    const products = getProductsData();
+    const p = products.find(item => item.id === modalProductId);
     if (!p) return;
 
     const weight = parseFloat(document.getElementById('modalWeight').value) || 1;
@@ -424,8 +441,7 @@ function updateCartUI() {
         const key = `${item.id}`;
         if (grouped[key]) {
             grouped[key].qty += item.qty;
-            grouped[key].weight = (grouped[key].weight * (grouped[key].qty - item.qty) + item.weight * item
-            .qty) / grouped[key].qty;
+            grouped[key].weight = (grouped[key].weight * (grouped[key].qty - item.qty) + item.weight * item.qty) / grouped[key].qty;
         } else {
             grouped[key] = { ...item };
         }
@@ -542,8 +558,7 @@ function openCheckout() {
         const key = `${item.id}`;
         if (grouped[key]) {
             grouped[key].qty += item.qty;
-            grouped[key].weight = (grouped[key].weight * (grouped[key].qty - item.qty) + item.weight * item
-            .qty) / grouped[key].qty;
+            grouped[key].weight = (grouped[key].weight * (grouped[key].qty - item.qty) + item.weight * item.qty) / grouped[key].qty;
         } else {
             grouped[key] = { ...item };
         }
@@ -569,7 +584,6 @@ function openCheckout() {
             `<div class="cs-item"><span>${item.emoji} ${productName} (${totalWeight.toFixed(2)} ${kgLabel})</span><span>${priceDisplay}</span></div>`;
     });
     
-    // تطبيق الخصم
     const discountedTotal = getDiscountedTotal(total);
     if (appliedCoupon) {
         summaryHtml +=
@@ -668,59 +682,107 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 14. CONFIRM ORDER (مع حفظ الأوردرات)
+// 14. CONFIRM ORDER
 // ============================================================
-function confirmOrder() {
+function updateCheckoutTotal() {
+    // يتم تحديث الإجمالي عند تطبيق الكوبون
+    const totalSpan = document.querySelector('.cs-total span:last-child');
+    if (totalSpan) {
+        // إعادة حساب الإجمالي
+        let total = 0;
+        const grouped = {};
+        cart.forEach(item => {
+            const key = `${item.id}`;
+            if (grouped[key]) {
+                grouped[key].qty += item.qty;
+            } else {
+                grouped[key] = { ...item };
+            }
+        });
+        const groupedItems = Object.values(grouped);
+        groupedItems.forEach(item => {
+            total += item.price * item.weight * item.qty;
+        });
+        const discountedTotal = getDiscountedTotal(total);
+        const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
+        totalSpan.textContent = discountedTotal.toFixed(2) + ' ' + currency;
+    }
+}
+
+function buildWhatsAppMessage(order) {
+    const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
+    const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
+    const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
+    
+    let msg = `🌿 *طلب جديد من متجر ${shopName}* 🛒\n`;
+    msg += `───────────────────\n`;
+    msg += `🛍 *المنتجات المطلوبة:*\n`;
+    order.items.forEach(item => {
+        msg += `• ${item.emoji} *${item.name}*: ${item.weight.toFixed(2)} ${kgLabel} - ${item.total.toFixed(2)} ${currency}\n`;
+    });
+    msg += `───────────────────\n`;
+    msg += `💰 *الإجمالي:* ${order.total.toFixed(2)} ${currency}\n`;
+    if (order.coupon) {
+        msg += `💸 *الخصم:* -${(order.total - order.discountedTotal).toFixed(2)} ${currency}\n`;
+        msg += `🛒 *الإجمالي بعد الخصم:* ${order.discountedTotal.toFixed(2)} ${currency}\n`;
+    }
+    msg += `───────────────────\n`;
+    msg += `👤 *معلومات العميل:*\n`;
+    msg += `• *الاسم:* ${order.customer}\n`;
+    msg += `• *الجوال:* +${order.phone}\n`;
+    msg += `📍 *العنوان:* ${order.address}\n`;
+    if (order.notes) msg += `📝 *ملاحظات:* ${order.notes}\n`;
+    msg += `───────────────────\n`;
+    msg += `⏱️ *وقت التوصيل:* ${order.delivery}\n`;
+    if (order.deliveryTime) {
+        const formattedTime = new Date(order.deliveryTime).toLocaleString(currentLang === 'en' ? 'en-US' : 'ar-EG');
+        msg += `📅 *الميعاد:* ${formattedTime}\n`;
+    }
+    msg += `💳 *طريقة الدفع:* ${order.payment}\n`;
+    if (order.payment.includes('إنستا') || order.payment.includes('Insta') || order.payment.includes('محفظة') || order.payment.includes('Wallet')) {
+        msg += `\n⚠️ *ملاحظة هامة للدفع الإلكتروني:*\n`;
+        msg += `يرجى إرسال مبلغ الطلب إلى الرقم التالي:\n`;
+        msg += `📞 *01005777923*\n`;
+        msg += `مع ضرورة إرسال لقطة شاشة (Screenshot) للتحويل هنا لتأكيد الطلب وبدء الشحن.\n`;
+    }
+    msg += `───────────────────\n`;
+    msg += `🌸 *نشكرك على اختيارك متجر الواحة - طازج وصحي دائماً!*`;
+    
+    return msg;
+}
+
+async function confirmOrder() {
     if (cart.length === 0) {
-        showToast(`${currentLang === 'en' ? 'Cart is empty!' : 'سلتك فارغة!'}`, 'error', '⚠️');
+        showToast('سلتك فارغة!', 'error');
         return;
     }
 
-    const name = document.getElementById('custName')?.value?.trim() || (currentLang === 'en' ? 'Customer' : 'عميل');
+    const name = document.getElementById('custName')?.value?.trim() || 'عميل';
     const countryCode = document.getElementById('countryCode')?.value || '20';
     let phoneInput = document.getElementById('custPhone')?.value?.trim() || '';
-    const address = document.getElementById('custAddress')?.value?.trim() || (currentLang === 'en' ? 'Not specified' : 'لم يحدد');
+    const address = document.getElementById('custAddress')?.value?.trim() || 'لم يحدد';
     const notes = document.getElementById('custNotes')?.value?.trim() || '';
     const paymentRadio = document.querySelector('input[name="payment"]:checked');
-    const payment = paymentRadio ? paymentRadio.value : (currentLang === 'en' ? 'Cash on delivery' : 'كاش عند التوصيل');
+    const payment = paymentRadio ? paymentRadio.value : 'كاش عند التوصيل';
     const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
-    let delivery = deliveryRadio ? deliveryRadio.value : (currentLang === 'en' ? 'Fastest time' : 'اسرع وقت');
+    const delivery = deliveryRadio ? deliveryRadio.value : 'اسرع وقت';
     const deliveryTime = document.getElementById('deliveryTime')?.value || '';
-    const couponCode = appliedCoupon ? appliedCoupon.code : null;
 
     if (!phoneInput) {
-        showToast(`${currentLang === 'en' ? 'Enter phone number' : 'أدخل رقم الجوال'}`, 'error', '⚠️');
+        showToast('أدخل رقم الجوال', 'error');
         document.getElementById('custPhone')?.focus();
         return;
     }
 
     let cleanPhone = phoneInput.replace(/[\s\-\(\)]/g, '');
-    let fullPhone;
-    if (cleanPhone.startsWith('0')) {
-        fullPhone = countryCode + cleanPhone.substring(1);
-    } else {
-        fullPhone = countryCode + cleanPhone;
-    }
+    let fullPhone = cleanPhone.startsWith('0') ? countryCode + cleanPhone.substring(1) : countryCode + cleanPhone;
 
-    try {
-        localStorage.setItem('alwaha_phone', fullPhone);
-        localStorage.setItem('alwaha_name', name);
-        localStorage.setItem('alwaha_address', address);
-    } catch (e) {}
-
-    const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
-    const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
-    const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
-
-    // حساب الإجمالي مع الخصم
     let total = 0;
     const grouped = {};
     cart.forEach(item => {
         const key = `${item.id}`;
         if (grouped[key]) {
             grouped[key].qty += item.qty;
-            grouped[key].weight = (grouped[key].weight * (grouped[key].qty - item.qty) + item.weight * item
-            .qty) / grouped[key].qty;
         } else {
             grouped[key] = { ...item };
         }
@@ -731,9 +793,7 @@ function confirmOrder() {
     });
     const discountedTotal = getDiscountedTotal(total);
 
-    // ===== حفظ الطلب =====
-    const order = {
-        id: 'ORD-' + Date.now().toString().slice(-8),
+    const orderData = {
         customer: name,
         phone: fullPhone,
         address: address,
@@ -748,96 +808,44 @@ function confirmOrder() {
         })),
         total: total,
         discountedTotal: discountedTotal,
-        coupon: couponCode,
-        discount: appliedCoupon ? (total - discountedTotal) : 0,
+        coupon: appliedCoupon?.code || null,
         payment: payment,
         delivery: delivery,
         deliveryTime: deliveryTime,
         notes: notes,
-        status: 'جديد',
-        date: new Date().toISOString(),
-        dateAr: new Date().toLocaleString('ar-EG')
+        status: 'جديد'
     };
 
-    // حفظ في localStorage
-    let orders = [];
     try {
-        orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-    } catch (e) { orders = []; }
-    orders.unshift(order);
-    localStorage.setItem('alwaha_orders', JSON.stringify(orders));
-
-    // ===== بناء رسالة واتساب =====
-    let msg = `🌿 *طلب جديد من متجر ${shopName}* 🛒\n`;
-    msg += `───────────────────\n`;
-    msg += `🛍 *المنتجات المطلوبة:*\n`;
-    groupedItems.forEach(item => {
-        const totalWeight = item.weight * item.qty;
-        const itemTotal = item.price * totalWeight;
-        const productName = currentLang === 'en' ? item.nameEn : item.name;
-        msg += `• ${item.emoji} *${productName}*:\n`;
-        msg += `   - الوزن: ${totalWeight.toFixed(2)} ${kgLabel}\n`;
-        if (item.oldPrice) {
-            const oldTotal = item.oldPrice * totalWeight;
-            msg += `   - السعر: ${oldTotal.toFixed(2)} → ${itemTotal.toFixed(2)} ${currency} (عرض خاص)\n`;
-        } else {
-            msg += `   - السعر: ${itemTotal.toFixed(2)} ${currency}\n`;
+        if (typeof saveOrderToFirebase !== 'undefined') {
+            await saveOrderToFirebase(orderData);
         }
-        msg += `\n`;
-    });
-    msg += `───────────────────\n`;
-    msg += `💰 *الإجمالي:* ${total.toFixed(2)} ${currency}\n`;
-    if (appliedCoupon) {
-        msg += `💸 *الخصم:* -${(total - discountedTotal).toFixed(2)} ${currency}\n`;
-        msg += `🛒 *الإجمالي بعد الخصم:* ${discountedTotal.toFixed(2)} ${currency}\n`;
+        
+        let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
+        localStorage.setItem('alwaha_orders', JSON.stringify(orders));
+        
+        const shopNumber = '201229156909';
+        const msg = buildWhatsAppMessage(orderData);
+        const whatsappUrl = `https://wa.me/${shopNumber}?text=${encodeURIComponent(msg)}`;
+        
+        cart = [];
+        appliedCoupon = null;
+        document.getElementById('couponCode').value = '';
+        document.getElementById('couponMessage').textContent = '';
+        saveCart();
+        updateCartUI();
+        
+        document.getElementById('checkoutModal').classList.remove('open');
+        document.body.style.overflow = '';
+        
+        showToast('تم تأكيد طلبك! 🎉', 'success');
+        setTimeout(() => { window.open(whatsappUrl, '_blank'); }, 600);
+        
+    } catch (error) {
+        showToast('حدث خطأ في حفظ الطلب', 'error');
+        console.error(error);
     }
-    msg += `🚚 *قيمة التوصيل:* حسب المسافة (تتراوح بين 15ج إلى 30ج)\n`;
-    msg += `───────────────────\n`;
-    msg += `👤 *معلومات العميل الشخصية:*\n`;
-    msg += `• *الاسم:* ${name}\n`;
-    msg += `• *الجوال:* +${fullPhone}\n`;
-    msg += `───────────────────\n`;
-    msg += `📍 *معلومات العنوان بالتفصيل:*\n`;
-    msg += `${address}\n`;
-    if (notes) {
-        msg += `───────────────────\n`;
-        msg += `📝 *ملاحظات التوصيل:* ${notes}\n`;
-    }
-    msg += `───────────────────\n`;
-    msg += `⏱️ *وقت التوصيل المختار:* ${delivery === 'وقت محدد' ? 'وقت محدد' : 'أسرع وقت الممكن'}`;
-    if (delivery === 'وقت محدد' && deliveryTime) {
-        const formattedTime = new Date(deliveryTime).toLocaleString(currentLang === 'en' ? 'en-US' : 'ar-EG');
-        msg += `\n📅 *الميعاد:* ${formattedTime}`;
-    }
-    msg += `\n───────────────────\n`;
-    msg += `💳 *طريقة الدفع:* ${payment}\n`;
-    if (payment.includes('إنستا') || payment.includes('Insta') || payment.includes('محفظة') || payment.includes('Wallet')) {
-        msg += `\n⚠️ *ملاحظة هامة للدفع الإلكتروني:*\n`;
-        msg += `يرجى إرسال مبلغ الطلب إلى الرقم التالي:\n`;
-        msg += `📞 *01005777923*\n`;
-        msg += `مع ضرورة إرسال لقطة شاشة (Screenshot) للتحويل هنا لتأكيد الطلب وبدء الشحن.\n`;
-    }
-    msg += `───────────────────\n`;
-    msg += `🌸 *نشكرك على اختيارك متجر الواحة - طازج وصحي دائماً!*`;
-
-    const shopNumber = '201229156909';
-    const whatsappUrl = `https://wa.me/${shopNumber}?text=${encodeURIComponent(msg)}`;
-
-    cart = [];
-    appliedCoupon = null;
-    document.getElementById('couponCode').value = '';
-    document.getElementById('couponMessage').textContent = '';
-    saveCart();
-    updateCartUI();
-
-    const checkoutModal = document.getElementById('checkoutModal');
-    const cartOverlay = document.getElementById('cartOverlay');
-    if (checkoutModal) checkoutModal.classList.remove('open');
-    if (cartOverlay) cartOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-
-    showToast(`${currentLang === 'en' ? 'Order confirmed!' : 'تم تأكيد طلبك!'}`, 'success', '🎉');
-    setTimeout(() => { window.open(whatsappUrl, '_blank'); }, 600);
 }
 
 // ============================================================
@@ -896,7 +904,8 @@ function toggleLang() {
     renderProducts(currentSort, document.getElementById('searchInput').value);
     updateCartUI();
     if (modalProductId) {
-        const p = productsData.find(item => item.id === modalProductId);
+        const products = getProductsData();
+        const p = products.find(item => item.id === modalProductId);
         if (p) {
             const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م / كجم';
             document.getElementById('modalName').textContent = getProductName(p);
@@ -1002,14 +1011,8 @@ function updateLanguage(lang) {
     document.querySelector('.phone-hint').innerHTML =
         `<i class="fas fa-info-circle"></i> ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}`;
 
-    document.querySelector('.theme-toggle').title = isEn ? 'Toggle theme' : 'تبديل المظهر';
-    document.querySelector('.lang-toggle').title = isEn ? 'Toggle language' : 'تبديل اللغة';
-    
-    // كوبونات
     document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
     document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
-    document.querySelector('#checkoutModal .btn-confirm-order').innerHTML = 
-        `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
 }
 
 const savedLang = localStorage.getItem('alwaha_lang');
@@ -1083,7 +1086,275 @@ document.getElementById('logoTrigger').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 20. INIT
+// 20. FIREBASE AUTH - دوال المصادقة
+// ============================================================
+let currentUser = null;
+let currentUserData = null;
+
+if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        
+        if (user) {
+            console.log('✅ مستخدم مسجل:', user.email);
+            await loadUserData(user.uid);
+            updateUIForLoggedInUser();
+            await syncCartFromFirebase();
+        } else {
+            console.log('👤 مستخدم ضيف');
+            currentUserData = null;
+            updateUIForGuestUser();
+            loadCart();
+            updateCartUI();
+        }
+    });
+}
+
+async function loadUserData(uid) {
+    try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (doc.exists) {
+            currentUserData = doc.data();
+        } else {
+            const newUser = {
+                uid: uid,
+                email: currentUser.email,
+                displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم',
+                phone: '',
+                address: '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isAdmin: false,
+                cart: []
+            };
+            await db.collection('users').doc(uid).set(newUser);
+            currentUserData = newUser;
+            
+            const adminDoc = await db.collection('admins').doc(uid).get();
+            if (adminDoc.exists) {
+                currentUserData.isAdmin = true;
+            }
+        }
+    } catch (error) {
+        console.error('خطأ في تحميل بيانات المستخدم:', error);
+    }
+}
+
+async function loginWithEmail(email, password) {
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        showToast('تم تسجيل الدخول بنجاح! 🎉', 'success');
+        closeAuthModal();
+    } catch (error) {
+        showToast(getAuthErrorMessage(error.code), 'error');
+    }
+}
+
+async function signupWithEmail(email, password, displayName) {
+    try {
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        await result.user.updateProfile({ displayName: displayName });
+        showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
+        closeAuthModal();
+    } catch (error) {
+        showToast(getAuthErrorMessage(error.code), 'error');
+    }
+}
+
+async function loginWithGoogle() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+        showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
+        closeAuthModal();
+    } catch (error) {
+        showToast(getAuthErrorMessage(error.code), 'error');
+    }
+}
+
+async function logout() {
+    try {
+        await auth.signOut();
+        showToast('تم تسجيل الخروج', 'info');
+        loadCart();
+        updateCartUI();
+    } catch (error) {
+        showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
+    }
+}
+
+async function resetPassword(email) {
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showToast('تم إرسال رابط إعادة تعيين كلمة المرور', 'success');
+    } catch (error) {
+        showToast(getAuthErrorMessage(error.code), 'error');
+    }
+}
+
+function getAuthErrorMessage(code) {
+    const messages = {
+        'auth/user-not-found': '❌ البريد الإلكتروني غير مسجل',
+        'auth/wrong-password': '❌ كلمة المرور غير صحيحة',
+        'auth/email-already-in-use': '❌ هذا البريد مسجل بالفعل',
+        'auth/invalid-email': '❌ بريد إلكتروني غير صحيح',
+        'auth/weak-password': '❌ كلمة المرور ضعيفة (6 أحرف على الأقل)',
+        'auth/too-many-requests': '⚠️ تم تجاوز عدد المحاولات، حاول لاحقاً',
+        'auth/popup-closed-by-user': 'تم إغلاق نافذة تسجيل الدخول',
+    };
+    return messages[code] || `⚠️ حدث خطأ: ${code}`;
+}
+
+function updateUIForLoggedInUser() {
+    const user = auth.currentUser;
+    const name = currentUserData?.displayName || user?.email?.split('@')[0] || 'مستخدم';
+    
+    const userMenu = document.getElementById('userMenu');
+    const guestMenu = document.getElementById('guestMenu');
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+    
+    if (userMenu) userMenu.style.display = 'flex';
+    if (guestMenu) guestMenu.style.display = 'none';
+    if (userName) userName.textContent = name;
+    if (userAvatar) userAvatar.textContent = (name || 'م')[0];
+}
+
+function updateUIForGuestUser() {
+    const userMenu = document.getElementById('userMenu');
+    const guestMenu = document.getElementById('guestMenu');
+    
+    if (userMenu) userMenu.style.display = 'none';
+    if (guestMenu) guestMenu.style.display = 'flex';
+}
+
+// ============================================================
+// 21. AUTH MODAL
+// ============================================================
+function openAuthModal() {
+    document.getElementById('authModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    switchAuthTab('login');
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tabs button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll('.auth-form').forEach(form => {
+        form.classList.toggle('active', form.id === (tab === 'login' ? 'loginForm' : 'signupForm'));
+    });
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('signupError').classList.remove('show');
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    loginWithEmail(email, password);
+}
+
+function handleSignup(e) {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    signupWithEmail(email, password, name);
+}
+
+function handleForgotPassword() {
+    const email = document.getElementById('loginEmail').value;
+    if (!email) {
+        showToast('أدخل بريدك الإلكتروني أولاً', 'error');
+        return;
+    }
+    resetPassword(email);
+}
+
+function handleGoogleLogin() {
+    loginWithGoogle();
+}
+
+// ============================================================
+// 22. FIREBASE - مزامنة السلة والطلبات
+// ============================================================
+async function syncCartFromFirebase() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+            const cloudCart = data.cart || [];
+            
+            if (cart.length > 0 && cloudCart.length > 0) {
+                cart = mergeCarts(cart, cloudCart);
+            } else if (cloudCart.length > 0) {
+                cart = cloudCart;
+            }
+            
+            saveCart();
+            updateCartUI();
+            
+            await db.collection('users').doc(user.uid).update({
+                cart: cart
+            });
+        }
+    } catch (error) {
+        console.error('خطأ في مزامنة السلة:', error);
+    }
+}
+
+function mergeCarts(localCart, cloudCart) {
+    const merged = [...cloudCart];
+    localCart.forEach(item => {
+        const existing = merged.find(c => c.id === item.id);
+        if (existing) {
+            existing.qty += item.qty;
+        } else {
+            merged.push(item);
+        }
+    });
+    return merged;
+}
+
+async function saveCartToFirebase() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+        await db.collection('users').doc(user.uid).update({
+            cart: cart
+        });
+    } catch (error) {
+        console.error('خطأ في حفظ السلة:', error);
+    }
+}
+
+async function saveOrderToFirebase(orderData) {
+    try {
+        const user = auth.currentUser;
+        const docRef = await db.collection('orders').add({
+            ...orderData,
+            userId: user?.uid || null,
+            status: 'جديد',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return { id: docRef.id, ...orderData };
+    } catch (error) {
+        console.error('خطأ في حفظ الطلب:', error);
+        throw error;
+    }
+}
+
+// ============================================================
+// 23. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     renderProducts('default', '');
@@ -1113,4 +1384,40 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     setMinDeliveryTime();
-}); 
+});
+
+// تصدير الدوال للاستخدام العام
+window.toggleLang = toggleLang;
+window.filterProducts = filterProducts;
+window.applySort = applySort;
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
+window.changeModalWeight = changeModalWeight;
+window.addFromModal = addFromModal;
+window.toggleCart = toggleCart;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.confirmOrder = confirmOrder;
+window.applyCoupon = applyCoupon;
+window.shareProduct = shareProduct;
+window.toggleSharePopup = toggleSharePopup;
+window.scrollToTop = scrollToTop;
+window.changeQty = changeQty;
+window.removeItem = removeItem;
+window.validateCheckoutForm = validateCheckoutForm;
+window.logout = logout;
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.switchAuthTab = switchAuthTab;
+window.handleLogin = handleLogin;
+window.handleSignup = handleSignup;
+window.handleForgotPassword = handleForgotPassword;
+window.handleGoogleLogin = handleGoogleLogin;
+window.loginWithEmail = loginWithEmail;
+window.signupWithEmail = signupWithEmail;
+window.loginWithGoogle = loginWithGoogle;
+window.resetPassword = resetPassword;
+window.syncCartFromFirebase = syncCartFromFirebase;
+window.saveCartToFirebase = saveCartToFirebase;
+window.saveOrderToFirebase = saveOrderToFirebase;
+window.getProductsData = getProductsData; 

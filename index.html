@@ -251,7 +251,7 @@
             transform: scale(1.05);
         }
 
-        /* ===== AUTH MODAL - تصميم احترافي ===== */
+        /* ===== AUTH MODAL ===== */
         .auth-modal-overlay {
             position: fixed;
             top: 0;
@@ -514,7 +514,7 @@
             transform: none !important;
         }
 
-        /* ===== تعديلات الهيدر للشاشات الصغيرة ===== */
+        /* ===== تعديلات الهيدر ===== */
         @media (max-width: 768px) {
             .header .logo .logo-text {
                 font-size: 28px;
@@ -905,22 +905,25 @@
         </div>
     </div>
 
-    <!-- ===== FIREBASE CONFIG ===== -->
+    <!-- ===== FIREBASE CONFIG - بإعداداتك الصحيحة ===== -->
     <script>
-        // 🔑 استبدل هذه القيم بقيم مشروعك من Firebase Console
+        // 🔑 إعدادات Firebase الخاصة بمشروعك
         const firebaseConfig = {
-            apiKey: "AIzaSyB...",
-            authDomain: "alwaha-store.firebaseapp.com",
-            projectId: "alwaha-store",
-            storageBucket: "alwaha-store.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+            apiKey: "AIzaSyBpNlEO7b0zu6BniRQ6cXljjbMaOmyYkqw",
+            authDomain: "alwaha-store-77c74.firebaseapp.com",
+            projectId: "alwaha-store-77c74",
+            storageBucket: "alwaha-store-77c74.firebasestorage.app",
+            messagingSenderId: "860841497840",
+            appId: "1:860841497840:web:05dd68b77c32188ee45e35",
+            measurementId: "G-Q8K9BLF8Y1"
         };
 
+        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // تمكين المزامنة دون اتصال
         db.enablePersistence({
             synchronizeTabs: true
         }).catch(err => {
@@ -930,4 +933,4 @@
 
     <script src="script.js"></script>
 </body>
-    </html> 
+                    </html> 

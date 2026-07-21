@@ -514,7 +514,7 @@ function backupData() {
 }
 
 // ============================================================
-// 9. FIREBASE SYNC - دوال المزامنة مع Firebase
+// 9. FIREBASE SYNC
 // ============================================================
 async function loadProductsFromFirebase() {
     try {
@@ -690,32 +690,5 @@ function initAdmin() {
     renderCouponsTable();
     loadSettings();
     
-    // إضافة زر المزامنة بعد تحميل الصفحة
     setTimeout(addSyncButton, 1000);
-}
-
-// تصدير الدوال للاستخدام العام
-window.logout = logout;
-window.login = login;
-window.openAddProduct = openAddProduct;
-window.saveProduct = saveProduct;
-window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;
-window.exportProducts = exportProducts;
-window.openAddOffer = openAddOffer;
-window.removeOffer = removeOffer;
-window.openAddCoupon = openAddCoupon;
-window.saveCoupon = saveCoupon;
-window.deleteCoupon = deleteCoupon;
-window.filterOrders = filterOrders;
-window.updateOrderStatus = updateOrderStatus;
-window.deleteOrder = deleteOrder;
-window.viewOrder = viewOrder;
-window.exportOrders = exportOrders;
-window.closeModal = closeModal;
-window.saveSettings = saveSettings;
-window.resetSettings = resetSettings;
-window.backupData = backupData;
-window.loadProductsFromFirebase = loadProductsFromFirebase;
-window.loadOrdersFromFirebase = loadOrdersFromFirebase;
-window.loadCouponsFromFirebase = loadCouponsFromFirebase; 
+                } 

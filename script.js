@@ -685,26 +685,24 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 // 14. CONFIRM ORDER
 // ============================================================
 function updateCheckoutTotal() {
-    // يتم تحديث الإجمالي عند تطبيق الكوبون
+    let total = 0;
+    const grouped = {};
+    cart.forEach(item => {
+        const key = `${item.id}`;
+        if (grouped[key]) {
+            grouped[key].qty += item.qty;
+        } else {
+            grouped[key] = { ...item };
+        }
+    });
+    const groupedItems = Object.values(grouped);
+    groupedItems.forEach(item => {
+        total += item.price * item.weight * item.qty;
+    });
+    const discountedTotal = getDiscountedTotal(total);
+    const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
     const totalSpan = document.querySelector('.cs-total span:last-child');
     if (totalSpan) {
-        // إعادة حساب الإجمالي
-        let total = 0;
-        const grouped = {};
-        cart.forEach(item => {
-            const key = `${item.id}`;
-            if (grouped[key]) {
-                grouped[key].qty += item.qty;
-            } else {
-                grouped[key] = { ...item };
-            }
-        });
-        const groupedItems = Object.values(grouped);
-        groupedItems.forEach(item => {
-            total += item.price * item.weight * item.qty;
-        });
-        const discountedTotal = getDiscountedTotal(total);
-        const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
         totalSpan.textContent = discountedTotal.toFixed(2) + ' ' + currency;
     }
 }
@@ -1086,7 +1084,7 @@ document.getElementById('logoTrigger').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 20. FIREBASE AUTH - دوال المصادقة
+// 20. FIREBASE AUTH - دوال المصادقة المُصلحة
 // ============================================================
 let currentUser = null;
 let currentUserData = null;
@@ -1139,38 +1137,107 @@ async function loadUserData(uid) {
     }
 }
 
+// ===== تسجيل الدخول بالبريد الإلكتروني - مُصلح =====
 async function loginWithEmail(email, password) {
+    if (!email || !password) {
+        showToast('⚠️ الرجاء إدخال البريد وكلمة المرور', 'error');
+        return;
+    }
+    
     try {
-        await auth.signInWithEmailAndPassword(email, password);
+        const result = await auth.signInWithEmailAndPassword(email, password);
+        console.log('✅ تم تسجيل الدخول:', result.user.email);
         showToast('تم تسجيل الدخول بنجاح! 🎉', 'success');
         closeAuthModal();
     } catch (error) {
-        showToast(getAuthErrorMessage(error.code), 'error');
+        console.error('❌ خطأ في تسجيل الدخول:', error);
+        const errorMsg = getAuthErrorMessage(error.code);
+        showToast(errorMsg, 'error');
+        // عرض الخطأ في المودال
+        const loginError = document.getElementById('loginError');
+        if (loginError) {
+            loginError.textContent = errorMsg;
+            loginError.classList.add('show');
+        }
     }
 }
 
+// ===== إنشاء حساب جديد - مُصلح =====
 async function signupWithEmail(email, password, displayName) {
+    if (!email || !password || !displayName) {
+        showToast('⚠️ الرجاء ملء جميع الحقول', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+        return;
+    }
+    
     try {
         const result = await auth.createUserWithEmailAndPassword(email, password);
         await result.user.updateProfile({ displayName: displayName });
+        console.log('✅ تم إنشاء الحساب:', result.user.email);
         showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
         closeAuthModal();
     } catch (error) {
-        showToast(getAuthErrorMessage(error.code), 'error');
+        console.error('❌ خطأ في إنشاء الحساب:', error);
+        const errorMsg = getAuthErrorMessage(error.code);
+        showToast(errorMsg, 'error');
+        const signupError = document.getElementById('signupError');
+        if (signupError) {
+            signupError.textContent = errorMsg;
+            signupError.classList.add('show');
+        }
     }
 }
 
+// ===== تسجيل الدخول بجوجل - مُصلح بالكامل =====
 async function loginWithGoogle() {
+    const googleBtn = document.getElementById('googleBtn');
+    if (googleBtn) {
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري...';
+    }
+    
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
-        await auth.signInWithPopup(provider);
-        showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
-        closeAuthModal();
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        
+        // محاولة popup أولاً
+        try {
+            const result = await auth.signInWithPopup(provider);
+            console.log('✅ تم تسجيل الدخول بجوجل:', result.user.email);
+            showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
+            closeAuthModal();
+        } catch (popupError) {
+            // إذا فشل popup، جرب redirect
+            if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+                console.log('⚠️ تم حظر النافذة، جاري التوجيه...');
+                await auth.signInWithRedirect(provider);
+                return;
+            } else {
+                throw popupError;
+            }
+        }
     } catch (error) {
-        showToast(getAuthErrorMessage(error.code), 'error');
+        console.error('❌ خطأ في تسجيل الدخول بجوجل:', error);
+        const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول بجوجل';
+        showToast(errorMsg, 'error');
+    } finally {
+        if (googleBtn) {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = `
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                <span>تسجيل الدخول بجوجل</span>
+            `;
+        }
     }
 }
 
+// ===== تسجيل الخروج =====
 async function logout() {
     try {
         await auth.signOut();
@@ -1178,19 +1245,28 @@ async function logout() {
         loadCart();
         updateCartUI();
     } catch (error) {
+        console.error('❌ خطأ في تسجيل الخروج:', error);
         showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
     }
 }
 
+// ===== إعادة تعيين كلمة المرور =====
 async function resetPassword(email) {
+    if (!email) {
+        showToast('⚠️ أدخل بريدك الإلكتروني أولاً', 'error');
+        return;
+    }
+    
     try {
         await auth.sendPasswordResetEmail(email);
-        showToast('تم إرسال رابط إعادة تعيين كلمة المرور', 'success');
+        showToast('✅ تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك', 'success');
     } catch (error) {
+        console.error('❌ خطأ في إعادة تعيين كلمة المرور:', error);
         showToast(getAuthErrorMessage(error.code), 'error');
     }
 }
 
+// ===== رسائل الخطأ =====
 function getAuthErrorMessage(code) {
     const messages = {
         'auth/user-not-found': '❌ البريد الإلكتروني غير مسجل',
@@ -1200,10 +1276,15 @@ function getAuthErrorMessage(code) {
         'auth/weak-password': '❌ كلمة المرور ضعيفة (6 أحرف على الأقل)',
         'auth/too-many-requests': '⚠️ تم تجاوز عدد المحاولات، حاول لاحقاً',
         'auth/popup-closed-by-user': 'تم إغلاق نافذة تسجيل الدخول',
+        'auth/popup-blocked': '⚠️ تم حظر النافذة المنبثقة، يرجى السماح لها',
+        'auth/network-request-failed': '⚠️ مشكلة في الاتصال بالإنترنت',
+        'auth/requires-recent-login': '⚠️ يرجى تسجيل الدخول مرة أخرى',
+        'auth/credential-already-in-use': '⚠️ هذا الحساب مرتبط بمستخدم آخر',
     };
     return messages[code] || `⚠️ حدث خطأ: ${code}`;
 }
 
+// ===== تحديث واجهة المستخدم =====
 function updateUIForLoggedInUser() {
     const user = auth.currentUser;
     const name = currentUserData?.displayName || user?.email?.split('@')[0] || 'مستخدم';
@@ -1269,10 +1350,6 @@ function handleSignup(e) {
 
 function handleForgotPassword() {
     const email = document.getElementById('loginEmail').value;
-    if (!email) {
-        showToast('أدخل بريدك الإلكتروني أولاً', 'error');
-        return;
-    }
     resetPassword(email);
 }
 
@@ -1386,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setMinDeliveryTime();
 });
 
-// تصدير الدوال للاستخدام العام
+// تصدير الدوال
 window.toggleLang = toggleLang;
 window.filterProducts = filterProducts;
 window.applySort = applySort;

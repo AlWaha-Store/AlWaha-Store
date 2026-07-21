@@ -1396,12 +1396,10 @@ body {
     font-size: 28px !important;
 }
 
-/* ===== زر المظهر حجم أصغر ===== */
 .theme-switch {
     --toggle-size: 14px !important;
 }
 
-/* ===== تحسينات للهواتف ===== */
 @media (max-width: 1024px) {
     .hero .hero-title { font-size: 58px; }
     .hero-badge-art { font-size: 34px; padding: 6px 16px; }
@@ -1448,21 +1446,6 @@ body {
     .category-card h4 { font-size: 13px; }
     .section { padding: 12px 10px; }
     #bg-static { font-size: 28px; gap: 15px 25px; padding: 20px; }
-    .theme-switch { --toggle-size: 14px; }
-    .auth-modal-box {
-        padding: 20px 16px !important;
-    }
-    .auth-modal-box .auth-header h2 {
-        font-size: 20px !important;
-    }
-    .auth-modal-box .auth-form .form-group input {
-        font-size: 14px !important;
-        padding: 10px 12px !important;
-    }
-    .auth-modal-box .auth-form .btn-auth {
-        font-size: 14px !important;
-        padding: 12px !important;
-    }
 }
 
 @media (max-width: 480px) {
@@ -1598,4 +1581,4 @@ body {
 }
 @media (max-width: 480px) {
     [lang="en"] .hero .hero-title { font-size: 32px; }
-   } 
+                                                                                } 

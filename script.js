@@ -1090,6 +1090,38 @@ let currentUser = null;
 let currentUserData = null;
 
 if (typeof auth !== 'undefined') {
+    // ===== معالجة نتيجة التوجيه من جوجل (redirect) =====
+    auth.getRedirectResult().then((result) => {
+        if (result.user) {
+            console.log('✅ تم تسجيل الدخول بجوجل (redirect):', result.user.email);
+            showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
+            closeAuthModal();
+            
+            const googleBtn = document.getElementById('googleBtn');
+            if (googleBtn) {
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = `
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                    <span>تسجيل الدخول بجوجل</span>
+                `;
+            }
+        }
+    }).catch((error) => {
+        console.error('❌ خطأ في redirect:', error);
+        const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول';
+        showToast(errorMsg, 'error');
+        
+        const googleBtn = document.getElementById('googleBtn');
+        if (googleBtn) {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = `
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                <span>تسجيل الدخول بجوجل</span>
+            `;
+        }
+    });
+    
+    // ===== مراقبة حالة المصادقة =====
     auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         
@@ -1137,7 +1169,7 @@ async function loadUserData(uid) {
     }
 }
 
-// ===== تسجيل الدخول بالبريد الإلكتروني - مُصلح =====
+// ===== تسجيل الدخول بالبريد الإلكتروني =====
 async function loginWithEmail(email, password) {
     if (!email || !password) {
         showToast('⚠️ الرجاء إدخال البريد وكلمة المرور', 'error');
@@ -1153,7 +1185,6 @@ async function loginWithEmail(email, password) {
         console.error('❌ خطأ في تسجيل الدخول:', error);
         const errorMsg = getAuthErrorMessage(error.code);
         showToast(errorMsg, 'error');
-        // عرض الخطأ في المودال
         const loginError = document.getElementById('loginError');
         if (loginError) {
             loginError.textContent = errorMsg;
@@ -1162,7 +1193,7 @@ async function loginWithEmail(email, password) {
     }
 }
 
-// ===== إنشاء حساب جديد - مُصلح =====
+// ===== إنشاء حساب جديد =====
 async function signupWithEmail(email, password, displayName) {
     if (!email || !password || !displayName) {
         showToast('⚠️ الرجاء ملء جميع الحقول', 'error');
@@ -1192,12 +1223,12 @@ async function signupWithEmail(email, password, displayName) {
     }
 }
 
-// ===== تسجيل الدخول بجوجل - مُصلح بالكامل =====
+// ===== تسجيل الدخول بجوجل - باستخدام redirect (أفضل للهواتف) =====
 async function loginWithGoogle() {
     const googleBtn = document.getElementById('googleBtn');
     if (googleBtn) {
         googleBtn.disabled = true;
-        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري...';
+        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري التوجيه...';
     }
     
     try {
@@ -1206,27 +1237,15 @@ async function loginWithGoogle() {
             prompt: 'select_account'
         });
         
-        // محاولة popup أولاً
-        try {
-            const result = await auth.signInWithPopup(provider);
-            console.log('✅ تم تسجيل الدخول بجوجل:', result.user.email);
-            showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
-            closeAuthModal();
-        } catch (popupError) {
-            // إذا فشل popup، جرب redirect
-            if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
-                console.log('⚠️ تم حظر النافذة، جاري التوجيه...');
-                await auth.signInWithRedirect(provider);
-                return;
-            } else {
-                throw popupError;
-            }
-        }
+        // استخدام redirect بدلاً من popup (أفضل للهواتف)
+        await auth.signInWithRedirect(provider);
+        showToast('جاري التوجيه إلى جوجل...', 'info');
+        
     } catch (error) {
         console.error('❌ خطأ في تسجيل الدخول بجوجل:', error);
         const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول بجوجل';
         showToast(errorMsg, 'error');
-    } finally {
+        
         if (googleBtn) {
             googleBtn.disabled = false;
             googleBtn.innerHTML = `

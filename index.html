@@ -251,71 +251,108 @@
             transform: scale(1.05);
         }
 
-        /* ===== AUTH MODAL ===== */
+        /* ===== AUTH MODAL - تصميم احترافي ===== */
         .auth-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 9999;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 16px;
+            animation: fadeIn 0.3s ease;
         }
         .auth-modal-overlay.open {
             display: flex;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
         .auth-modal-box {
             background: var(--bg-modal);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 20px;
-            padding: 28px 24px;
-            max-width: 400px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 28px;
+            padding: 32px 28px;
+            max-width: 420px;
             width: 100%;
             max-height: 92vh;
             overflow-y: auto;
-            animation: modalIn 0.3s ease;
+            animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
             border: 1px solid var(--border-color);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.15);
             position: relative;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px) scale(0.96); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .auth-modal-box .auth-close {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(0,0,0,0.03);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-modal-box .auth-close:hover {
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+            transform: rotate(90deg);
         }
         .auth-modal-box .auth-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .auth-modal-box .auth-header .auth-icon {
-            font-size: 48px;
+            font-size: 56px;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
         }
         .auth-modal-box .auth-header h2 {
             color: var(--primary);
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
+            margin-bottom: 2px;
         }
         .auth-modal-box .auth-header p {
-            color: #7a8a7a;
+            color: #8a9a8a;
             font-size: 14px;
         }
         .auth-modal-box .auth-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
+            gap: 6px;
+            margin-bottom: 20px;
             background: rgba(26,92,58,0.04);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 4px;
         }
         .auth-modal-box .auth-tabs button {
             flex: 1;
-            padding: 10px;
+            padding: 10px 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
@@ -327,7 +364,7 @@
         .auth-modal-box .auth-tabs button.active {
             background: var(--gold);
             color: var(--primary-dark);
-            box-shadow: 0 2px 12px rgba(212,175,55,0.15);
+            box-shadow: 0 4px 20px rgba(212,175,55,0.2);
         }
         .auth-modal-box .auth-tabs button:not(.active):hover {
             background: rgba(255,255,255,0.1);
@@ -335,7 +372,7 @@
         .auth-modal-box .auth-form {
             display: none;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         .auth-modal-box .auth-form.active {
             display: flex;
@@ -348,13 +385,17 @@
             font-weight: 600;
             color: var(--primary);
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+        }
+        .auth-modal-box .auth-form .form-group label i {
+            margin-left: 4px;
+            color: var(--gold);
         }
         .auth-modal-box .auth-form .form-group input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 12px 16px;
             border: 2px solid rgba(26,92,58,0.06);
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
             font-family: 'Tajawal', sans-serif;
             background: rgba(255,255,255,0.3);
@@ -364,18 +405,25 @@
         .auth-modal-box .auth-form .form-group input:focus {
             border-color: var(--gold);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(212,175,55,0.05);
+            box-shadow: 0 0 0 4px rgba(212,175,55,0.08);
+        }
+        .auth-modal-box .auth-form .form-group input::placeholder {
+            color: #aaa;
         }
         .auth-modal-box .auth-form .btn-auth {
             padding: 14px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
             font-family: 'Tajawal', sans-serif;
             width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .auth-modal-box .auth-form .btn-auth-primary {
             background: var(--primary);
@@ -383,77 +431,24 @@
         }
         .auth-modal-box .auth-form .btn-auth-primary:hover {
             background: var(--primary-light);
-            transform: scale(1.01);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(26,92,58,0.25);
         }
         .auth-modal-box .auth-form .btn-auth-gold {
             background: var(--gold);
             color: var(--primary-dark);
         }
         .auth-modal-box .auth-form .btn-auth-gold:hover {
-            transform: scale(1.01);
-            box-shadow: 0 4px 20px rgba(212,175,55,0.2);
-        }
-        .auth-modal-box .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 4px 0 8px;
-        }
-        .auth-modal-box .auth-divider hr {
-            flex: 1;
-            border: none;
-            border-top: 1px solid rgba(0,0,0,0.04);
-        }
-        .auth-modal-box .auth-divider span {
-            color: #999;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        .auth-modal-box .btn-google {
-            padding: 12px;
-            border: 2px solid rgba(0,0,0,0.04);
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: 0.3s;
-            color: var(--text-color);
-            width: 100%;
-        }
-        .auth-modal-box .btn-google:hover {
-            border-color: var(--gold);
-            transform: scale(1.01);
-        }
-        .auth-modal-box .btn-google img {
-            width: 20px;
-            height: 20px;
-        }
-        .auth-modal-box .auth-close {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: none;
-            border: none;
-            font-size: 22px;
-            color: #999;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .auth-modal-box .auth-close:hover {
-            color: #e74c3c;
-            transform: rotate(90deg);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(212,175,55,0.3);
         }
         .auth-modal-box .auth-error {
             color: #e74c3c;
             font-size: 13px;
             text-align: center;
-            margin-top: 4px;
+            padding: 6px 10px;
+            background: rgba(231,76,60,0.06);
+            border-radius: 8px;
             display: none;
         }
         .auth-modal-box .auth-error.show {
@@ -465,9 +460,58 @@
             color: var(--gold);
             cursor: pointer;
             transition: 0.3s;
+            padding: 4px;
         }
         .auth-modal-box .auth-forgot:hover {
             text-decoration: underline;
+        }
+        .auth-modal-box .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 6px 0 10px;
+        }
+        .auth-modal-box .auth-divider hr {
+            flex: 1;
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .auth-modal-box .auth-divider span {
+            color: #999;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        .auth-modal-box .btn-google {
+            padding: 13px;
+            border: 2px solid rgba(0,0,0,0.04);
+            border-radius: 14px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.3s;
+            color: var(--text-color);
+            width: 100%;
+        }
+        .auth-modal-box .btn-google:hover {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        .auth-modal-box .btn-google img {
+            width: 22px;
+            height: 22px;
+        }
+        .auth-modal-box .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
         }
 
         /* ===== تعديلات الهيدر للشاشات الصغيرة ===== */
@@ -488,6 +532,9 @@
             }
             .theme-switch {
                 --toggle-size: 12px;
+            }
+            .auth-modal-box {
+                padding: 24px 18px;
             }
         }
         @media (max-width: 480px) {
@@ -512,6 +559,28 @@
             }
             .theme-switch {
                 --toggle-size: 10px;
+            }
+            .auth-modal-box {
+                padding: 18px 14px;
+                border-radius: 20px;
+            }
+            .auth-modal-box .auth-header .auth-icon {
+                font-size: 42px;
+            }
+            .auth-modal-box .auth-header h2 {
+                font-size: 22px;
+            }
+            .auth-modal-box .auth-tabs button {
+                font-size: 12px;
+                padding: 8px;
+            }
+            .auth-modal-box .auth-form .form-group input {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+            .auth-modal-box .auth-form .btn-auth {
+                font-size: 14px;
+                padding: 12px;
             }
         }
     </style>
@@ -538,7 +607,6 @@
         </div>
         
         <div class="header-actions">
-            <!-- ===== زر المظهر ===== -->
             <label class="theme-switch" id="themeSwitch">
                 <input type="checkbox" class="theme-switch__checkbox" id="themeCheckbox">
                 <div class="theme-switch__container">
@@ -564,7 +632,6 @@
                 <i class="fas fa-globe"></i>
             </button>
             
-            <!-- ===== قائمة المستخدم ===== -->
             <div class="user-menu" id="userMenu">
                 <div class="avatar" id="userAvatar">م</div>
                 <span class="user-name" id="userName">مستخدم</span>
@@ -592,7 +659,6 @@
                 <button data-tab="signup" onclick="switchAuthTab('signup')">حساب جديد</button>
             </div>
             
-            <!-- ===== تسجيل الدخول ===== -->
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
@@ -603,11 +669,12 @@
                     <input type="password" id="loginPassword" placeholder="••••••••" required />
                 </div>
                 <div class="auth-error" id="loginError"></div>
-                <button type="submit" class="btn-auth btn-auth-primary">تسجيل الدخول</button>
+                <button type="submit" class="btn-auth btn-auth-primary">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
                 <div class="auth-forgot" onclick="handleForgotPassword()">نسيت كلمة المرور؟</div>
             </form>
             
-            <!-- ===== تسجيل جديد ===== -->
             <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> الاسم الكامل</label>
@@ -622,14 +689,16 @@
                     <input type="password" id="signupPassword" placeholder="•••••••• (6 أحرف على الأقل)" required minlength="6" />
                 </div>
                 <div class="auth-error" id="signupError"></div>
-                <button type="submit" class="btn-auth btn-auth-gold">إنشاء حساب</button>
+                <button type="submit" class="btn-auth btn-auth-gold">
+                    <i class="fas fa-user-plus"></i> إنشاء حساب
+                </button>
             </form>
             
             <div class="auth-divider">
                 <hr /><span>أو</span><hr />
             </div>
             
-            <button class="btn-google" onclick="handleGoogleLogin()">
+            <button class="btn-google" id="googleBtn" onclick="handleGoogleLogin()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
                 <span>تسجيل الدخول بجوجل</span>
             </button>
@@ -848,12 +917,10 @@
             appId: "1:123456789:web:abcdef"
         };
 
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // تمكين المزامنة دون اتصال
         db.enablePersistence({
             synchronizeTabs: true
         }).catch(err => {

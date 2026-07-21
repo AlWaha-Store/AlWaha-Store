@@ -1502,4 +1502,4 @@ window.resetPassword = resetPassword;
 window.syncCartFromFirebase = syncCartFromFirebase;
 window.saveCartToFirebase = saveCartToFirebase;
 window.saveOrderToFirebase = saveOrderToFirebase;
-window.getProductsData = getProductsData; 
+window.getProductsData = getProductsData;getProductsData;

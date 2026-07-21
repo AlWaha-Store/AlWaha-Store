@@ -1090,37 +1090,6 @@ let currentUser = null;
 let currentUserData = null;
 
 if (typeof auth !== 'undefined') {
-    // ===== معالجة نتيجة التوجيه من جوجل (redirect) =====
-    auth.getRedirectResult().then((result) => {
-        if (result.user) {
-            console.log('✅ تم تسجيل الدخول بجوجل (redirect):', result.user.email);
-            showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
-            closeAuthModal();
-            
-            const googleBtn = document.getElementById('googleBtn');
-            if (googleBtn) {
-                googleBtn.disabled = false;
-                googleBtn.innerHTML = `
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                    <span>تسجيل الدخول بجوجل</span>
-                `;
-            }
-        }
-    }).catch((error) => {
-        console.error('❌ خطأ في redirect:', error);
-        const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول';
-        showToast(errorMsg, 'error');
-        
-        const googleBtn = document.getElementById('googleBtn');
-        if (googleBtn) {
-            googleBtn.disabled = false;
-            googleBtn.innerHTML = `
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                <span>تسجيل الدخول بجوجل</span>
-            `;
-        }
-    });
-    
     // ===== مراقبة حالة المصادقة =====
     auth.onAuthStateChanged(async (user) => {
         currentUser = user;
@@ -1223,12 +1192,12 @@ async function signupWithEmail(email, password, displayName) {
     }
 }
 
-// ===== تسجيل الدخول بجوجل - باستخدام redirect (أفضل للهواتف) =====
+// ===== تسجيل الدخول بجوجل - باستخدام popup مع fallback =====
 async function loginWithGoogle() {
     const googleBtn = document.getElementById('googleBtn');
     if (googleBtn) {
         googleBtn.disabled = true;
-        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري التوجيه...';
+        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري...';
     }
     
     try {
@@ -1237,14 +1206,30 @@ async function loginWithGoogle() {
             prompt: 'select_account'
         });
         
-        // استخدام redirect بدلاً من popup (أفضل للهواتف)
-        await auth.signInWithRedirect(provider);
-        showToast('جاري التوجيه إلى جوجل...', 'info');
+        // محاولة popup أولاً
+        const result = await auth.signInWithPopup(provider);
+        console.log('✅ تم تسجيل الدخول بجوجل:', result.user.email);
+        showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
+        closeAuthModal();
+        
+        if (googleBtn) {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = `
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                <span>تسجيل الدخول بجوجل</span>
+            `;
+        }
         
     } catch (error) {
         console.error('❌ خطأ في تسجيل الدخول بجوجل:', error);
-        const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول بجوجل';
-        showToast(errorMsg, 'error');
+        
+        // إذا كان الخطأ بسبب حظر النافذة المنبثقة
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+            showToast('⚠️ تم حظر النافذة المنبثقة، حاول مرة أخرى أو استخدم البريد', 'error');
+        } else {
+            const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول بجوجل';
+            showToast(errorMsg, 'error');
+        }
         
         if (googleBtn) {
             googleBtn.disabled = false;
@@ -1299,6 +1284,7 @@ function getAuthErrorMessage(code) {
         'auth/network-request-failed': '⚠️ مشكلة في الاتصال بالإنترنت',
         'auth/requires-recent-login': '⚠️ يرجى تسجيل الدخول مرة أخرى',
         'auth/credential-already-in-use': '⚠️ هذا الحساب مرتبط بمستخدم آخر',
+        'auth/cancelled-popup-request': 'تم إلغاء طلب تسجيل الدخول',
     };
     return messages[code] || `⚠️ حدث خطأ: ${code}`;
 }

@@ -1,6 +1,9 @@
 // ============================================================
-// script.js - متجر الواحة مع Supabase
+// إعدادات Supabase
 // ============================================================
+const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ============================================================
 // 1. CART

@@ -1,5 +1,5 @@
 // ============================================================
-// script-supabase.js - متجر الواحة مع Supabase
+// script.js - متجر الواحة مع Supabase
 // ============================================================
 
 // ============================================================
@@ -11,13 +11,11 @@ let currentSort = 'default';
 let appliedCoupon = null;
 let currentUser = null;
 let currentUserData = null;
-let allProducts = [];
 
 // ============================================================
 // 2. PRODUCTS DATA (50 منتج)
 // ============================================================
 const defaultProducts = [
-    // فاكهة (25)
     { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25, oldPrice: null, offer: null, description: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, stock: 100 },
     { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20, oldPrice: null, offer: null, description: 'برتقال عصير طازج', descEn: 'Fresh juice oranges', popular: 95, stock: 100 },
     { id: 3, name: 'موز', nameEn: 'Banana', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍌', price: 28, oldPrice: null, offer: null, description: 'موز طازج من المزرعة', descEn: 'Fresh bananas from the farm', popular: 150, stock: 100 },
@@ -43,8 +41,6 @@ const defaultProducts = [
     { id: 23, name: 'فاكهة التنين', nameEn: 'Dragon Fruit', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🐉', price: 60, oldPrice: null, offer: null, description: 'فاكهة التنين الطازجة', descEn: 'Fresh dragon fruit', popular: 120, stock: 100 },
     { id: 24, name: 'ليتشي', nameEn: 'Lychee', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 45, oldPrice: null, offer: null, description: 'ليتشي طازج حلو', descEn: 'Fresh sweet lychee', popular: 80, stock: 100 },
     { id: 25, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 28, oldPrice: null, offer: null, description: 'رمان طازج غني بمضادات الأكسدة', descEn: 'Fresh antioxidant-rich pomegranate', popular: 95, stock: 100 },
-
-    // خضار (25)
     { id: 26, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15, oldPrice: 20, offer: 'خصم 25%', description: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190, stock: 100 },
     { id: 27, name: 'خيار', nameEn: 'Cucumber', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 15, oldPrice: null, offer: null, description: 'خيار طازج مقرمش', descEn: 'Fresh crunchy cucumber', popular: 140, stock: 100 },
     { id: 28, name: 'فلفل', nameEn: 'Pepper', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫑', price: 30, oldPrice: null, offer: null, description: 'فلفل ألوان طازج', descEn: 'Fresh colorful peppers', popular: 90, stock: 100 },
@@ -87,6 +83,10 @@ const defaultCoupons = [
 // ============================================================
 function showToast(message, type = 'success', icon = '') {
     const container = document.getElementById('toastContainer');
+    if (!container) {
+        alert(message);
+        return;
+    }
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     const defaultIcon = icon ? icon : (type === 'success' ? '✅' : '⚠️');
@@ -136,6 +136,11 @@ function renderProducts(sort = currentSort, search = '') {
     const fruitsGrid = document.getElementById('fruitsGrid');
     const vegGrid = document.getElementById('vegetablesGrid');
     const offersGrid = document.getElementById('offersGrid');
+
+    if (!fruitsGrid || !vegGrid || !offersGrid) {
+        console.warn('⚠️ Product grids not found');
+        return;
+    }
 
     let fruits = products.filter(p => p.category === 'فاكهة');
     let vegetables = products.filter(p => p.category === 'خضار');
@@ -210,12 +215,12 @@ document.querySelectorAll('.category-card').forEach(card => {
 });
 
 function filterProducts() {
-    renderProducts(currentSort, document.getElementById('searchInput').value);
+    renderProducts(currentSort, document.getElementById('searchInput')?.value || '');
 }
 
 function applySort() {
-    currentSort = document.getElementById('sortFilter').value;
-    renderProducts(currentSort, document.getElementById('searchInput').value);
+    currentSort = document.getElementById('sortFilter')?.value || 'default';
+    renderProducts(currentSort, document.getElementById('searchInput')?.value || '');
 }
 
 // ============================================================
@@ -223,10 +228,11 @@ function applySort() {
 // ============================================================
 function toggleSearch() {
     const box = document.getElementById('searchToggle');
+    if (!box) return;
     box.classList.toggle('active');
     const input = document.getElementById('searchInput');
     if (box.classList.contains('active')) {
-        setTimeout(() => input.focus(), 100);
+        setTimeout(() => input?.focus(), 100);
     }
 }
 
@@ -245,62 +251,82 @@ function openProductModal(id) {
     shareProductData = p;
     const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م / كجم';
     
-    document.getElementById('modalEmoji').textContent = p.emoji;
-    document.getElementById('modalName').textContent = getProductName(p);
+    const modalEmoji = document.getElementById('modalEmoji');
+    const modalName = document.getElementById('modalName');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalOfferTag = document.getElementById('modalOfferTag');
+    const modalWeightInput = document.getElementById('modalWeight');
+    const modalAddBtn = document.getElementById('modalAddBtn');
+    const productModal = document.getElementById('productModal');
+    
+    if (modalEmoji) modalEmoji.textContent = p.emoji;
+    if (modalName) modalName.textContent = getProductName(p);
     
     let priceHtml = p.oldPrice ?
         `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
         `${p.price} <small>${priceLabel}</small>`;
-    document.getElementById('modalPrice').innerHTML = priceHtml;
-    document.getElementById('modalDesc').textContent = getProductDesc(p);
+    if (modalPrice) modalPrice.innerHTML = priceHtml;
+    if (modalDesc) modalDesc.textContent = getProductDesc(p);
     
-    const offerTag = document.getElementById('modalOfferTag');
-    if (p.offer) {
-        offerTag.style.display = 'inline-block';
-        offerTag.textContent = `🏷️ ${p.offer}`;
-    } else {
-        offerTag.style.display = 'none';
+    if (modalOfferTag) {
+        if (p.offer) {
+            modalOfferTag.style.display = 'inline-block';
+            modalOfferTag.textContent = `🏷️ ${p.offer}`;
+        } else {
+            modalOfferTag.style.display = 'none';
+        }
     }
     
-    document.getElementById('modalWeight').value = 1;
+    if (modalWeightInput) modalWeightInput.value = 1;
     modalWeight = 1;
-    document.getElementById('sharePopup').classList.remove('show');
-    document.getElementById('productModal').classList.add('open');
+    document.getElementById('sharePopup')?.classList.remove('show');
+    if (productModal) productModal.classList.add('open');
     document.body.style.overflow = 'hidden';
-    document.getElementById('modalAddBtn').innerHTML =
-        `<i class="fas fa-plus-circle"></i> ${currentLang === 'en' ? 'Add' : 'إضافة'}`;
+    if (modalAddBtn) {
+        modalAddBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${currentLang === 'en' ? 'Add' : 'إضافة'}`;
+    }
 }
 
 function closeProductModal() {
-    document.getElementById('productModal').classList.remove('open');
+    const productModal = document.getElementById('productModal');
+    if (productModal) productModal.classList.remove('open');
     document.body.style.overflow = '';
-    document.getElementById('sharePopup').classList.remove('show');
+    document.getElementById('sharePopup')?.classList.remove('show');
 }
 
 function changeModalWeight(delta) {
     const input = document.getElementById('modalWeight');
+    if (!input) return;
     let val = parseFloat(input.value) || 1;
     val = Math.max(0.25, Math.round((val + delta) * 100) / 100);
     input.value = val;
     modalWeight = val;
 }
 
-document.getElementById('modalWeight').addEventListener('change', function() {
-    let val = parseFloat(this.value) || 1;
-    val = Math.max(0.25, Math.round(val * 100) / 100);
-    this.value = val;
-    modalWeight = val;
-});
-
-document.getElementById('productModal').addEventListener('click', function(e) {
-    if (e.target === this) closeProductModal();
+document.addEventListener('DOMContentLoaded', function() {
+    const modalWeight = document.getElementById('modalWeight');
+    if (modalWeight) {
+        modalWeight.addEventListener('change', function() {
+            let val = parseFloat(this.value) || 1;
+            val = Math.max(0.25, Math.round(val * 100) / 100);
+            this.value = val;
+            modalWeight = val;
+        });
+    }
+    const productModal = document.getElementById('productModal');
+    if (productModal) {
+        productModal.addEventListener('click', function(e) {
+            if (e.target === this) closeProductModal();
+        });
+    }
 });
 
 // ============================================================
 // 10. SHARE
 // ============================================================
 function toggleSharePopup() {
-    document.getElementById('sharePopup').classList.toggle('show');
+    document.getElementById('sharePopup')?.classList.toggle('show');
 }
 
 function shareProduct(platform) {
@@ -345,19 +371,19 @@ function shareProduct(platform) {
                 document.body.removeChild(ta);
                 showToast(currentLang === 'en' ? 'Copied!' : 'تم النسخ!', 'success', '📋');
             });
-            document.getElementById('sharePopup').classList.remove('show');
+            document.getElementById('sharePopup')?.classList.remove('show');
             return;
     }
     if (url) {
         window.open(url, '_blank');
     }
-    document.getElementById('sharePopup').classList.remove('show');
+    document.getElementById('sharePopup')?.classList.remove('show');
 }
 
 document.addEventListener('click', function(e) {
     const popup = document.getElementById('sharePopup');
     const btn = document.querySelector('.btn-share');
-    if (popup && !popup.contains(e.target) && !btn.contains(e.target)) {
+    if (popup && !popup.contains(e.target) && btn && !btn.contains(e.target)) {
         popup.classList.remove('show');
     }
 });
@@ -379,9 +405,6 @@ loadCart();
 function saveCart() {
     try {
         localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
-        if (currentUser) {
-            saveCartToSupabase();
-        }
     } catch (e) {}
 }
 
@@ -390,7 +413,7 @@ function addFromModal() {
     const p = products.find(item => item.id === modalProductId);
     if (!p) return;
 
-    const weight = parseFloat(document.getElementById('modalWeight').value) || 1;
+    const weight = parseFloat(document.getElementById('modalWeight')?.value) || 1;
     
     const existingIndex = cart.findIndex(item => item.id === p.id);
 
@@ -420,15 +443,17 @@ function addFromModal() {
     showToast(`${currentLang === 'en' ? 'Added' : 'تم إضافة'} ${weight.toFixed(2)} ${kgLabel} ${productName}`, 'success', '🛒');
 
     const btn = document.getElementById('modalAddBtn');
-    const orig = btn.innerHTML;
-    btn.innerHTML = `<i class="fas fa-check"></i> ${currentLang === 'en' ? 'Added!' : 'تمت الإضافة!'}`;
-    btn.style.background = '#27ae60';
-    btn.style.color = 'white';
-    setTimeout(() => {
-        btn.innerHTML = orig;
-        btn.style.background = '';
-        btn.style.color = '';
-    }, 1200);
+    if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-check"></i> ${currentLang === 'en' ? 'Added!' : 'تمت الإضافة!'}`;
+        btn.style.background = '#27ae60';
+        btn.style.color = 'white';
+        setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+        }, 1200);
+    }
 }
 
 // ============================================================
@@ -459,11 +484,13 @@ function updateCartUI() {
 
     const uniqueItems = groupedItems.length;
 
+    if (!list) return;
+
     if (groupedItems.length === 0) {
         list.innerHTML =
             `<div class="empty-cart-msg" id="emptyCartMsg"><i class="fas fa-shopping-cart"></i>${currentLang === 'en' ? 'Your cart is empty' : 'سلتك فارغة'}</div>`;
         if (fbadge) fbadge.textContent = '0';
-        totalSpan.textContent = `0 ${currency}`;
+        if (totalSpan) totalSpan.textContent = `0 ${currency}`;
         if (headerTotal) headerTotal.textContent = `0 ${currency}`;
         if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'none';
         return;
@@ -503,7 +530,7 @@ function updateCartUI() {
 
     list.innerHTML = html;
     if (fbadge) fbadge.textContent = uniqueItems;
-    totalSpan.textContent = totalPrice.toFixed(2) + ' ' + currency;
+    if (totalSpan) totalSpan.textContent = totalPrice.toFixed(2) + ' ' + currency;
     if (headerTotal) headerTotal.textContent = totalPrice.toFixed(2) + ' ' + currency;
 
     if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'flex';
@@ -544,6 +571,7 @@ function removeItem(key) {
 function toggleCart() {
     const sidebar = document.getElementById('cartSidebar');
     const overlay = document.getElementById('cartOverlay');
+    if (!sidebar || !overlay) return;
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
     document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
@@ -601,35 +629,54 @@ function openCheckout() {
         `<div class="cs-total"><span>${currentLang === 'en' ? 'Total' : 'الإجمالي'}</span><span>${discountedTotal.toFixed(2)} ${currency}</span></div>`;
     summaryHtml +=
         `<div class="cs-total-note">${currentLang === 'en' ? '* Total without delivery fee' : '* الإجمالي بدون قيمة التوصيل'}</div>`;
-    document.getElementById('checkoutSummary').innerHTML = summaryHtml;
+    const summaryEl = document.getElementById('checkoutSummary');
+    if (summaryEl) summaryEl.innerHTML = summaryHtml;
 
     const savedPhone = localStorage.getItem('alwaha_phone');
-    if (savedPhone) document.getElementById('custPhone').value = savedPhone;
+    if (savedPhone) {
+        const phoneInput = document.getElementById('custPhone');
+        if (phoneInput) phoneInput.value = savedPhone;
+    }
     const savedName = localStorage.getItem('alwaha_name');
-    if (savedName) document.getElementById('custName').value = savedName;
+    if (savedName) {
+        const nameInput = document.getElementById('custName');
+        if (nameInput) nameInput.value = savedName;
+    }
     const savedAddress = localStorage.getItem('alwaha_address');
-    if (savedAddress) document.getElementById('custAddress').value = savedAddress;
+    if (savedAddress) {
+        const addressInput = document.getElementById('custAddress');
+        if (addressInput) addressInput.value = savedAddress;
+    }
 
-    document.getElementById('checkoutModal').classList.add('open');
-    document.getElementById('cartSidebar').classList.remove('open');
-    document.getElementById('cartOverlay').classList.remove('active');
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.classList.add('open');
+    }
+    const cartSidebar = document.getElementById('cartSidebar');
+    if (cartSidebar) cartSidebar.classList.remove('open');
+    const cartOverlay = document.getElementById('cartOverlay');
+    if (cartOverlay) cartOverlay.classList.remove('active');
     document.body.style.overflow = 'hidden';
     validateCheckoutForm();
     setMinDeliveryTime();
 }
 
 function closeCheckout() {
-    document.getElementById('checkoutModal').classList.remove('open');
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) checkoutModal.classList.remove('open');
     document.body.style.overflow = '';
-    document.getElementById('cartSidebar').classList.add('open');
-    document.getElementById('cartOverlay').classList.add('active');
+    const cartSidebar = document.getElementById('cartSidebar');
+    if (cartSidebar) cartSidebar.classList.add('open');
+    const cartOverlay = document.getElementById('cartOverlay');
+    if (cartOverlay) cartOverlay.classList.add('active');
 }
 
 function setMinDeliveryTime() {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 30);
     const isoString = now.toISOString().slice(0, 16);
-    document.getElementById('deliveryTime').min = isoString;
+    const deliveryTime = document.getElementById('deliveryTime');
+    if (deliveryTime) deliveryTime.min = isoString;
 }
 
 function validateCheckoutForm() {
@@ -650,40 +697,49 @@ function validateCheckoutForm() {
         isDeliveryTimeValid = deliveryTimeInput && deliveryTimeInput.value !== '';
     }
 
-    if (nameVal.length >= 3 && phoneVal.length >= 7 && addressVal.length >= 10 && isDeliveryTimeValid) {
-        confirmBtn.removeAttribute('disabled');
-    } else {
-        confirmBtn.setAttribute('disabled', 'true');
+    if (confirmBtn) {
+        if (nameVal.length >= 3 && phoneVal.length >= 7 && addressVal.length >= 10 && isDeliveryTimeValid) {
+            confirmBtn.removeAttribute('disabled');
+        } else {
+            confirmBtn.setAttribute('disabled', 'true');
+        }
     }
 }
 
-document.querySelectorAll('.payment-options label').forEach(label => {
-    label.addEventListener('click', function() {
-        document.querySelectorAll('.payment-options label').forEach(l => l.classList.remove('selected'));
-        this.classList.add('selected');
-        this.querySelector('input[type="radio"]').checked = true;
-        validateCheckoutForm();
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.payment-options label').forEach(label => {
+        label.addEventListener('click', function() {
+            document.querySelectorAll('.payment-options label').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            validateCheckoutForm();
+        });
     });
-});
 
-document.querySelectorAll('#deliveryOptions label').forEach(label => {
-    label.addEventListener('click', function() {
-        document.querySelectorAll('#deliveryOptions label').forEach(l => l.classList.remove('selected'));
-        this.classList.add('selected');
-        this.querySelector('input[type="radio"]').checked = true;
-        const timeInput = document.getElementById('deliveryTimeInput');
-        if (this.dataset.delivery === 'وقت محدد') {
-            timeInput.classList.add('show');
-            setMinDeliveryTime();
-        } else {
-            timeInput.classList.remove('show');
-        }
-        validateCheckoutForm();
+    document.querySelectorAll('#deliveryOptions label').forEach(label => {
+        label.addEventListener('click', function() {
+            document.querySelectorAll('#deliveryOptions label').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            const timeInput = document.getElementById('deliveryTimeInput');
+            if (this.dataset.delivery === 'وقت محدد') {
+                if (timeInput) timeInput.classList.add('show');
+                setMinDeliveryTime();
+            } else {
+                if (timeInput) timeInput.classList.remove('show');
+            }
+            validateCheckoutForm();
+        });
     });
-});
 
-document.getElementById('checkoutModal').addEventListener('click', function(e) {
-    if (e.target === this) closeCheckout();
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.addEventListener('click', function(e) {
+            if (e.target === this) closeCheckout();
+        });
+    }
 });
 
 // ============================================================
@@ -702,8 +758,10 @@ function getCouponsList() {
 
 function applyCoupon() {
     const input = document.getElementById('couponCode');
-    const code = input.value.trim().toUpperCase();
     const msg = document.getElementById('couponMessage');
+    if (!input || !msg) return;
+    
+    const code = input.value.trim().toUpperCase();
     const couponsList = getCouponsList();
 
     if (!code) {
@@ -871,7 +929,25 @@ async function confirmOrder() {
     };
 
     try {
-        await saveOrderToSupabase(orderData);
+        if (typeof supabase !== 'undefined' && supabase) {
+            await supabase
+                .from('orders')
+                .insert([{
+                    user_id: currentUser?.id || null,
+                    customer: orderData.customer,
+                    phone: orderData.phone,
+                    address: orderData.address,
+                    items: orderData.items,
+                    total: orderData.total,
+                    discounted_total: orderData.discountedTotal,
+                    coupon_code: orderData.coupon,
+                    payment_method: orderData.payment,
+                    delivery_type: orderData.delivery,
+                    delivery_time: orderData.deliveryTime || null,
+                    notes: orderData.notes,
+                    status: orderData.status
+                }]);
+        }
         
         let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
@@ -883,12 +959,15 @@ async function confirmOrder() {
         
         cart = [];
         appliedCoupon = null;
-        document.getElementById('couponCode').value = '';
-        document.getElementById('couponMessage').textContent = '';
+        const couponInput = document.getElementById('couponCode');
+        if (couponInput) couponInput.value = '';
+        const couponMsg = document.getElementById('couponMessage');
+        if (couponMsg) couponMsg.textContent = '';
         saveCart();
         updateCartUI();
         
-        document.getElementById('checkoutModal').classList.remove('open');
+        const checkoutModal = document.getElementById('checkoutModal');
+        if (checkoutModal) checkoutModal.classList.remove('open');
         document.body.style.overflow = '';
         
         showToast('تم تأكيد طلبك! 🎉', 'success');
@@ -911,29 +990,37 @@ function toggleTheme() {
     if (currentTheme === 'light') {
         html.setAttribute('data-theme', 'dark');
         currentTheme = 'dark';
-        checkbox.checked = true;
-        document.getElementById('bg-static').style.opacity = '0.02';
+        if (checkbox) checkbox.checked = true;
+        const bgStatic = document.getElementById('bg-static');
+        if (bgStatic) bgStatic.style.opacity = '0.02';
         showToast(`${currentLang === 'en' ? 'Dark mode' : 'الوضع الليلي'}`, 'success', '🌙');
     } else {
         html.removeAttribute('data-theme');
         currentTheme = 'light';
-        checkbox.checked = false;
-        document.getElementById('bg-static').style.opacity = '0.03';
+        if (checkbox) checkbox.checked = false;
+        const bgStatic = document.getElementById('bg-static');
+        if (bgStatic) bgStatic.style.opacity = '0.03';
         showToast(`${currentLang === 'en' ? 'Light mode' : 'الوضع النهاري'}`, 'success', '☀️');
     }
     localStorage.setItem('alwaha_theme', currentTheme);
 }
 
-const savedTheme = localStorage.getItem('alwaha_theme');
-if (savedTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    currentTheme = 'dark';
-    document.getElementById('themeCheckbox').checked = true;
-    document.getElementById('bg-static').style.opacity = '0.02';
-}
-
-document.getElementById('themeCheckbox').addEventListener('change', function() {
-    toggleTheme();
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('alwaha_theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        currentTheme = 'dark';
+        const checkbox = document.getElementById('themeCheckbox');
+        if (checkbox) checkbox.checked = true;
+        const bgStatic = document.getElementById('bg-static');
+        if (bgStatic) bgStatic.style.opacity = '0.02';
+    }
+    const themeCheckbox = document.getElementById('themeCheckbox');
+    if (themeCheckbox) {
+        themeCheckbox.addEventListener('change', function() {
+            toggleTheme();
+        });
+    }
 });
 
 // ============================================================
@@ -953,63 +1040,102 @@ function toggleLang() {
         showToast('العربية', 'success', '🌍');
     }
     localStorage.setItem('alwaha_lang', currentLang);
-    renderProducts(currentSort, document.getElementById('searchInput').value);
+    renderProducts(currentSort, document.getElementById('searchInput')?.value || '');
     updateCartUI();
     if (modalProductId) {
         const products = getProductsData();
         const p = products.find(item => item.id === modalProductId);
         if (p) {
             const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م / كجم';
-            document.getElementById('modalName').textContent = getProductName(p);
-            let priceHtml = p.oldPrice ?
-                `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
-                `${p.price} <small>${priceLabel}</small>`;
-            document.getElementById('modalPrice').innerHTML = priceHtml;
-            document.getElementById('modalDesc').textContent = getProductDesc(p);
-            document.getElementById('modalAddBtn').innerHTML =
-                `<i class="fas fa-plus-circle"></i> ${currentLang === 'en' ? 'Add' : 'إضافة'}`;
+            const modalName = document.getElementById('modalName');
+            if (modalName) modalName.textContent = getProductName(p);
+            const modalPrice = document.getElementById('modalPrice');
+            if (modalPrice) {
+                let priceHtml = p.oldPrice ?
+                    `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
+                    `${p.price} <small>${priceLabel}</small>`;
+                modalPrice.innerHTML = priceHtml;
+            }
+            const modalDesc = document.getElementById('modalDesc');
+            if (modalDesc) modalDesc.textContent = getProductDesc(p);
+            const modalAddBtn = document.getElementById('modalAddBtn');
+            if (modalAddBtn) {
+                modalAddBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${currentLang === 'en' ? 'Add' : 'إضافة'}`;
+            }
         }
     }
 }
 
 function updateLanguage(lang) {
     const isEn = lang === 'en';
-    document.querySelector('.header .logo .logo-text').innerHTML = isEn ? 'Al-Waha 🌱' : 'الواحة 🌱';
-    document.getElementById('searchInput').placeholder = isEn ? 'Search...' : 'ابحث...';
-    document.querySelector('.hero .hero-title').innerHTML = isEn ? 'Al-Waha Store' : 'متجر الواحة';
-    document.querySelector('.hero .hero-subtitle').innerHTML = isEn ? 'Fresh fruits & vegetables from nature' : 'خضروات وفاكهة طازجة من قلب الطبيعة';
-    document.getElementById('floatingCheckoutText').textContent = isEn ? 'Checkout' : 'شراء';
+    const logoText = document.querySelector('.header .logo .logo-text');
+    if (logoText) logoText.innerHTML = isEn ? 'Al-Waha 🌱' : 'الواحة 🌱';
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.placeholder = isEn ? 'Search...' : 'ابحث...';
+    const heroTitle = document.querySelector('.hero .hero-title');
+    if (heroTitle) heroTitle.innerHTML = isEn ? 'Al-Waha Store' : 'متجر الواحة';
+    const heroSubtitle = document.querySelector('.hero .hero-subtitle');
+    if (heroSubtitle) heroSubtitle.innerHTML = isEn ? 'Fresh fruits & vegetables from nature' : 'خضروات وفاكهة طازجة من قلب الطبيعة';
+    const floatingCheckoutText = document.getElementById('floatingCheckoutText');
+    if (floatingCheckoutText) floatingCheckoutText.textContent = isEn ? 'Checkout' : 'شراء';
 
-    document.getElementById('categoriesTitle').innerHTML = `<i class="fas fa-th-large"></i> ${isEn ? 'Categories' : 'الأقسام'}`;
-    document.getElementById('catFruitTitle').textContent = isEn ? 'Fruits' : 'فاكهة';
-    document.getElementById('catVegTitle').textContent = isEn ? 'Vegetables' : 'خضروات';
-    document.getElementById('catOffersTitle').textContent = isEn ? 'Offers' : 'عروض';
+    const categoriesTitle = document.getElementById('categoriesTitle');
+    if (categoriesTitle) categoriesTitle.innerHTML = `<i class="fas fa-th-large"></i> ${isEn ? 'Categories' : 'الأقسام'}`;
+    const catFruitTitle = document.getElementById('catFruitTitle');
+    if (catFruitTitle) catFruitTitle.textContent = isEn ? 'Fruits' : 'فاكهة';
+    const catVegTitle = document.getElementById('catVegTitle');
+    if (catVegTitle) catVegTitle.textContent = isEn ? 'Vegetables' : 'خضروات';
+    const catOffersTitle = document.getElementById('catOffersTitle');
+    if (catOffersTitle) catOffersTitle.textContent = isEn ? 'Offers' : 'عروض';
 
-    document.getElementById('productsTitle').innerHTML = `<i class="fas fa-box"></i> ${isEn ? 'Our Products' : 'منتجاتنا'}`;
-    document.getElementById('fruitsSubTitle').innerHTML = `<i class="fas fa-apple-alt"></i> ${isEn ? 'Fruits' : 'الفاكهة'}`;
-    document.getElementById('vegSubTitle').innerHTML = `<i class="fas fa-carrot"></i> ${isEn ? 'Vegetables' : 'الخضروات'}`;
-    document.getElementById('offersSubTitle').innerHTML = `<i class="fas fa-tag"></i> ${isEn ? 'Offers & Discounts' : 'العروض والخصومات'}`;
+    const productsTitle = document.getElementById('productsTitle');
+    if (productsTitle) productsTitle.innerHTML = `<i class="fas fa-box"></i> ${isEn ? 'Our Products' : 'منتجاتنا'}`;
+    const fruitsSubTitle = document.getElementById('fruitsSubTitle');
+    if (fruitsSubTitle) fruitsSubTitle.innerHTML = `<i class="fas fa-apple-alt"></i> ${isEn ? 'Fruits' : 'الفاكهة'}`;
+    const vegSubTitle = document.getElementById('vegSubTitle');
+    if (vegSubTitle) vegSubTitle.innerHTML = `<i class="fas fa-carrot"></i> ${isEn ? 'Vegetables' : 'الخضروات'}`;
+    const offersSubTitle = document.getElementById('offersSubTitle');
+    if (offersSubTitle) offersSubTitle.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? 'Offers & Discounts' : 'العروض والخصومات'}`;
 
-    document.getElementById('sortLabel').textContent = isEn ? 'Sort:' : 'ترتيب:';
-    document.querySelector('#sortFilter option[value="default"]').textContent = isEn ? 'Default' : 'الافتراضي';
-    document.querySelector('#sortFilter option[value="price-asc"]').textContent = isEn ? 'Price (Low to High)' : 'السعر (من الأقل)';
-    document.querySelector('#sortFilter option[value="price-desc"]').textContent = isEn ? 'Price (High to Low)' : 'السعر (من الأعلى)';
-    document.querySelector('#sortFilter option[value="popular"]').textContent = isEn ? 'Most Popular' : 'الأكثر طلباً';
+    const sortLabel = document.getElementById('sortLabel');
+    if (sortLabel) sortLabel.textContent = isEn ? 'Sort:' : 'ترتيب:';
+    const sortFilter = document.getElementById('sortFilter');
+    if (sortFilter) {
+        const options = sortFilter.options;
+        if (options[0]) options[0].textContent = isEn ? 'Default' : 'الافتراضي';
+        if (options[1]) options[1].textContent = isEn ? 'Price (Low to High)' : 'السعر (من الأقل)';
+        if (options[2]) options[2].textContent = isEn ? 'Price (High to Low)' : 'السعر (من الأعلى)';
+        if (options[3]) options[3].textContent = isEn ? 'Most Popular' : 'الأكثر طلباً';
+    }
 
-    document.getElementById('offersTitle').innerHTML = `<i class="fas fa-tag"></i> ${isEn ? "Today's Offers" : 'عروض اليوم'}`;
-    document.getElementById('offersDesc').textContent = isEn ? '20% off on all seasonal fruits' : 'خصم 20% على جميع الفواكه الموسمية';
-    document.querySelectorAll('.countdown .cd-item span')[0].textContent = isEn ? 'Hours' : 'ساعات';
-    document.querySelectorAll('.countdown .cd-item span')[1].textContent = isEn ? 'Minutes' : 'دقائق';
-    document.querySelectorAll('.countdown .cd-item span')[2].textContent = isEn ? 'Seconds' : 'ثواني';
+    const offersTitle = document.getElementById('offersTitle');
+    if (offersTitle) offersTitle.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? "Today's Offers" : 'عروض اليوم'}`;
+    const offersDesc = document.getElementById('offersDesc');
+    if (offersDesc) offersDesc.textContent = isEn ? '20% off on all seasonal fruits' : 'خصم 20% على جميع الفواكه الموسمية';
+    
+    const cdItems = document.querySelectorAll('.countdown .cd-item span');
+    if (cdItems.length >= 3) {
+        cdItems[0].textContent = isEn ? 'Hours' : 'ساعات';
+        cdItems[1].textContent = isEn ? 'Minutes' : 'دقائق';
+        cdItems[2].textContent = isEn ? 'Seconds' : 'ثواني';
+    }
 
-    document.getElementById('contactTitle').innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
-    document.getElementById('contactSub').textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
+    const contactTitle = document.getElementById('contactTitle');
+    if (contactTitle) contactTitle.innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
+    const contactSub = document.getElementById('contactSub');
+    if (contactSub) contactSub.textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
 
-    document.getElementById('cartTotalHeader').innerHTML = 
-        `<span id="cartHeaderTotal">${document.getElementById('cartTotalPrice').textContent}</span>
-        <small>${isEn ? 'Total without delivery fee' : 'المجموع بدون قيمة التوصيل'}</small>`;
-    document.querySelector('.cart-header .btn-checkout-small').innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
-    document.getElementById('labelTotal').textContent = isEn ? 'Total' : 'المجموع';
+    const cartTotalHeader = document.getElementById('cartTotalHeader');
+    if (cartTotalHeader) {
+        const totalPrice = document.getElementById('cartTotalPrice');
+        cartTotalHeader.innerHTML = 
+            `<span id="cartHeaderTotal">${totalPrice ? totalPrice.textContent : '0 ج.م'}</span>
+            <small>${isEn ? 'Total without delivery fee' : 'المجموع بدون قيمة التوصيل'}</small>`;
+    }
+    const checkoutSmall = document.querySelector('.cart-header .btn-checkout-small');
+    if (checkoutSmall) checkoutSmall.innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
+    const labelTotal = document.getElementById('labelTotal');
+    if (labelTotal) labelTotal.textContent = isEn ? 'Total' : 'المجموع';
     
     const emptyMsg = document.getElementById('emptyCartMsg');
     if(emptyMsg) {
@@ -1020,35 +1146,52 @@ function updateLanguage(lang) {
         totalNote.textContent = isEn ? '* Total without delivery fee' : '* المجموع بدون قيمة التوصيل';
     }
 
-    document.getElementById('checkoutTitle').innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
-    document.getElementById('checkoutSub').textContent = isEn ? 'Fill in your details' : 'املأ بياناتك لإتمام الطلب';
+    const checkoutTitle = document.getElementById('checkoutTitle');
+    if (checkoutTitle) checkoutTitle.innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
+    const checkoutSub = document.getElementById('checkoutSub');
+    if (checkoutSub) checkoutSub.textContent = isEn ? 'Fill in your details' : 'املأ بياناتك لإتمام الطلب';
 
-    document.getElementById('labelCustName').innerHTML = `${isEn ? 'Full Name' : 'الاسم الكامل'} <span class="required">*</span>`;
-    document.getElementById('labelCustPhone').innerHTML = `${isEn ? 'Phone Number' : 'رقم الجوال'} <span class="required">*</span>`;
-    document.getElementById('labelCustAddress').innerHTML = `${isEn ? 'Address Details' : 'معلومات المكان'} <span class="required">*</span>`;
-    document.getElementById('labelCustNotes').innerHTML = `${isEn ? 'Notes' : 'ملاحظات'}`;
-    document.getElementById('labelDeliveryTime').innerHTML = `${isEn ? 'Delivery Time' : 'وقت التوصيل'} <span class="required">*</span>`;
-    document.getElementById('labelPaymentMethod').innerHTML = `${isEn ? 'Payment Method' : 'طريقة الدفع'} <span class="required">*</span>`;
+    const labelCustName = document.getElementById('labelCustName');
+    if (labelCustName) labelCustName.innerHTML = `${isEn ? 'Full Name' : 'الاسم الكامل'} <span class="required">*</span>`;
+    const labelCustPhone = document.getElementById('labelCustPhone');
+    if (labelCustPhone) labelCustPhone.innerHTML = `${isEn ? 'Phone Number' : 'رقم الجوال'} <span class="required">*</span>`;
+    const labelCustAddress = document.getElementById('labelCustAddress');
+    if (labelCustAddress) labelCustAddress.innerHTML = `${isEn ? 'Address Details' : 'معلومات المكان'} <span class="required">*</span>`;
+    const labelCustNotes = document.getElementById('labelCustNotes');
+    if (labelCustNotes) labelCustNotes.innerHTML = `${isEn ? 'Notes' : 'ملاحظات'}`;
+    const labelDeliveryTime = document.getElementById('labelDeliveryTime');
+    if (labelDeliveryTime) labelDeliveryTime.innerHTML = `${isEn ? 'Delivery Time' : 'وقت التوصيل'} <span class="required">*</span>`;
+    const labelPaymentMethod = document.getElementById('labelPaymentMethod');
+    if (labelPaymentMethod) labelPaymentMethod.innerHTML = `${isEn ? 'Payment Method' : 'طريقة الدفع'} <span class="required">*</span>`;
 
-    document.querySelectorAll('#deliveryOptions label')[0].innerHTML =
-        `<input type="radio" name="delivery" value="اسرع وقت" checked /> <i class="fas fa-clock"></i> ${isEn ? 'Fastest time' : 'أسرع وقت'}`;
-    document.querySelectorAll('#deliveryOptions label')[1].innerHTML =
-        `<input type="radio" name="delivery" value="وقت محدد" /> <i class="fas fa-calendar-alt"></i> ${isEn ? 'Specific time' : 'وقت محدد'}`;
+    const deliveryLabels = document.querySelectorAll('#deliveryOptions label');
+    if (deliveryLabels.length >= 2) {
+        deliveryLabels[0].innerHTML =
+            `<input type="radio" name="delivery" value="اسرع وقت" checked /> <i class="fas fa-clock"></i> ${isEn ? 'Fastest time' : 'أسرع وقت'}`;
+        deliveryLabels[1].innerHTML =
+            `<input type="radio" name="delivery" value="وقت محدد" /> <i class="fas fa-calendar-alt"></i> ${isEn ? 'Specific time' : 'وقت محدد'}`;
+    }
 
     const deliveryNote = document.querySelector('.delivery-note');
     if (deliveryNote) {
         deliveryNote.innerHTML = `<i class="fas fa-info-circle"></i> ${isEn ? 'Delivery fee ranges from 15 EGP to 30 EGP depending on distance' : 'قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة'}`;
     }
 
-    document.getElementById('btnConfirmOrder').innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
-    document.getElementById('btnCancelOrder').textContent = isEn ? 'Cancel' : 'إلغاء';
+    const btnConfirmOrder = document.getElementById('btnConfirmOrder');
+    if (btnConfirmOrder) btnConfirmOrder.innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
+    const btnCancelOrder = document.getElementById('btnCancelOrder');
+    if (btnCancelOrder) btnCancelOrder.textContent = isEn ? 'Cancel' : 'إلغاء';
 
-    document.getElementById('labelWeight').textContent = isEn ? 'Weight (kg):' : 'الوزن (كجم):';
+    const labelWeight = document.getElementById('labelWeight');
+    if (labelWeight) labelWeight.textContent = isEn ? 'Weight (kg):' : 'الوزن (كجم):';
     const addBtn = document.getElementById('modalAddBtn');
     if (addBtn) addBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${isEn ? 'Add' : 'إضافة'}`;
 
-    document.querySelectorAll('.share-popup a')[0].innerHTML = `<i class="fab fa-whatsapp"></i> ${isEn ? 'WhatsApp' : 'واتساب'}`;
-    document.querySelectorAll('.share-popup a')[1].innerHTML = `<i class="fas fa-copy"></i> ${isEn ? 'Copy' : 'نسخ'}`;
+    const shareLinks = document.querySelectorAll('.share-popup a');
+    if (shareLinks.length >= 2) {
+        shareLinks[0].innerHTML = `<i class="fab fa-whatsapp"></i> ${isEn ? 'WhatsApp' : 'واتساب'}`;
+        shareLinks[1].innerHTML = `<i class="fas fa-copy"></i> ${isEn ? 'Copy' : 'نسخ'}`;
+    }
 
     const paymentLabels = document.querySelectorAll('.payment-options label');
     if (paymentLabels.length >= 3) {
@@ -1060,20 +1203,25 @@ function updateLanguage(lang) {
             `<input type="radio" name="payment" value="محفظة إلكترونية" /> <i class="fas fa-wallet"></i> ${isEn ? 'e-Wallet' : 'محفظة إلكترونية'}`;
     }
 
-    document.querySelector('.phone-hint').innerHTML =
-        `<i class="fas fa-info-circle"></i> ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}`;
+    const phoneHint = document.querySelector('.phone-hint');
+    if (phoneHint) {
+        phoneHint.innerHTML = `<i class="fas fa-info-circle"></i> ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}`;
+    }
 
-    document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
-    document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
-    
-    document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
-    document.querySelector('.coupon-row .coupon-btn').textContent = isEn ? 'Apply' : 'تطبيق';
+    const couponLabel = document.getElementById('couponLabel');
+    if (couponLabel) couponLabel.textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
+    const couponCode = document.getElementById('couponCode');
+    if (couponCode) couponCode.placeholder = isEn ? 'Enter code' : 'أدخل الكود';
+    const couponBtn = document.querySelector('.coupon-row .coupon-btn');
+    if (couponBtn) couponBtn.textContent = isEn ? 'Apply' : 'تطبيق';
 }
 
-const savedLang = localStorage.getItem('alwaha_lang');
-if (savedLang === 'en') {
-    toggleLang();
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLang = localStorage.getItem('alwaha_lang');
+    if (savedLang === 'en') {
+        toggleLang();
+    }
+});
 
 // ============================================================
 // 19. SCROLL TO TOP
@@ -1084,7 +1232,7 @@ function scrollToTop() {
 
 window.addEventListener('scroll', function() {
     const btn = document.getElementById('backToTop');
-    btn.classList.toggle('show', window.scrollY > 400);
+    if (btn) btn.classList.toggle('show', window.scrollY > 400);
 });
 
 // ============================================================
@@ -1095,6 +1243,7 @@ let countdownInterval;
 function startCountdown() {
     let hours = 12, minutes = 30, seconds = 45;
     const cdEl = document.getElementById('countdown');
+    if (!cdEl) return;
     countdownInterval = setInterval(() => {
         seconds--;
         if (seconds < 0) { seconds = 59; minutes--; }
@@ -1120,159 +1269,40 @@ function startCountdown() {
 let logoClickCount = 0;
 let clickTimer = null;
 
-document.getElementById('logoTrigger').addEventListener('click', function(e) {
-    e.preventDefault();
-    logoClickCount++;
-    
-    clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => {
-        logoClickCount = 0;
-    }, 3000);
+document.addEventListener('DOMContentLoaded', function() {
+    const logoTrigger = document.getElementById('logoTrigger');
+    if (logoTrigger) {
+        logoTrigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoClickCount++;
+            
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => {
+                logoClickCount = 0;
+            }, 3000);
 
-    if (logoClickCount >= 5) {
-        const password = prompt('🔐 أدخل كلمة مرور لوحة التحكم:');
-        if (password === 'QQZ#154p') {
-            window.location.href = 'admin.html';
-        } else if (password !== null) {
-            showToast('❌ كلمة المرور غير صحيحة!', 'error', '⚠️');
-        }
-        logoClickCount = 0;
-    }
-});
-
-// ============================================================
-// 22. USER MENU DROPDOWN
-// ============================================================
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userDropdown');
-    dropdown.classList.toggle('show');
-}
-
-document.addEventListener('click', function(e) {
-    const userMenu = document.getElementById('userMenu');
-    const dropdown = document.getElementById('userDropdown');
-    if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
-
-function viewProfile() {
-    document.getElementById('userDropdown').classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    openProfileModal();
-}
-
-function viewOrders() {
-    document.getElementById('userDropdown').classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    showToast('سيتم عرض طلباتك قريباً', 'info');
-}
-
-function viewFavorites() {
-    document.getElementById('userDropdown').classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    showToast('سيتم عرض المفضلة قريباً', 'info');
-}
-
-function shareProfile() {
-    document.getElementById('userDropdown').classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
-    navigator.clipboard.writeText(shareLink).then(() => {
-        showToast('تم نسخ رابط المشاركة! 📋', 'success');
-    }).catch(() => {
-        showToast('رابط المشاركة: ' + shareLink, 'info');
-    });
-}
-
-// ============================================================
-// 23. PROFILE MODAL
-// ============================================================
-function openProfileModal() {
-    if (!currentUser) return;
-    document.getElementById('profileName').textContent = currentUserData?.display_name || 'مستخدم';
-    document.getElementById('profileEmail').textContent = currentUser.email;
-    document.getElementById('profileAvatar').textContent = (currentUserData?.display_name || 'م')[0];
-    document.getElementById('profileDisplayName').value = currentUserData?.display_name || '';
-    document.getElementById('profilePhone').value = currentUserData?.phone || '';
-    document.getElementById('profileAddress').value = currentUserData?.address || '';
-    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
-    document.getElementById('profileShareLink').value = shareLink;
-    document.getElementById('profileModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeProfileModal() {
-    document.getElementById('profileModal').classList.remove('open');
-    document.body.style.overflow = '';
-}
-
-async function saveProfile() {
-    if (!currentUser) return;
-    const displayName = document.getElementById('profileDisplayName').value.trim();
-    const phone = document.getElementById('profilePhone').value.trim();
-    const address = document.getElementById('profileAddress').value.trim();
-    
-    try {
-        const { error } = await supabase
-            .from('users')
-            .update({
-                display_name: displayName,
-                phone: phone,
-                address: address,
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', currentUser.id);
-        
-        if (error) throw error;
-        
-        if (currentUserData) {
-            currentUserData.display_name = displayName;
-            currentUserData.phone = phone;
-            currentUserData.address = address;
-        }
-        
-        updateUIForLoggedInUser();
-        showToast('تم حفظ التغييرات بنجاح ✅', 'success');
-        closeProfileModal();
-    } catch (error) {
-        console.error('خطأ في حفظ الملف الشخصي:', error);
-        showToast('حدث خطأ في حفظ البيانات', 'error');
-    }
-}
-
-function copyShareLink() {
-    const input = document.getElementById('profileShareLink');
-    if (input) {
-        navigator.clipboard.writeText(input.value).then(() => {
-            showToast('تم نسخ الرابط! 📋', 'success');
-        }).catch(() => {
-            showToast('الرابط: ' + input.value, 'info');
+            if (logoClickCount >= 5) {
+                const password = prompt('🔐 أدخل كلمة مرور لوحة التحكم:');
+                if (password === 'QQZ#154p') {
+                    window.location.href = 'admin.html';
+                } else if (password !== null) {
+                    showToast('❌ كلمة المرور غير صحيحة!', 'error', '⚠️');
+                }
+                logoClickCount = 0;
+            }
         });
     }
-}
+});
 
 // ============================================================
-// 24. SUPABASE AUTH
+// 22. SUPABASE AUTH
 // ============================================================
 async function loadUserData(userId) {
     try {
+        if (typeof supabase === 'undefined') {
+            console.warn('⚠️ Supabase not available');
+            return;
+        }
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -1293,11 +1323,12 @@ async function loadUserData(userId) {
                 referral_count: 0,
                 created_at: new Date().toISOString()
             };
-            const { error: insertError } = await supabase
-                .from('users')
-                .insert([newUser]);
-            
-            if (insertError) throw insertError;
+            if (typeof supabase !== 'undefined') {
+                const { error: insertError } = await supabase
+                    .from('users')
+                    .insert([newUser]);
+                if (insertError) throw insertError;
+            }
             currentUserData = newUser;
         }
     } catch (error) {
@@ -1306,22 +1337,23 @@ async function loadUserData(userId) {
 }
 
 // ===== مراقبة حالة المصادقة =====
-supabase.auth.onAuthStateChange(async (event, session) => {
-    if (session) {
-        currentUser = session.user;
-        console.log('✅ مستخدم مسجل:', currentUser.email);
-        await loadUserData(currentUser.id);
-        updateUIForLoggedInUser();
-        await syncCartFromSupabase();
-    } else {
-        currentUser = null;
-        currentUserData = null;
-        updateUIForGuestUser();
-        console.log('👤 مستخدم ضيف');
-        loadCart();
-        updateCartUI();
-    }
-});
+if (typeof supabase !== 'undefined') {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+            currentUser = session.user;
+            console.log('✅ مستخدم مسجل:', currentUser.email);
+            await loadUserData(currentUser.id);
+            updateUIForLoggedInUser();
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            updateUIForGuestUser();
+            console.log('👤 مستخدم ضيف');
+            loadCart();
+            updateCartUI();
+        }
+    });
+}
 
 // ===== تسجيل الدخول بالبريد =====
 async function loginWithEmail(email, password) {
@@ -1331,6 +1363,10 @@ async function loginWithEmail(email, password) {
     }
     
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
@@ -1362,6 +1398,10 @@ async function signupWithEmail(email, password, displayName) {
     }
     
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
@@ -1394,6 +1434,10 @@ async function loginWithGoogle() {
     }
     
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -1418,11 +1462,15 @@ async function loginWithGoogle() {
 // ===== تسجيل الخروج =====
 async function logout() {
     try {
-        await supabase.auth.signOut();
+        if (typeof supabase !== 'undefined') {
+            await supabase.auth.signOut();
+        }
         showToast('تم تسجيل الخروج', 'info');
-        document.getElementById('userDropdown').classList.remove('show');
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown) dropdown.classList.remove('show');
         loadCart();
         updateCartUI();
+        updateUIForGuestUser();
     } catch (error) {
         console.error('❌ خطأ في تسجيل الخروج:', error);
         showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
@@ -1437,6 +1485,10 @@ async function resetPassword(email) {
     }
     
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.href
         });
@@ -1449,116 +1501,7 @@ async function resetPassword(email) {
 }
 
 // ============================================================
-// 25. SUPABASE SYNC
-// ============================================================
-async function syncCartFromSupabase() {
-    if (!currentUser) return;
-    
-    try {
-        const { data, error } = await supabase
-            .from('cart')
-            .select('*')
-            .eq('user_id', currentUser.id);
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-            const cloudCart = data.map(item => ({
-                id: item.product_id,
-                weight: item.weight || 1,
-                qty: item.qty || 1
-            }));
-            
-            if (cart.length > 0 && cloudCart.length > 0) {
-                cart = mergeCarts(cart, cloudCart);
-            } else if (cloudCart.length > 0) {
-                cart = cloudCart;
-            }
-            
-            saveCart();
-            updateCartUI();
-        }
-        
-        await saveCartToSupabase();
-    } catch (error) {
-        console.error('خطأ في مزامنة السلة:', error);
-    }
-}
-
-function mergeCarts(localCart, cloudCart) {
-    const merged = [...cloudCart];
-    localCart.forEach(item => {
-        const existing = merged.find(c => c.id === item.id);
-        if (existing) {
-            existing.qty += item.qty;
-        } else {
-            merged.push(item);
-        }
-    });
-    return merged;
-}
-
-async function saveCartToSupabase() {
-    if (!currentUser) return;
-    
-    try {
-        // حذف السلة القديمة
-        await supabase
-            .from('cart')
-            .delete()
-            .eq('user_id', currentUser.id);
-        
-        if (cart.length === 0) return;
-        
-        // إضافة السلة الجديدة
-        const cartItems = cart.map(item => ({
-            user_id: currentUser.id,
-            product_id: item.id,
-            weight: item.weight || 1,
-            qty: item.qty || 1
-        }));
-        
-        const { error } = await supabase
-            .from('cart')
-            .insert(cartItems);
-        
-        if (error) throw error;
-    } catch (error) {
-        console.error('خطأ في حفظ السلة:', error);
-    }
-}
-
-async function saveOrderToSupabase(orderData) {
-    try {
-        const { data, error } = await supabase
-            .from('orders')
-            .insert([{
-                user_id: currentUser?.id || null,
-                customer: orderData.customer,
-                phone: orderData.phone,
-                address: orderData.address,
-                items: orderData.items,
-                total: orderData.total,
-                discounted_total: orderData.discountedTotal,
-                coupon_code: orderData.coupon,
-                discount: orderData.total - orderData.discountedTotal,
-                payment_method: orderData.payment,
-                delivery_type: orderData.delivery,
-                delivery_time: orderData.deliveryTime || null,
-                notes: orderData.notes,
-                status: orderData.status || 'جديد'
-            }]);
-        
-        if (error) throw error;
-        console.log('✅ تم حفظ الطلب في Supabase');
-    } catch (error) {
-        console.error('خطأ في حفظ الطلب:', error);
-        throw error;
-    }
-}
-
-// ============================================================
-// 26. UPDATE UI
+// 23. UPDATE UI
 // ============================================================
 function updateUIForLoggedInUser() {
     const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
@@ -1583,17 +1526,25 @@ function updateUIForGuestUser() {
 }
 
 // ============================================================
-// 27. AUTH MODAL
+// 24. AUTH MODAL
 // ============================================================
 function openAuthModal() {
-    document.getElementById('authModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    switchAuthTab('login');
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        switchAuthTab('login');
+    } else {
+        console.warn('⚠️ authModal not found');
+    }
 }
 
 function closeAuthModal() {
-    document.getElementById('authModal').classList.remove('open');
-    document.body.style.overflow = '';
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
 }
 
 function switchAuthTab(tab) {
@@ -1603,27 +1554,29 @@ function switchAuthTab(tab) {
     document.querySelectorAll('.auth-form').forEach(form => {
         form.classList.toggle('active', form.id === (tab === 'login' ? 'loginForm' : 'signupForm'));
     });
-    document.getElementById('loginError').classList.remove('show');
-    document.getElementById('signupError').classList.remove('show');
+    const loginError = document.getElementById('loginError');
+    if (loginError) loginError.classList.remove('show');
+    const signupError = document.getElementById('signupError');
+    if (signupError) signupError.classList.remove('show');
 }
 
 function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById('loginEmail')?.value || '';
+    const password = document.getElementById('loginPassword')?.value || '';
     loginWithEmail(email, password);
 }
 
 function handleSignup(e) {
     e.preventDefault();
-    const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
+    const name = document.getElementById('signupName')?.value || '';
+    const email = document.getElementById('signupEmail')?.value || '';
+    const password = document.getElementById('signupPassword')?.value || '';
     signupWithEmail(email, password, name);
 }
 
 function handleForgotPassword() {
-    const email = document.getElementById('loginEmail').value;
+    const email = document.getElementById('loginEmail')?.value || '';
     resetPassword(email);
 }
 
@@ -1632,35 +1585,108 @@ function handleGoogleLogin() {
 }
 
 // ============================================================
-// 28. INIT
+// 25. USER MENU DROPDOWN
+// ============================================================
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+document.addEventListener('click', function(e) {
+    const userMenu = document.getElementById('userMenu');
+    const dropdown = document.getElementById('userDropdown');
+    if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+function viewProfile() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    showToast('👤 عرض الملف الشخصي - قيد التطوير', 'info');
+}
+
+function viewOrders() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    showToast('📦 طلباتي - قيد التطوير', 'info');
+}
+
+function viewFavorites() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    showToast('❤️ المفضلة - قيد التطوير', 'info');
+}
+
+function shareProfile() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+        showToast('تم نسخ رابط المشاركة! 📋', 'success');
+    }).catch(() => {
+        showToast('رابط المشاركة: ' + shareLink, 'info');
+    });
+}
+
+// ============================================================
+// 26. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ script.js loaded successfully');
     renderProducts('default', '');
     updateCartUI();
     startCountdown();
 
     const bgStatic = document.getElementById('bg-static');
-    const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', '🧅', '🧄', '🫒', '🌶️', '🍑', '🍒', '🍉', '🍐', '🥥', '🌽'];
-    const rotations = [-14, -12, -10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14];
-    bgStatic.innerHTML = emojis.map((emoji, i) => {
-        const rot = rotations[i % rotations.length] + (Math.random() * 6 - 3);
-        return `<span style="--rot: ${rot}deg;">${emoji}</span>`;
-    }).join('');
+    if (bgStatic) {
+        const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', '🧅', '🧄', '🫒', '🌶️', '🍑', '🍒', '🍉', '🍐', '🥥', '🌽'];
+        const rotations = [-14, -12, -10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14];
+        bgStatic.innerHTML = emojis.map((emoji, i) => {
+            const rot = rotations[i % rotations.length] + (Math.random() * 6 - 3);
+            return `<span style="--rot: ${rot}deg;">${emoji}</span>`;
+        }).join('');
+    }
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            if (document.getElementById('productModal').classList.contains('open')) closeProductModal();
-            if (document.getElementById('checkoutModal').classList.contains('open')) closeCheckout();
-            if (document.getElementById('cartSidebar').classList.contains('open')) toggleCart();
-            if (document.getElementById('profileModal').classList.contains('open')) closeProfileModal();
+            const productModal = document.getElementById('productModal');
+            if (productModal && productModal.classList.contains('open')) closeProductModal();
+            const checkoutModal = document.getElementById('checkoutModal');
+            if (checkoutModal && checkoutModal.classList.contains('open')) closeCheckout();
+            const cartSidebar = document.getElementById('cartSidebar');
+            if (cartSidebar && cartSidebar.classList.contains('open')) toggleCart();
         }
     });
 
-    let searchTimeout;
-    document.getElementById('searchInput').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => filterProducts(), 200);
-    });
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => filterProducts(), 200);
+        });
+    }
     
     setMinDeliveryTime();
 });
@@ -1702,11 +1728,6 @@ window.viewProfile = viewProfile;
 window.viewOrders = viewOrders;
 window.viewFavorites = viewFavorites;
 window.shareProfile = shareProfile;
-window.openProfileModal = openProfileModal;
-window.closeProfileModal = closeProfileModal;
-window.saveProfile = saveProfile;
-window.copyShareLink = copyShareLink;
-window.syncCartFromSupabase = syncCartFromSupabase;
-window.saveCartToSupabase = saveCartToSupabase;
-window.saveOrderToSupabase = saveOrderToSupabase;
-window.getProductsData = getProductsData; 
+window.getProductsData = getProductsData;
+
+console.log('✅ All functions exported successfully'); 

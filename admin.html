@@ -115,7 +115,7 @@
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
         }
 
-        /* ===== SIDEBAR - تصميم جديد فخم ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed;
             top: 0;
@@ -268,7 +268,7 @@
             color: var(--admin-text);
         }
 
-        /* ===== STATS CARDS - تصميم جديد ===== */
+        /* ===== STATS CARDS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -955,16 +955,8 @@
         </div>
     </div>
 
-    <!-- ===== SUPABASE CONFIG ===== -->
-    <script>
-        // 🔑 إعدادات Supabase
-        const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        console.log('✅ Supabase initialized in admin');
-    </script>
+    <!-- ===== تم حذف تهيئة Supabase من هنا لتجنب التكرار ===== -->
 
     <script src="admin-script.js"></script>
 </body>
-    </html> 
+                    </html> 

@@ -1,122 +1,86 @@
 // ============================================================
-// script.js - متجر الواحة - النسخة النهائية مع Firebase
+// script-supabase.js - متجر الواحة مع Supabase
 // ============================================================
 
 // ============================================================
-// 1. PRODUCTS DATA
-// ============================================================
-const productsData = [
-    { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25,
-        desc: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, offer: null },
-    { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20,
-        desc: 'برتقال عصير طازج', descEn: 'Fresh juice oranges', popular: 95, offer: null },
-    { id: 3, name: 'موز', nameEn: 'Banana', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍌', price: 28,
-        desc: 'موز طازج من المزرعة', descEn: 'Fresh bananas from the farm', popular: 150, offer: null },
-    { id: 4, name: 'مانجو', nameEn: 'Mango', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥭', price: 30,
-        oldPrice: 35, desc: 'مانجو طازج - عرض خاص', descEn: 'Fresh mango - Special offer', popular: 200,
-        offer: 'عرض 5 كجم بسعر 150 ج.م' },
-    { id: 5, name: 'أناناس', nameEn: 'Pineapple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍍', price: 40,
-        desc: 'أناناس طازج من الفلبين', descEn: 'Fresh pineapple from Philippines', popular: 60, offer: null },
-    { id: 6, name: 'فراولة', nameEn: 'Strawberry', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 35,
-        oldPrice: 45, desc: 'فراولة طازجة - عرض خاص', descEn: 'Fresh strawberries - Special offer', popular: 180,
-        offer: 'خصم 20%' },
-    { id: 7, name: 'عنب', nameEn: 'Grapes', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍇', price: 38,
-        desc: 'عنب أسود حلو', descEn: 'Sweet black grapes', popular: 110, offer: null },
-    { id: 8, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 32,
-        desc: 'رمان أحمر شهي', descEn: 'Delicious red pomegranate', popular: 75, offer: null },
-    { id: 9, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15,
-        oldPrice: 20, desc: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190,
-        offer: 'خصم 25%' },
-    { id: 10, name: 'خيار', nameEn: 'Cucumber', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 15,
-        desc: 'خيار طازج مقرمش', descEn: 'Fresh crunchy cucumber', popular: 140, offer: null },
-    { id: 11, name: 'فلفل', nameEn: 'Pepper', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫑', price: 30,
-        desc: 'فلفل ألوان طازج', descEn: 'Fresh colorful peppers', popular: 90, offer: null },
-    { id: 12, name: 'خس', nameEn: 'Lettuce', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥬', price: 10,
-        oldPrice: 12, desc: 'خس طازج - عرض خاص', descEn: 'Fresh lettuce - Special offer', popular: 130,
-        offer: 'عرض 5 كجم بسعر 50 ج.م' },
-    { id: 13, name: 'سبانخ', nameEn: 'Spinach', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌿', price: 14,
-        desc: 'سبانخ غني بالحديد', descEn: 'Iron-rich spinach', popular: 85, offer: null },
-    { id: 14, name: 'جزر', nameEn: 'Carrot', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥕', price: 18,
-        desc: 'جزر طازج غني بفيتامين أ', descEn: 'Fresh vitamin A rich carrots', popular: 160, offer: null },
-    { id: 15, name: 'بطاطس', nameEn: 'Potato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥔', price: 16,
-        oldPrice: 22, desc: 'بطاطس طازجة - 5 كجم بسعر خاص', descEn: 'Fresh potatoes - 5kg special price', popular: 220,
-        offer: '5 كجم بسعر 80 ج.م' },
-    { id: 16, name: 'بنجر', nameEn: 'Beetroot', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍠', price: 20,
-        desc: 'بنجر أحمر غني بالحديد', descEn: 'Iron-rich red beetroot', popular: 65, offer: null },
-];
-
-// ============================================================
-// 2. CART
+// 1. CART
 // ============================================================
 let cart = [];
 let currentLang = 'ar';
 let currentSort = 'default';
 let appliedCoupon = null;
+let currentUser = null;
+let currentUserData = null;
+let allProducts = [];
 
 // ============================================================
-// 3. COUPONS SYSTEM
+// 2. PRODUCTS DATA (50 منتج)
 // ============================================================
-const coupons = {
-    'SAVE10': { discount: 10, type: 'percentage' },
-    'SAVE20': { discount: 20, type: 'percentage' },
-    'SAVE50': { discount: 50, type: 'fixed' },
-    'WELCOME': { discount: 15, type: 'percentage' },
-};
+const defaultProducts = [
+    // فاكهة (25)
+    { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25, oldPrice: null, offer: null, description: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, stock: 100 },
+    { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20, oldPrice: null, offer: null, description: 'برتقال عصير طازج', descEn: 'Fresh juice oranges', popular: 95, stock: 100 },
+    { id: 3, name: 'موز', nameEn: 'Banana', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍌', price: 28, oldPrice: null, offer: null, description: 'موز طازج من المزرعة', descEn: 'Fresh bananas from the farm', popular: 150, stock: 100 },
+    { id: 4, name: 'مانجو', nameEn: 'Mango', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥭', price: 30, oldPrice: 35, offer: 'عرض 5 كجم بسعر 150 ج.م', description: 'مانجو طازج - عرض خاص', descEn: 'Fresh mango - Special offer', popular: 200, stock: 100 },
+    { id: 5, name: 'أناناس', nameEn: 'Pineapple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍍', price: 40, oldPrice: null, offer: null, description: 'أناناس طازج من الفلبين', descEn: 'Fresh pineapple from Philippines', popular: 60, stock: 100 },
+    { id: 6, name: 'فراولة', nameEn: 'Strawberry', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 35, oldPrice: 45, offer: 'خصم 20%', description: 'فراولة طازجة - عرض خاص', descEn: 'Fresh strawberries - Special offer', popular: 180, stock: 100 },
+    { id: 7, name: 'عنب', nameEn: 'Grapes', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍇', price: 38, oldPrice: null, offer: null, description: 'عنب أسود حلو', descEn: 'Sweet black grapes', popular: 110, stock: 100 },
+    { id: 8, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 32, oldPrice: null, offer: null, description: 'رمان أحمر شهي', descEn: 'Delicious red pomegranate', popular: 75, stock: 100 },
+    { id: 9, name: 'كيوي', nameEn: 'Kiwi', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥝', price: 45, oldPrice: null, offer: null, description: 'كيوي طازج غني بفيتامين C', descEn: 'Fresh kiwi rich in Vitamin C', popular: 55, stock: 100 },
+    { id: 10, name: 'خوخ', nameEn: 'Peach', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍑', price: 30, oldPrice: null, offer: null, description: 'خوخ طازج حلو المذاق', descEn: 'Fresh sweet peaches', popular: 80, stock: 100 },
+    { id: 11, name: 'كمثرى', nameEn: 'Pear', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍐', price: 28, oldPrice: null, offer: null, description: 'كمثرى طازجة عصيرية', descEn: 'Fresh juicy pears', popular: 70, stock: 100 },
+    { id: 12, name: 'كرز', nameEn: 'Cherry', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍒', price: 50, oldPrice: null, offer: null, description: 'كرز طازج حلو', descEn: 'Fresh sweet cherries', popular: 90, stock: 100 },
+    { id: 13, name: 'بطيخ', nameEn: 'Watermelon', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍉', price: 15, oldPrice: null, offer: null, description: 'بطيخ أحمر منعش', descEn: 'Refreshing red watermelon', popular: 200, stock: 100 },
+    { id: 14, name: 'شمام', nameEn: 'Cantaloupe', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍈', price: 20, oldPrice: null, offer: null, description: 'شمام طازج حلو', descEn: 'Fresh sweet cantaloupe', popular: 85, stock: 100 },
+    { id: 15, name: 'ليمون', nameEn: 'Lemon', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍋', price: 18, oldPrice: null, offer: null, description: 'ليمون طازج حامض', descEn: 'Fresh sour lemons', popular: 110, stock: 100 },
+    { id: 16, name: 'جريب فروت', nameEn: 'Grapefruit', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 22, oldPrice: null, offer: null, description: 'جريب فروت طازج', descEn: 'Fresh grapefruit', popular: 40, stock: 100 },
+    { id: 17, name: 'تمر', nameEn: 'Dates', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🌴', price: 35, oldPrice: null, offer: null, description: 'تمر طازج غني بالطاقة', descEn: 'Fresh energy-rich dates', popular: 130, stock: 100 },
+    { id: 18, name: 'تين', nameEn: 'Fig', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍃', price: 40, oldPrice: null, offer: null, description: 'تين طازج حلو', descEn: 'Fresh sweet figs', popular: 60, stock: 100 },
+    { id: 19, name: 'رطب', nameEn: 'Fresh Dates', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🌴', price: 30, oldPrice: null, offer: null, description: 'رطب طازج من النخيل', descEn: 'Fresh dates from palm', popular: 100, stock: 100 },
+    { id: 20, name: 'أفوكادو', nameEn: 'Avocado', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥑', price: 55, oldPrice: null, offer: null, description: 'أفوكادو طازج غني بالدهون الصحية', descEn: 'Fresh healthy fat avocado', popular: 150, stock: 100 },
+    { id: 21, name: 'جوافة', nameEn: 'Guava', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍐', price: 20, oldPrice: null, offer: null, description: 'جوافة طازجة غنية بفيتامين C', descEn: 'Fresh Vitamin C rich guava', popular: 90, stock: 100 },
+    { id: 22, name: 'مانجو', nameEn: 'Mango', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥭', price: 25, oldPrice: null, offer: null, description: 'مانجو طازج - موسمي', descEn: 'Fresh seasonal mango', popular: 170, stock: 100 },
+    { id: 23, name: 'فاكهة التنين', nameEn: 'Dragon Fruit', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🐉', price: 60, oldPrice: null, offer: null, description: 'فاكهة التنين الطازجة', descEn: 'Fresh dragon fruit', popular: 120, stock: 100 },
+    { id: 24, name: 'ليتشي', nameEn: 'Lychee', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 45, oldPrice: null, offer: null, description: 'ليتشي طازج حلو', descEn: 'Fresh sweet lychee', popular: 80, stock: 100 },
+    { id: 25, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 28, oldPrice: null, offer: null, description: 'رمان طازج غني بمضادات الأكسدة', descEn: 'Fresh antioxidant-rich pomegranate', popular: 95, stock: 100 },
 
-function applyCoupon() {
-    const input = document.getElementById('couponCode');
-    const code = input.value.trim().toUpperCase();
-    const msg = document.getElementById('couponMessage');
+    // خضار (25)
+    { id: 26, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15, oldPrice: 20, offer: 'خصم 25%', description: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190, stock: 100 },
+    { id: 27, name: 'خيار', nameEn: 'Cucumber', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 15, oldPrice: null, offer: null, description: 'خيار طازج مقرمش', descEn: 'Fresh crunchy cucumber', popular: 140, stock: 100 },
+    { id: 28, name: 'فلفل', nameEn: 'Pepper', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫑', price: 30, oldPrice: null, offer: null, description: 'فلفل ألوان طازج', descEn: 'Fresh colorful peppers', popular: 90, stock: 100 },
+    { id: 29, name: 'خس', nameEn: 'Lettuce', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥬', price: 10, oldPrice: 12, offer: 'عرض 5 كجم بسعر 50 ج.م', description: 'خس طازج - عرض خاص', descEn: 'Fresh lettuce - Special offer', popular: 130, stock: 100 },
+    { id: 30, name: 'سبانخ', nameEn: 'Spinach', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌿', price: 14, oldPrice: null, offer: null, description: 'سبانخ غني بالحديد', descEn: 'Iron-rich spinach', popular: 85, stock: 100 },
+    { id: 31, name: 'جزر', nameEn: 'Carrot', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥕', price: 18, oldPrice: null, offer: null, description: 'جزر طازج غني بفيتامين أ', descEn: 'Fresh vitamin A rich carrots', popular: 160, stock: 100 },
+    { id: 32, name: 'بطاطس', nameEn: 'Potato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥔', price: 16, oldPrice: 22, offer: '5 كجم بسعر 80 ج.م', description: 'بطاطس طازجة - 5 كجم بسعر خاص', descEn: 'Fresh potatoes - 5kg special price', popular: 220, stock: 100 },
+    { id: 33, name: 'بنجر', nameEn: 'Beetroot', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍠', price: 20, oldPrice: null, offer: null, description: 'بنجر أحمر غني بالحديد', descEn: 'Iron-rich red beetroot', popular: 65, stock: 100 },
+    { id: 34, name: 'كوسة', nameEn: 'Zucchini', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 18, oldPrice: null, offer: null, description: 'كوسة طازجة', descEn: 'Fresh zucchini', popular: 100, stock: 100 },
+    { id: 35, name: 'باذنجان', nameEn: 'Eggplant', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍆', price: 20, oldPrice: null, offer: null, description: 'باذنجان طازج', descEn: 'Fresh eggplant', popular: 80, stock: 100 },
+    { id: 36, name: 'ثوم', nameEn: 'Garlic', category: 'خضار', categoryEn: 'Vegetables', emoji: '🧄', price: 25, oldPrice: null, offer: null, description: 'ثوم طازج', descEn: 'Fresh garlic', popular: 120, stock: 100 },
+    { id: 37, name: 'بصل', nameEn: 'Onion', category: 'خضار', categoryEn: 'Vegetables', emoji: '🧅', price: 12, oldPrice: null, offer: null, description: 'بصل طازج', descEn: 'Fresh onion', popular: 150, stock: 100 },
+    { id: 38, name: 'فجل', nameEn: 'Radish', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌰', price: 10, oldPrice: null, offer: null, description: 'فجل طازج مقرمش', descEn: 'Fresh crunchy radish', popular: 60, stock: 100 },
+    { id: 39, name: 'كرفس', nameEn: 'Celery', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌿', price: 15, oldPrice: null, offer: null, description: 'كرفس طازج', descEn: 'Fresh celery', popular: 70, stock: 100 },
+    { id: 40, name: 'بروكلي', nameEn: 'Broccoli', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥦', price: 25, oldPrice: null, offer: null, description: 'بروكلي طازج غني بفيتامين C', descEn: 'Fresh Vitamin C rich broccoli', popular: 110, stock: 100 },
+    { id: 41, name: 'قرنبيط', nameEn: 'Cauliflower', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥦', price: 22, oldPrice: null, offer: null, description: 'قرنبيط طازج', descEn: 'Fresh cauliflower', popular: 90, stock: 100 },
+    { id: 42, name: 'فطر', nameEn: 'Mushroom', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍄', price: 35, oldPrice: null, offer: null, description: 'فطر طازج', descEn: 'Fresh mushroom', popular: 130, stock: 100 },
+    { id: 43, name: 'ذرة', nameEn: 'Corn', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌽', price: 12, oldPrice: null, offer: null, description: 'ذرة طازجة حلوة', descEn: 'Fresh sweet corn', popular: 140, stock: 100 },
+    { id: 44, name: 'فاصوليا', nameEn: 'Green Beans', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌱', price: 20, oldPrice: null, offer: null, description: 'فاصوليا طازجة', descEn: 'Fresh green beans', popular: 100, stock: 100 },
+    { id: 45, name: 'بازلاء', nameEn: 'Peas', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫛', price: 18, oldPrice: null, offer: null, description: 'بازلاء طازجة', descEn: 'Fresh peas', popular: 85, stock: 100 },
+    { id: 46, name: 'قرع', nameEn: 'Pumpkin', category: 'خضار', categoryEn: 'Vegetables', emoji: '🎃', price: 15, oldPrice: null, offer: null, description: 'قرع طازج', descEn: 'Fresh pumpkin', popular: 75, stock: 100 },
+    { id: 47, name: 'بطاطا حلوة', nameEn: 'Sweet Potato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍠', price: 20, oldPrice: null, offer: null, description: 'بطاطا حلوة طازجة', descEn: 'Fresh sweet potato', popular: 120, stock: 100 },
+    { id: 48, name: 'زنجبيل', nameEn: 'Ginger', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌱', price: 30, oldPrice: null, offer: null, description: 'زنجبيل طازج', descEn: 'Fresh ginger', popular: 95, stock: 100 },
+    { id: 49, name: 'كراث', nameEn: 'Leek', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌿', price: 18, oldPrice: null, offer: null, description: 'كراث طازج', descEn: 'Fresh leek', popular: 60, stock: 100 },
+    { id: 50, name: 'جرجير', nameEn: 'Arugula', category: 'خضار', categoryEn: 'Vegetables', emoji: '🌿', price: 22, oldPrice: null, offer: null, description: 'جرجير طازج', descEn: 'Fresh arugula', popular: 80, stock: 100 }
+];
 
-    if (!code) {
-        msg.textContent = '⚠️ الرجاء إدخال كود الخصم';
-        msg.style.color = '#e74c3c';
-        return;
-    }
-
-    if (coupons[code]) {
-        appliedCoupon = { code, ...coupons[code] };
-        msg.textContent = `✅ تم تطبيق كود "${code}" بنجاح! خصم ${coupons[code].discount}${coupons[code].type === 'percentage' ? '%' : ' ج.م'}`;
-        msg.style.color = '#27ae60';
-        input.style.borderColor = '#27ae60';
-        updateCheckoutTotal();
-    } else {
-        appliedCoupon = null;
-        msg.textContent = '❌ كود غير صحيح أو منتهي الصلاحية';
-        msg.style.color = '#e74c3c';
-        input.style.borderColor = '#e74c3c';
-        updateCheckoutTotal();
-    }
-}
-
-function getDiscountedTotal(total) {
-    if (!appliedCoupon) return total;
-    if (appliedCoupon.type === 'percentage') {
-        return total - (total * appliedCoupon.discount / 100);
-    } else {
-        return Math.max(0, total - appliedCoupon.discount);
-    }
-}
-
-function loadCart() {
-    try {
-        const saved = localStorage.getItem('alwaha_cart_v9');
-        if (saved) {
-            cart = JSON.parse(saved);
-            if (!Array.isArray(cart)) cart = [];
-        }
-    } catch (e) { cart = []; }
-}
-
-function saveCart() {
-    try {
-        localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
-        if (typeof auth !== 'undefined' && auth.currentUser) {
-            saveCartToFirebase();
-        }
-    } catch (e) {}
-}
-loadCart();
+// ============================================================
+// 3. COUPONS
+// ============================================================
+const defaultCoupons = [
+    { code: 'SAVE10', discount: 10, type: 'percentage', used: 0, maxUses: 100 },
+    { code: 'SAVE20', discount: 20, type: 'percentage', used: 0, maxUses: 50 },
+    { code: 'SAVE50', discount: 50, type: 'fixed', used: 0, maxUses: 20 },
+    { code: 'WELCOME', discount: 15, type: 'percentage', used: 0, maxUses: 200 }
+];
 
 // ============================================================
 // 4. TOAST
@@ -136,11 +100,11 @@ function showToast(message, type = 'success', icon = '') {
 }
 
 // ============================================================
-// 5. RENDER
+// 5. PRODUCTS FUNCTIONS
 // ============================================================
 function getProductName(p) { return currentLang === 'en' ? p.nameEn : p.name; }
 function getProductCategory(p) { return currentLang === 'en' ? p.categoryEn : p.category; }
-function getProductDesc(p) { return currentLang === 'en' ? p.descEn : p.desc; }
+function getProductDesc(p) { return currentLang === 'en' ? p.descEn : p.description; }
 
 function getProductsData() {
     let stored = localStorage.getItem('alwaha_products');
@@ -149,10 +113,24 @@ function getProductsData() {
             return JSON.parse(stored);
         } catch { /* fallback */ }
     }
-    localStorage.setItem('alwaha_products', JSON.stringify(productsData));
-    return productsData;
+    localStorage.setItem('alwaha_products', JSON.stringify(defaultProducts));
+    return defaultProducts;
 }
 
+function getCouponsData() {
+    let stored = localStorage.getItem('alwaha_coupons');
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch { /* fallback */ }
+    }
+    localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
+    return defaultCoupons;
+}
+
+// ============================================================
+// 6. RENDER PRODUCTS
+// ============================================================
 function renderProducts(sort = currentSort, search = '') {
     const products = getProductsData();
     const fruitsGrid = document.getElementById('fruitsGrid');
@@ -161,7 +139,7 @@ function renderProducts(sort = currentSort, search = '') {
 
     let fruits = products.filter(p => p.category === 'فاكهة');
     let vegetables = products.filter(p => p.category === 'خضار');
-    let offers = products.filter(p => p.offer !== null);
+    let offers = products.filter(p => p.offer !== null && p.offer !== '');
 
     if (search.trim()) {
         const s = search.trim().toLowerCase();
@@ -217,7 +195,7 @@ function renderProducts(sort = currentSort, search = '') {
 }
 
 // ============================================================
-// 6. FILTERS
+// 7. FILTERS
 // ============================================================
 document.querySelectorAll('.category-card').forEach(card => {
     card.addEventListener('click', function() {
@@ -241,7 +219,19 @@ function applySort() {
 }
 
 // ============================================================
-// 7. PRODUCT MODAL
+// 8. SEARCH TOGGLE
+// ============================================================
+function toggleSearch() {
+    const box = document.getElementById('searchToggle');
+    box.classList.toggle('active');
+    const input = document.getElementById('searchInput');
+    if (box.classList.contains('active')) {
+        setTimeout(() => input.focus(), 100);
+    }
+}
+
+// ============================================================
+// 9. PRODUCT MODAL
 // ============================================================
 let modalProductId = null;
 let modalWeight = 1;
@@ -307,7 +297,7 @@ document.getElementById('productModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 8. SHARE
+// 10. SHARE
 // ============================================================
 function toggleSharePopup() {
     document.getElementById('sharePopup').classList.toggle('show');
@@ -373,8 +363,28 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 9. ADD TO CART
+// 11. CART FUNCTIONS
 // ============================================================
+function loadCart() {
+    try {
+        const saved = localStorage.getItem('alwaha_cart_v9');
+        if (saved) {
+            cart = JSON.parse(saved);
+            if (!Array.isArray(cart)) cart = [];
+        }
+    } catch (e) { cart = []; }
+}
+loadCart();
+
+function saveCart() {
+    try {
+        localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
+        if (currentUser) {
+            saveCartToSupabase();
+        }
+    } catch (e) {}
+}
+
 function addFromModal() {
     const products = getProductsData();
     const p = products.find(item => item.id === modalProductId);
@@ -422,7 +432,7 @@ function addFromModal() {
 }
 
 // ============================================================
-// 10. CART UI
+// 12. CART UI
 // ============================================================
 function updateCartUI() {
     const list = document.getElementById('cartItemsList');
@@ -431,7 +441,6 @@ function updateCartUI() {
     const headerTotal = document.getElementById('cartHeaderTotal');
     const floatingCheckoutBtn = document.getElementById('floatingCheckout');
 
-    let totalItems = 0;
     let totalPrice = 0;
     const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
     const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
@@ -464,7 +473,6 @@ function updateCartUI() {
     groupedItems.forEach(item => {
         const totalWeight = item.weight * item.qty;
         const itemTotal = item.price * totalWeight;
-        totalItems += item.qty;
         totalPrice += itemTotal;
         const productName = currentLang === 'en' ? item.nameEn : item.name;
         let priceDisplay = `${itemTotal.toFixed(2)} ${currency}`;
@@ -501,9 +509,6 @@ function updateCartUI() {
     if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'flex';
 }
 
-// ============================================================
-// 11. CART OPERATIONS
-// ============================================================
 function changeQty(key, delta) {
     const idx = cart.findIndex(i => i.id === parseInt(key));
     if (idx === -1) return;
@@ -534,7 +539,7 @@ function removeItem(key) {
 }
 
 // ============================================================
-// 12. TOGGLE CART
+// 13. TOGGLE CART
 // ============================================================
 function toggleCart() {
     const sidebar = document.getElementById('cartSidebar');
@@ -545,7 +550,7 @@ function toggleCart() {
 }
 
 // ============================================================
-// 13. CHECKOUT
+// 14. CHECKOUT
 // ============================================================
 function openCheckout() {
     if (cart.length === 0) {
@@ -682,8 +687,56 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 14. CONFIRM ORDER
+// 15. COUPONS
 // ============================================================
+function getCouponsList() {
+    let stored = localStorage.getItem('alwaha_coupons');
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch { /* fallback */ }
+    }
+    localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
+    return defaultCoupons;
+}
+
+function applyCoupon() {
+    const input = document.getElementById('couponCode');
+    const code = input.value.trim().toUpperCase();
+    const msg = document.getElementById('couponMessage');
+    const couponsList = getCouponsList();
+
+    if (!code) {
+        msg.textContent = '⚠️ الرجاء إدخال كود الخصم';
+        msg.style.color = '#e74c3c';
+        return;
+    }
+
+    const found = couponsList.find(c => c.code === code);
+    if (found) {
+        appliedCoupon = found;
+        msg.textContent = `✅ تم تطبيق كود "${code}" بنجاح! خصم ${found.discount}${found.type === 'percentage' ? '%' : ' ج.م'}`;
+        msg.style.color = '#27ae60';
+        input.style.borderColor = '#27ae60';
+        updateCheckoutTotal();
+    } else {
+        appliedCoupon = null;
+        msg.textContent = '❌ كود غير صحيح أو منتهي الصلاحية';
+        msg.style.color = '#e74c3c';
+        input.style.borderColor = '#e74c3c';
+        updateCheckoutTotal();
+    }
+}
+
+function getDiscountedTotal(total) {
+    if (!appliedCoupon) return total;
+    if (appliedCoupon.type === 'percentage') {
+        return total - (total * appliedCoupon.discount / 100);
+    } else {
+        return Math.max(0, total - appliedCoupon.discount);
+    }
+}
+
 function updateCheckoutTotal() {
     let total = 0;
     const grouped = {};
@@ -707,6 +760,9 @@ function updateCheckoutTotal() {
     }
 }
 
+// ============================================================
+// 16. CONFIRM ORDER
+// ============================================================
 function buildWhatsAppMessage(order) {
     const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
     const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
@@ -815,9 +871,7 @@ async function confirmOrder() {
     };
 
     try {
-        if (typeof saveOrderToFirebase !== 'undefined') {
-            await saveOrderToFirebase(orderData);
-        }
+        await saveOrderToSupabase(orderData);
         
         let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
@@ -847,7 +901,7 @@ async function confirmOrder() {
 }
 
 // ============================================================
-// 15. THEME
+// 17. THEME
 // ============================================================
 let currentTheme = 'light';
 
@@ -858,13 +912,13 @@ function toggleTheme() {
         html.setAttribute('data-theme', 'dark');
         currentTheme = 'dark';
         checkbox.checked = true;
-        document.getElementById('bg-static').style.opacity = '0.05';
+        document.getElementById('bg-static').style.opacity = '0.02';
         showToast(`${currentLang === 'en' ? 'Dark mode' : 'الوضع الليلي'}`, 'success', '🌙');
     } else {
         html.removeAttribute('data-theme');
         currentTheme = 'light';
         checkbox.checked = false;
-        document.getElementById('bg-static').style.opacity = '0.1';
+        document.getElementById('bg-static').style.opacity = '0.03';
         showToast(`${currentLang === 'en' ? 'Light mode' : 'الوضع النهاري'}`, 'success', '☀️');
     }
     localStorage.setItem('alwaha_theme', currentTheme);
@@ -875,7 +929,7 @@ if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
     currentTheme = 'dark';
     document.getElementById('themeCheckbox').checked = true;
-    document.getElementById('bg-static').style.opacity = '0.05';
+    document.getElementById('bg-static').style.opacity = '0.02';
 }
 
 document.getElementById('themeCheckbox').addEventListener('change', function() {
@@ -883,7 +937,7 @@ document.getElementById('themeCheckbox').addEventListener('change', function() {
 });
 
 // ============================================================
-// 16. LANGUAGE
+// 18. LANGUAGE
 // ============================================================
 function toggleLang() {
     const html = document.documentElement;
@@ -1011,6 +1065,9 @@ function updateLanguage(lang) {
 
     document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
     document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
+    
+    document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
+    document.querySelector('.coupon-row .coupon-btn').textContent = isEn ? 'Apply' : 'تطبيق';
 }
 
 const savedLang = localStorage.getItem('alwaha_lang');
@@ -1019,7 +1076,7 @@ if (savedLang === 'en') {
 }
 
 // ============================================================
-// 17. SCROLL TO TOP
+// 19. SCROLL TO TOP
 // ============================================================
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1031,7 +1088,7 @@ window.addEventListener('scroll', function() {
 });
 
 // ============================================================
-// 18. COUNTDOWN
+// 20. COUNTDOWN
 // ============================================================
 let countdownInterval;
 
@@ -1058,7 +1115,7 @@ function startCountdown() {
 }
 
 // ============================================================
-// 19. ADMIN ACCESS
+// 21. ADMIN ACCESS
 // ============================================================
 let logoClickCount = 0;
 let clickTimer = null;
@@ -1084,61 +1141,189 @@ document.getElementById('logoTrigger').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 20. FIREBASE AUTH - دوال المصادقة المُصلحة
+// 22. USER MENU DROPDOWN
 // ============================================================
-let currentUser = null;
-let currentUserData = null;
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    dropdown.classList.toggle('show');
+}
 
-if (typeof auth !== 'undefined') {
-    // ===== مراقبة حالة المصادقة =====
-    auth.onAuthStateChanged(async (user) => {
-        currentUser = user;
-        
-        if (user) {
-            console.log('✅ مستخدم مسجل:', user.email);
-            await loadUserData(user.uid);
-            updateUIForLoggedInUser();
-            await syncCartFromFirebase();
-        } else {
-            console.log('👤 مستخدم ضيف');
-            currentUserData = null;
-            updateUIForGuestUser();
-            loadCart();
-            updateCartUI();
-        }
+document.addEventListener('click', function(e) {
+    const userMenu = document.getElementById('userMenu');
+    const dropdown = document.getElementById('userDropdown');
+    if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+function viewProfile() {
+    document.getElementById('userDropdown').classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    openProfileModal();
+}
+
+function viewOrders() {
+    document.getElementById('userDropdown').classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    showToast('سيتم عرض طلباتك قريباً', 'info');
+}
+
+function viewFavorites() {
+    document.getElementById('userDropdown').classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    showToast('سيتم عرض المفضلة قريباً', 'info');
+}
+
+function shareProfile() {
+    document.getElementById('userDropdown').classList.remove('show');
+    if (!currentUser) {
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        openAuthModal();
+        return;
+    }
+    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+        showToast('تم نسخ رابط المشاركة! 📋', 'success');
+    }).catch(() => {
+        showToast('رابط المشاركة: ' + shareLink, 'info');
     });
 }
 
-async function loadUserData(uid) {
+// ============================================================
+// 23. PROFILE MODAL
+// ============================================================
+function openProfileModal() {
+    if (!currentUser) return;
+    document.getElementById('profileName').textContent = currentUserData?.display_name || 'مستخدم';
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    document.getElementById('profileAvatar').textContent = (currentUserData?.display_name || 'م')[0];
+    document.getElementById('profileDisplayName').value = currentUserData?.display_name || '';
+    document.getElementById('profilePhone').value = currentUserData?.phone || '';
+    document.getElementById('profileAddress').value = currentUserData?.address || '';
+    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
+    document.getElementById('profileShareLink').value = shareLink;
+    document.getElementById('profileModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+async function saveProfile() {
+    if (!currentUser) return;
+    const displayName = document.getElementById('profileDisplayName').value.trim();
+    const phone = document.getElementById('profilePhone').value.trim();
+    const address = document.getElementById('profileAddress').value.trim();
+    
     try {
-        const doc = await db.collection('users').doc(uid).get();
-        if (doc.exists) {
-            currentUserData = doc.data();
+        const { error } = await supabase
+            .from('users')
+            .update({
+                display_name: displayName,
+                phone: phone,
+                address: address,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', currentUser.id);
+        
+        if (error) throw error;
+        
+        if (currentUserData) {
+            currentUserData.display_name = displayName;
+            currentUserData.phone = phone;
+            currentUserData.address = address;
+        }
+        
+        updateUIForLoggedInUser();
+        showToast('تم حفظ التغييرات بنجاح ✅', 'success');
+        closeProfileModal();
+    } catch (error) {
+        console.error('خطأ في حفظ الملف الشخصي:', error);
+        showToast('حدث خطأ في حفظ البيانات', 'error');
+    }
+}
+
+function copyShareLink() {
+    const input = document.getElementById('profileShareLink');
+    if (input) {
+        navigator.clipboard.writeText(input.value).then(() => {
+            showToast('تم نسخ الرابط! 📋', 'success');
+        }).catch(() => {
+            showToast('الرابط: ' + input.value, 'info');
+        });
+    }
+}
+
+// ============================================================
+// 24. SUPABASE AUTH
+// ============================================================
+async function loadUserData(userId) {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') throw error;
+        
+        if (data) {
+            currentUserData = data;
         } else {
             const newUser = {
-                uid: uid,
+                id: userId,
                 email: currentUser.email,
-                displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم',
+                display_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'مستخدم',
                 phone: '',
                 address: '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                isAdmin: false,
-                cart: []
+                referral_count: 0,
+                created_at: new Date().toISOString()
             };
-            await db.collection('users').doc(uid).set(newUser);
-            currentUserData = newUser;
+            const { error: insertError } = await supabase
+                .from('users')
+                .insert([newUser]);
             
-            const adminDoc = await db.collection('admins').doc(uid).get();
-            if (adminDoc.exists) {
-                currentUserData.isAdmin = true;
-            }
+            if (insertError) throw insertError;
+            currentUserData = newUser;
         }
     } catch (error) {
         console.error('خطأ في تحميل بيانات المستخدم:', error);
     }
 }
 
-// ===== تسجيل الدخول بالبريد الإلكتروني =====
+// ===== مراقبة حالة المصادقة =====
+supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+        currentUser = session.user;
+        console.log('✅ مستخدم مسجل:', currentUser.email);
+        await loadUserData(currentUser.id);
+        updateUIForLoggedInUser();
+        await syncCartFromSupabase();
+    } else {
+        currentUser = null;
+        currentUserData = null;
+        updateUIForGuestUser();
+        console.log('👤 مستخدم ضيف');
+        loadCart();
+        updateCartUI();
+    }
+});
+
+// ===== تسجيل الدخول بالبريد =====
 async function loginWithEmail(email, password) {
     if (!email || !password) {
         showToast('⚠️ الرجاء إدخال البريد وكلمة المرور', 'error');
@@ -1146,23 +1331,25 @@ async function loginWithEmail(email, password) {
     }
     
     try {
-        const result = await auth.signInWithEmailAndPassword(email, password);
-        console.log('✅ تم تسجيل الدخول:', result.user.email);
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        if (error) throw error;
         showToast('تم تسجيل الدخول بنجاح! 🎉', 'success');
         closeAuthModal();
     } catch (error) {
         console.error('❌ خطأ في تسجيل الدخول:', error);
-        const errorMsg = getAuthErrorMessage(error.code);
-        showToast(errorMsg, 'error');
+        showToast(error.message || 'حدث خطأ في تسجيل الدخول', 'error');
         const loginError = document.getElementById('loginError');
         if (loginError) {
-            loginError.textContent = errorMsg;
+            loginError.textContent = error.message || 'حدث خطأ';
             loginError.classList.add('show');
         }
     }
 }
 
-// ===== إنشاء حساب جديد =====
+// ===== إنشاء حساب =====
 async function signupWithEmail(email, password, displayName) {
     if (!email || !password || !displayName) {
         showToast('⚠️ الرجاء ملء جميع الحقول', 'error');
@@ -1175,24 +1362,30 @@ async function signupWithEmail(email, password, displayName) {
     }
     
     try {
-        const result = await auth.createUserWithEmailAndPassword(email, password);
-        await result.user.updateProfile({ displayName: displayName });
-        console.log('✅ تم إنشاء الحساب:', result.user.email);
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    full_name: displayName
+                }
+            }
+        });
+        if (error) throw error;
         showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
         closeAuthModal();
     } catch (error) {
         console.error('❌ خطأ في إنشاء الحساب:', error);
-        const errorMsg = getAuthErrorMessage(error.code);
-        showToast(errorMsg, 'error');
+        showToast(error.message || 'حدث خطأ في إنشاء الحساب', 'error');
         const signupError = document.getElementById('signupError');
         if (signupError) {
-            signupError.textContent = errorMsg;
+            signupError.textContent = error.message || 'حدث خطأ';
             signupError.classList.add('show');
         }
     }
 }
 
-// ===== تسجيل الدخول بجوجل - باستخدام popup مع fallback =====
+// ===== تسجيل الدخول بجوجل =====
 async function loginWithGoogle() {
     const googleBtn = document.getElementById('googleBtn');
     if (googleBtn) {
@@ -1201,36 +1394,17 @@ async function loginWithGoogle() {
     }
     
     try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account'
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.href
+            }
         });
-        
-        // محاولة popup أولاً
-        const result = await auth.signInWithPopup(provider);
-        console.log('✅ تم تسجيل الدخول بجوجل:', result.user.email);
-        showToast('تم تسجيل الدخول بجوجل! 🎉', 'success');
-        closeAuthModal();
-        
-        if (googleBtn) {
-            googleBtn.disabled = false;
-            googleBtn.innerHTML = `
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                <span>تسجيل الدخول بجوجل</span>
-            `;
-        }
-        
+        if (error) throw error;
+        showToast('جاري التوجيه إلى جوجل...', 'info');
     } catch (error) {
         console.error('❌ خطأ في تسجيل الدخول بجوجل:', error);
-        
-        // إذا كان الخطأ بسبب حظر النافذة المنبثقة
-        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-            showToast('⚠️ تم حظر النافذة المنبثقة، حاول مرة أخرى أو استخدم البريد', 'error');
-        } else {
-            const errorMsg = getAuthErrorMessage(error.code) || 'حدث خطأ في تسجيل الدخول بجوجل';
-            showToast(errorMsg, 'error');
-        }
-        
+        showToast(error.message || 'حدث خطأ في تسجيل الدخول بجوجل', 'error');
         if (googleBtn) {
             googleBtn.disabled = false;
             googleBtn.innerHTML = `
@@ -1244,8 +1418,9 @@ async function loginWithGoogle() {
 // ===== تسجيل الخروج =====
 async function logout() {
     try {
-        await auth.signOut();
+        await supabase.auth.signOut();
         showToast('تم تسجيل الخروج', 'info');
+        document.getElementById('userDropdown').classList.remove('show');
         loadCart();
         updateCartUI();
     } catch (error) {
@@ -1254,7 +1429,7 @@ async function logout() {
     }
 }
 
-// ===== إعادة تعيين كلمة المرور =====
+// ===== نسيان كلمة المرور =====
 async function resetPassword(email) {
     if (!email) {
         showToast('⚠️ أدخل بريدك الإلكتروني أولاً', 'error');
@@ -1262,37 +1437,131 @@ async function resetPassword(email) {
     }
     
     try {
-        await auth.sendPasswordResetEmail(email);
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.href
+        });
+        if (error) throw error;
         showToast('✅ تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك', 'success');
     } catch (error) {
         console.error('❌ خطأ في إعادة تعيين كلمة المرور:', error);
-        showToast(getAuthErrorMessage(error.code), 'error');
+        showToast(error.message || 'حدث خطأ', 'error');
     }
 }
 
-// ===== رسائل الخطأ =====
-function getAuthErrorMessage(code) {
-    const messages = {
-        'auth/user-not-found': '❌ البريد الإلكتروني غير مسجل',
-        'auth/wrong-password': '❌ كلمة المرور غير صحيحة',
-        'auth/email-already-in-use': '❌ هذا البريد مسجل بالفعل',
-        'auth/invalid-email': '❌ بريد إلكتروني غير صحيح',
-        'auth/weak-password': '❌ كلمة المرور ضعيفة (6 أحرف على الأقل)',
-        'auth/too-many-requests': '⚠️ تم تجاوز عدد المحاولات، حاول لاحقاً',
-        'auth/popup-closed-by-user': 'تم إغلاق نافذة تسجيل الدخول',
-        'auth/popup-blocked': '⚠️ تم حظر النافذة المنبثقة، يرجى السماح لها',
-        'auth/network-request-failed': '⚠️ مشكلة في الاتصال بالإنترنت',
-        'auth/requires-recent-login': '⚠️ يرجى تسجيل الدخول مرة أخرى',
-        'auth/credential-already-in-use': '⚠️ هذا الحساب مرتبط بمستخدم آخر',
-        'auth/cancelled-popup-request': 'تم إلغاء طلب تسجيل الدخول',
-    };
-    return messages[code] || `⚠️ حدث خطأ: ${code}`;
+// ============================================================
+// 25. SUPABASE SYNC
+// ============================================================
+async function syncCartFromSupabase() {
+    if (!currentUser) return;
+    
+    try {
+        const { data, error } = await supabase
+            .from('cart')
+            .select('*')
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            const cloudCart = data.map(item => ({
+                id: item.product_id,
+                weight: item.weight || 1,
+                qty: item.qty || 1
+            }));
+            
+            if (cart.length > 0 && cloudCart.length > 0) {
+                cart = mergeCarts(cart, cloudCart);
+            } else if (cloudCart.length > 0) {
+                cart = cloudCart;
+            }
+            
+            saveCart();
+            updateCartUI();
+        }
+        
+        await saveCartToSupabase();
+    } catch (error) {
+        console.error('خطأ في مزامنة السلة:', error);
+    }
 }
 
-// ===== تحديث واجهة المستخدم =====
+function mergeCarts(localCart, cloudCart) {
+    const merged = [...cloudCart];
+    localCart.forEach(item => {
+        const existing = merged.find(c => c.id === item.id);
+        if (existing) {
+            existing.qty += item.qty;
+        } else {
+            merged.push(item);
+        }
+    });
+    return merged;
+}
+
+async function saveCartToSupabase() {
+    if (!currentUser) return;
+    
+    try {
+        // حذف السلة القديمة
+        await supabase
+            .from('cart')
+            .delete()
+            .eq('user_id', currentUser.id);
+        
+        if (cart.length === 0) return;
+        
+        // إضافة السلة الجديدة
+        const cartItems = cart.map(item => ({
+            user_id: currentUser.id,
+            product_id: item.id,
+            weight: item.weight || 1,
+            qty: item.qty || 1
+        }));
+        
+        const { error } = await supabase
+            .from('cart')
+            .insert(cartItems);
+        
+        if (error) throw error;
+    } catch (error) {
+        console.error('خطأ في حفظ السلة:', error);
+    }
+}
+
+async function saveOrderToSupabase(orderData) {
+    try {
+        const { data, error } = await supabase
+            .from('orders')
+            .insert([{
+                user_id: currentUser?.id || null,
+                customer: orderData.customer,
+                phone: orderData.phone,
+                address: orderData.address,
+                items: orderData.items,
+                total: orderData.total,
+                discounted_total: orderData.discountedTotal,
+                coupon_code: orderData.coupon,
+                discount: orderData.total - orderData.discountedTotal,
+                payment_method: orderData.payment,
+                delivery_type: orderData.delivery,
+                delivery_time: orderData.deliveryTime || null,
+                notes: orderData.notes,
+                status: orderData.status || 'جديد'
+            }]);
+        
+        if (error) throw error;
+        console.log('✅ تم حفظ الطلب في Supabase');
+    } catch (error) {
+        console.error('خطأ في حفظ الطلب:', error);
+        throw error;
+    }
+}
+
+// ============================================================
+// 26. UPDATE UI
+// ============================================================
 function updateUIForLoggedInUser() {
-    const user = auth.currentUser;
-    const name = currentUserData?.displayName || user?.email?.split('@')[0] || 'مستخدم';
+    const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
     
     const userMenu = document.getElementById('userMenu');
     const guestMenu = document.getElementById('guestMenu');
@@ -1314,7 +1583,7 @@ function updateUIForGuestUser() {
 }
 
 // ============================================================
-// 21. AUTH MODAL
+// 27. AUTH MODAL
 // ============================================================
 function openAuthModal() {
     document.getElementById('authModal').classList.add('open');
@@ -1363,80 +1632,7 @@ function handleGoogleLogin() {
 }
 
 // ============================================================
-// 22. FIREBASE - مزامنة السلة والطلبات
-// ============================================================
-async function syncCartFromFirebase() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    try {
-        const doc = await db.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-            const data = doc.data();
-            const cloudCart = data.cart || [];
-            
-            if (cart.length > 0 && cloudCart.length > 0) {
-                cart = mergeCarts(cart, cloudCart);
-            } else if (cloudCart.length > 0) {
-                cart = cloudCart;
-            }
-            
-            saveCart();
-            updateCartUI();
-            
-            await db.collection('users').doc(user.uid).update({
-                cart: cart
-            });
-        }
-    } catch (error) {
-        console.error('خطأ في مزامنة السلة:', error);
-    }
-}
-
-function mergeCarts(localCart, cloudCart) {
-    const merged = [...cloudCart];
-    localCart.forEach(item => {
-        const existing = merged.find(c => c.id === item.id);
-        if (existing) {
-            existing.qty += item.qty;
-        } else {
-            merged.push(item);
-        }
-    });
-    return merged;
-}
-
-async function saveCartToFirebase() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    try {
-        await db.collection('users').doc(user.uid).update({
-            cart: cart
-        });
-    } catch (error) {
-        console.error('خطأ في حفظ السلة:', error);
-    }
-}
-
-async function saveOrderToFirebase(orderData) {
-    try {
-        const user = auth.currentUser;
-        const docRef = await db.collection('orders').add({
-            ...orderData,
-            userId: user?.uid || null,
-            status: 'جديد',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        return { id: docRef.id, ...orderData };
-    } catch (error) {
-        console.error('خطأ في حفظ الطلب:', error);
-        throw error;
-    }
-}
-
-// ============================================================
-// 23. INIT
+// 28. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     renderProducts('default', '');
@@ -1456,6 +1652,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.getElementById('productModal').classList.contains('open')) closeProductModal();
             if (document.getElementById('checkoutModal').classList.contains('open')) closeCheckout();
             if (document.getElementById('cartSidebar').classList.contains('open')) toggleCart();
+            if (document.getElementById('profileModal').classList.contains('open')) closeProfileModal();
         }
     });
 
@@ -1468,7 +1665,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setMinDeliveryTime();
 });
 
-// تصدير الدوال
+// ===== تصدير الدوال للاستخدام العام =====
 window.toggleLang = toggleLang;
 window.filterProducts = filterProducts;
 window.applySort = applySort;
@@ -1499,7 +1696,17 @@ window.loginWithEmail = loginWithEmail;
 window.signupWithEmail = signupWithEmail;
 window.loginWithGoogle = loginWithGoogle;
 window.resetPassword = resetPassword;
-window.syncCartFromFirebase = syncCartFromFirebase;
-window.saveCartToFirebase = saveCartToFirebase;
-window.saveOrderToFirebase = saveOrderToFirebase;
-window.getProductsData = getProductsData;getProductsData;
+window.toggleSearch = toggleSearch;
+window.toggleUserMenu = toggleUserMenu;
+window.viewProfile = viewProfile;
+window.viewOrders = viewOrders;
+window.viewFavorites = viewFavorites;
+window.shareProfile = shareProfile;
+window.openProfileModal = openProfileModal;
+window.closeProfileModal = closeProfileModal;
+window.saveProfile = saveProfile;
+window.copyShareLink = copyShareLink;
+window.syncCartFromSupabase = syncCartFromSupabase;
+window.saveCartToSupabase = saveCartToSupabase;
+window.saveOrderToSupabase = saveOrderToSupabase;
+window.getProductsData = getProductsData; 

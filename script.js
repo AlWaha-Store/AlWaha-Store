@@ -3,7 +3,7 @@
 // ============================================================
 const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log('✅ script.js loaded - Supabase initialized');
 
@@ -112,22 +112,32 @@ function getProductCategory(p) { return currentLang === 'en' ? p.categoryEn : p.
 function getProductDesc(p) { return currentLang === 'en' ? p.descEn : p.description; }
 
 function getProductsData() {
-    let stored = localStorage.getItem('alwaha_products');
-    if (stored) {
-        try {
-            return JSON.parse(stored);
-        } catch { /* fallback */ }
+    try {
+        let stored = localStorage.getItem('alwaha_products');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة المنتجات من localStorage، سيتم استخدام القيم الافتراضية');
     }
     localStorage.setItem('alwaha_products', JSON.stringify(defaultProducts));
     return defaultProducts;
 }
 
 function getCouponsData() {
-    let stored = localStorage.getItem('alwaha_coupons');
-    if (stored) {
-        try {
-            return JSON.parse(stored);
-        } catch { /* fallback */ }
+    try {
+        let stored = localStorage.getItem('alwaha_coupons');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة الكوبونات من localStorage، سيتم استخدام القيم الافتراضية');
     }
     localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
     return defaultCoupons;
@@ -384,24 +394,28 @@ loadCart();
 function saveCart() {
     try {
         localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
-        if (currentUser && typeof supabase !== 'undefined') {
+        if (currentUser) {
             saveCartToSupabase();
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn('⚠️ خطأ في حفظ السلة محلياً:', e);
+    }
 }
 
 async function saveCartToSupabase() {
     if (!currentUser) return;
     try {
-        // Delete existing cart
-        await supabase
+        if (typeof supabaseClient === 'undefined') {
+            console.warn('⚠️ Supabase غير متاح');
+            return;
+        }
+        await supabaseClient
             .from('cart')
             .delete()
             .eq('user_id', currentUser.id);
         
         if (cart.length === 0) return;
         
-        // Insert new cart items
         const cartItems = cart.map(item => ({
             user_id: currentUser.id,
             product_id: item.id,
@@ -409,9 +423,63 @@ async function saveCartToSupabase() {
             qty: item.qty || 1
         }));
         
-        await supabase.from('cart').insert(cartItems);
+        const { error } = await supabaseClient.from('cart').insert(cartItems);
+        if (error) throw error;
     } catch (error) {
-        console.error('Error saving cart to Supabase:', error);
+        console.error('❌ خطأ في حفظ السلة في Supabase:', error);
+    }
+}
+
+async function syncCartFromSupabase() {
+    if (!currentUser) return;
+    try {
+        if (typeof supabaseClient === 'undefined') {
+            console.warn('⚠️ Supabase غير متاح');
+            return;
+        }
+        const { data, error } = await supabaseClient
+            .from('cart')
+            .select('*')
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            const products = getProductsData();
+            const cloudCart = data.map(item => {
+                const p = products.find(pr => pr.id === item.product_id);
+                if (!p) return null;
+                return {
+                    ...p,
+                    weight: item.weight || 1,
+                    qty: item.qty || 1
+                };
+            }).filter(Boolean);
+            
+            if (cloudCart.length > 0) {
+                // إذا كانت السلة المحلية تحتوي على عناصر، دمجها
+                if (cart.length > 0) {
+                    const merged = [...cloudCart];
+                    cart.forEach(localItem => {
+                        const existing = merged.find(c => c.id === localItem.id);
+                        if (existing) {
+                            existing.qty += localItem.qty;
+                            existing.weight = (existing.weight + localItem.weight) / 2;
+                        } else {
+                            merged.push(localItem);
+                        }
+                    });
+                    cart = merged;
+                } else {
+                    cart = cloudCart;
+                }
+                saveCart();
+                updateCartUI();
+                console.log('✅ تم مزامنة السلة من Supabase');
+            }
+        }
+    } catch (error) {
+        console.error('❌ خطأ في مزامنة السلة من Supabase:', error);
     }
 }
 
@@ -717,11 +785,16 @@ function validateCheckoutForm() {
 // 15. COUPONS
 // ============================================================
 function getCouponsList() {
-    let stored = localStorage.getItem('alwaha_coupons');
-    if (stored) {
-        try {
-            return JSON.parse(stored);
-        } catch { /* fallback */ }
+    try {
+        let stored = localStorage.getItem('alwaha_coupons');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed && Array.isArray(parsed)) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة الكوبونات');
     }
     localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
     return defaultCoupons;
@@ -896,15 +969,18 @@ async function confirmOrder() {
         delivery: delivery,
         deliveryTime: deliveryTime,
         notes: notes,
-        status: 'جديد'
+        status: 'جديد',
+        date: new Date().toISOString(),
+        dateAr: new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     };
 
     try {
-        if (typeof supabase !== 'undefined' && supabase) {
-            await supabase
+        // حفظ في Supabase
+        if (typeof supabaseClient !== 'undefined' && currentUser) {
+            const { error } = await supabaseClient
                 .from('orders')
                 .insert([{
-                    user_id: currentUser?.id || null,
+                    user_id: currentUser.id,
                     customer: orderData.customer,
                     phone: orderData.phone,
                     address: orderData.address,
@@ -916,10 +992,13 @@ async function confirmOrder() {
                     delivery_type: orderData.delivery,
                     delivery_time: orderData.deliveryTime || null,
                     notes: orderData.notes,
-                    status: orderData.status
+                    status: orderData.status,
+                    created_at: orderData.date
                 }]);
+            if (error) throw error;
         }
         
+        // حفظ في localStorage
         let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
         localStorage.setItem('alwaha_orders', JSON.stringify(orders));
@@ -945,8 +1024,8 @@ async function confirmOrder() {
         setTimeout(() => { window.open(whatsappUrl, '_blank'); }, 600);
         
     } catch (error) {
+        console.error('❌ خطأ في حفظ الطلب:', error);
         showToast('حدث خطأ في حفظ الطلب', 'error');
-        console.error(error);
     }
 }
 
@@ -1215,6 +1294,7 @@ function startCountdown() {
     let hours = 12, minutes = 30, seconds = 45;
     const cdEl = document.getElementById('countdown');
     if (!cdEl) return;
+    clearInterval(countdownInterval);
     countdownInterval = setInterval(() => {
         seconds--;
         if (seconds < 0) { seconds = 59; minutes--; }
@@ -1270,11 +1350,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 async function loadUserData(userId) {
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             console.warn('⚠️ Supabase not available');
             return;
         }
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('users')
             .select('*')
             .eq('id', userId)
@@ -1294,22 +1374,23 @@ async function loadUserData(userId) {
                 referral_count: 0,
                 created_at: new Date().toISOString()
             };
-            if (typeof supabase !== 'undefined') {
-                const { error: insertError } = await supabase
+            if (typeof supabaseClient !== 'undefined') {
+                const { error: insertError } = await supabaseClient
                     .from('users')
                     .insert([newUser]);
-                if (insertError) throw insertError;
+                if (insertError && insertError.code !== '23505') throw insertError;
             }
             currentUserData = newUser;
         }
     } catch (error) {
-        console.error('خطأ في تحميل بيانات المستخدم:', error);
+        console.error('❌ خطأ في تحميل بيانات المستخدم:', error);
     }
 }
 
 // ===== مراقبة حالة المصادقة =====
-if (typeof supabase !== 'undefined') {
-    supabase.auth.onAuthStateChange(async (event, session) => {
+if (typeof supabaseClient !== 'undefined') {
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log('🔄 Auth state changed:', event, session?.user?.email);
         if (session) {
             currentUser = session.user;
             console.log('✅ مستخدم مسجل:', currentUser.email);
@@ -1327,48 +1408,6 @@ if (typeof supabase !== 'undefined') {
     });
 }
 
-// ===== مزامنة السلة من Supabase =====
-async function syncCartFromSupabase() {
-    if (!currentUser) return;
-    try {
-        const { data, error } = await supabase
-            .from('cart')
-            .select('*')
-            .eq('user_id', currentUser.id);
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-            const cloudCart = data.map(item => ({
-                id: item.product_id,
-                weight: item.weight || 1,
-                qty: item.qty || 1
-            }));
-            
-            // Merge with local cart
-            if (cart.length > 0 && cloudCart.length > 0) {
-                const merged = [...cloudCart];
-                cart.forEach(localItem => {
-                    const existing = merged.find(c => c.id === localItem.id);
-                    if (existing) {
-                        existing.qty += localItem.qty;
-                    } else {
-                        merged.push(localItem);
-                    }
-                });
-                cart = merged;
-            } else if (cloudCart.length > 0) {
-                cart = cloudCart;
-            }
-            
-            saveCart();
-            updateCartUI();
-        }
-    } catch (error) {
-        console.error('Error syncing cart:', error);
-    }
-}
-
 // ===== تسجيل الدخول بالبريد =====
 async function loginWithEmail(email, password) {
     if (!email || !password) {
@@ -1377,11 +1416,11 @@ async function loginWithEmail(email, password) {
     }
     
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             return;
         }
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -1412,11 +1451,11 @@ async function signupWithEmail(email, password, displayName) {
     }
     
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             return;
         }
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -1448,7 +1487,7 @@ async function loginWithGoogle() {
     }
     
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             if (googleBtn) {
                 googleBtn.disabled = false;
@@ -1459,7 +1498,7 @@ async function loginWithGoogle() {
             }
             return;
         }
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.href
@@ -1483,8 +1522,8 @@ async function loginWithGoogle() {
 // ===== تسجيل الخروج =====
 async function logout() {
     try {
-        if (typeof supabase !== 'undefined') {
-            await supabase.auth.signOut();
+        if (typeof supabaseClient !== 'undefined') {
+            await supabaseClient.auth.signOut();
         }
         showToast('تم تسجيل الخروج', 'info');
         const dropdown = document.getElementById('userDropdown');
@@ -1506,11 +1545,11 @@ async function resetPassword(email) {
     }
     
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             return;
         }
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.href
         });
         if (error) throw error;

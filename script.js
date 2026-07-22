@@ -5,6 +5,8 @@ const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+console.log('✅ script.js loaded - Supabase initialized');
+
 // ============================================================
 // 1. CART
 // ============================================================
@@ -307,24 +309,6 @@ function changeModalWeight(delta) {
     modalWeight = val;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modalWeight = document.getElementById('modalWeight');
-    if (modalWeight) {
-        modalWeight.addEventListener('change', function() {
-            let val = parseFloat(this.value) || 1;
-            val = Math.max(0.25, Math.round(val * 100) / 100);
-            this.value = val;
-            modalWeight = val;
-        });
-    }
-    const productModal = document.getElementById('productModal');
-    if (productModal) {
-        productModal.addEventListener('click', function(e) {
-            if (e.target === this) closeProductModal();
-        });
-    }
-});
-
 // ============================================================
 // 10. SHARE
 // ============================================================
@@ -383,14 +367,6 @@ function shareProduct(platform) {
     document.getElementById('sharePopup')?.classList.remove('show');
 }
 
-document.addEventListener('click', function(e) {
-    const popup = document.getElementById('sharePopup');
-    const btn = document.querySelector('.btn-share');
-    if (popup && !popup.contains(e.target) && btn && !btn.contains(e.target)) {
-        popup.classList.remove('show');
-    }
-});
-
 // ============================================================
 // 11. CART FUNCTIONS
 // ============================================================
@@ -408,7 +384,35 @@ loadCart();
 function saveCart() {
     try {
         localStorage.setItem('alwaha_cart_v9', JSON.stringify(cart));
+        if (currentUser && typeof supabase !== 'undefined') {
+            saveCartToSupabase();
+        }
     } catch (e) {}
+}
+
+async function saveCartToSupabase() {
+    if (!currentUser) return;
+    try {
+        // Delete existing cart
+        await supabase
+            .from('cart')
+            .delete()
+            .eq('user_id', currentUser.id);
+        
+        if (cart.length === 0) return;
+        
+        // Insert new cart items
+        const cartItems = cart.map(item => ({
+            user_id: currentUser.id,
+            product_id: item.id,
+            weight: item.weight || 1,
+            qty: item.qty || 1
+        }));
+        
+        await supabase.from('cart').insert(cartItems);
+    } catch (error) {
+        console.error('Error saving cart to Supabase:', error);
+    }
 }
 
 function addFromModal() {
@@ -708,42 +712,6 @@ function validateCheckoutForm() {
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.payment-options label').forEach(label => {
-        label.addEventListener('click', function() {
-            document.querySelectorAll('.payment-options label').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            validateCheckoutForm();
-        });
-    });
-
-    document.querySelectorAll('#deliveryOptions label').forEach(label => {
-        label.addEventListener('click', function() {
-            document.querySelectorAll('#deliveryOptions label').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            const timeInput = document.getElementById('deliveryTimeInput');
-            if (this.dataset.delivery === 'وقت محدد') {
-                if (timeInput) timeInput.classList.add('show');
-                setMinDeliveryTime();
-            } else {
-                if (timeInput) timeInput.classList.remove('show');
-            }
-            validateCheckoutForm();
-        });
-    });
-
-    const checkoutModal = document.getElementById('checkoutModal');
-    if (checkoutModal) {
-        checkoutModal.addEventListener('click', function(e) {
-            if (e.target === this) closeCheckout();
-        });
-    }
-});
 
 // ============================================================
 // 15. COUPONS
@@ -1347,6 +1315,7 @@ if (typeof supabase !== 'undefined') {
             console.log('✅ مستخدم مسجل:', currentUser.email);
             await loadUserData(currentUser.id);
             updateUIForLoggedInUser();
+            await syncCartFromSupabase();
         } else {
             currentUser = null;
             currentUserData = null;
@@ -1356,6 +1325,48 @@ if (typeof supabase !== 'undefined') {
             updateCartUI();
         }
     });
+}
+
+// ===== مزامنة السلة من Supabase =====
+async function syncCartFromSupabase() {
+    if (!currentUser) return;
+    try {
+        const { data, error } = await supabase
+            .from('cart')
+            .select('*')
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            const cloudCart = data.map(item => ({
+                id: item.product_id,
+                weight: item.weight || 1,
+                qty: item.qty || 1
+            }));
+            
+            // Merge with local cart
+            if (cart.length > 0 && cloudCart.length > 0) {
+                const merged = [...cloudCart];
+                cart.forEach(localItem => {
+                    const existing = merged.find(c => c.id === localItem.id);
+                    if (existing) {
+                        existing.qty += localItem.qty;
+                    } else {
+                        merged.push(localItem);
+                    }
+                });
+                cart = merged;
+            } else if (cloudCart.length > 0) {
+                cart = cloudCart;
+            }
+            
+            saveCart();
+            updateCartUI();
+        }
+    } catch (error) {
+        console.error('Error syncing cart:', error);
+    }
 }
 
 // ===== تسجيل الدخول بالبريد =====
@@ -1439,6 +1450,13 @@ async function loginWithGoogle() {
     try {
         if (typeof supabase === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
+            if (googleBtn) {
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = `
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                    <span>تسجيل الدخول بجوجل</span>
+                `;
+            }
             return;
         }
         const { data, error } = await supabase.auth.signInWithOAuth({

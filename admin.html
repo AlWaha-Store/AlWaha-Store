@@ -957,12 +957,14 @@
 
     <!-- ===== SUPABASE CONFIG ===== -->
     <script>
-        // 🔑 إعدادات Supabase - استبدل هذه بقيم مشروعك
+        // 🔑 إعدادات Supabase
         const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        console.log('✅ Supabase initialized in admin');
     </script>
 
-    <script src="admin.js"></script>
+    <script src="admin-script.js"></script>
 </body>
-                        </html> 
+    </html> 

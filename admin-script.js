@@ -1,9 +1,9 @@
 // ============================================================
-// إعدادات Supabase (نفس القيم الموجودة في index.html)
+// إعدادات Supabase (تهيئة مستقلة)
 // ============================================================
 const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log('✅ admin-script.js loaded - Supabase initialized');
 
@@ -42,8 +42,15 @@ function logout() {
 // ============================================================
 function getCoupons() {
     try {
-        return JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
-    } catch { return []; }
+        const data = localStorage.getItem('alwaha_coupons');
+        if (data) {
+            const parsed = JSON.parse(data);
+            return Array.isArray(parsed) ? parsed : [];
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة الكوبونات');
+    }
+    return [];
 }
 
 function saveCoupons(coupons) {
@@ -126,8 +133,15 @@ function deleteCoupon(index) {
 // ============================================================
 function getOrders() {
     try {
-        return JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-    } catch { return []; }
+        const data = localStorage.getItem('alwaha_orders');
+        if (data) {
+            const parsed = JSON.parse(data);
+            return Array.isArray(parsed) ? parsed : [];
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة الطلبات');
+    }
+    return [];
 }
 
 function saveOrders(orders) {
@@ -136,8 +150,15 @@ function saveOrders(orders) {
 
 function getProducts() {
     try {
-        return JSON.parse(localStorage.getItem('alwaha_products') || '[]');
-    } catch { return []; }
+        const data = localStorage.getItem('alwaha_products');
+        if (data) {
+            const parsed = JSON.parse(data);
+            return Array.isArray(parsed) ? parsed : [];
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة المنتجات');
+    }
+    return [];
 }
 
 function saveProducts(products) {
@@ -146,8 +167,15 @@ function saveProducts(products) {
 
 function getUsers() {
     try {
-        return JSON.parse(localStorage.getItem('alwaha_users') || '[]');
-    } catch { return []; }
+        const data = localStorage.getItem('alwaha_users');
+        if (data) {
+            const parsed = JSON.parse(data);
+            return Array.isArray(parsed) ? parsed : [];
+        }
+    } catch (e) {
+        console.warn('⚠️ خطأ في قراءة المستخدمين');
+    }
+    return [];
 }
 
 function saveUsers(users) {
@@ -168,14 +196,14 @@ function updateDashboard() {
     document.getElementById('totalOrders').textContent = orders.length;
     document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2) + ' ج.م';
     document.getElementById('totalProducts').textContent = products.length || 0;
-    document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice).length || 0;
+    document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice && p.offerPrice < p.price).length || 0;
     document.getElementById('totalCoupons').textContent = coupons.length || 0;
     document.getElementById('totalUsers').textContent = users.length || 0;
     
     document.getElementById('dashCount').textContent = orders.length;
     document.getElementById('ordersCount').textContent = orders.length;
     document.getElementById('productsCount').textContent = products.length;
-    document.getElementById('offersCount').textContent = products.filter(p => p.offerPrice).length;
+    document.getElementById('offersCount').textContent = products.filter(p => p.offerPrice && p.offerPrice < p.price).length;
     document.getElementById('couponsCount').textContent = coupons.length;
     document.getElementById('usersCount').textContent = users.length;
     
@@ -220,7 +248,9 @@ function renderOrders(filter = 'all') {
         return;
     }
     
-    tbody.innerHTML = filtered.map((o, i) => `
+    tbody.innerHTML = filtered.map((o, i) => {
+        const orderIndex = orders.indexOf(o);
+        return `
         <tr>
             <td>${i + 1}</td>
             <td>${o.customer || 'عميل'}</td>
@@ -230,7 +260,7 @@ function renderOrders(filter = 'all') {
             <td>${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م</td>
             <td>${o.coupon || '--'}</td>
             <td>
-                <select onchange="updateOrderStatus(${orders.indexOf(o)}, this.value)" style="padding:4px 8px;border-radius:30px;border:1px solid rgba(26,92,58,0.08);font-family:'Tajawal',sans-serif;font-size:12px;background:rgba(255,255,255,0.4);">
+                <select onchange="updateOrderStatus(${orderIndex}, this.value)" style="padding:4px 8px;border-radius:30px;border:1px solid rgba(26,92,58,0.08);font-family:'Tajawal',sans-serif;font-size:12px;background:rgba(255,255,255,0.4);">
                     <option value="جديد" ${(o.status || 'جديد') === 'جديد' ? 'selected' : ''}>جديد</option>
                     <option value="قيد التجهيز" ${o.status === 'قيد التجهيز' ? 'selected' : ''}>قيد التجهيز</option>
                     <option value="تم التوصيل" ${o.status === 'تم التوصيل' ? 'selected' : ''}>تم التوصيل</option>
@@ -239,11 +269,11 @@ function renderOrders(filter = 'all') {
             </td>
             <td>${o.dateAr || o.date || '--'}</td>
             <td>
-                <button class="btn btn-primary btn-sm" onclick="viewOrder(${orders.indexOf(o)})"><i class="fas fa-eye"></i></button>
-                <button class="btn btn-danger btn-sm" onclick="deleteOrder(${orders.indexOf(o)})"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-primary btn-sm" onclick="viewOrder(${orderIndex})"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteOrder(${orderIndex})"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function filterOrders() {
@@ -340,20 +370,22 @@ function renderProductsTable() {
         return;
     }
     
-    tbody.innerHTML = products.map((p, i) => `
+    tbody.innerHTML = products.map((p, i) => {
+        const isOffer = p.offerPrice && p.offerPrice < p.price;
+        return `
         <tr>
             <td>${i + 1}</td>
             <td>${p.emoji || '🍎'} ${p.name}</td>
             <td>${p.category || 'غير مصنف'}</td>
             <td>${p.price || 0} ج.م</td>
-            <td>${p.offerPrice ? '<span class="badge badge-success">عرض</span>' : '<span class="badge badge-info">عادي</span>'}</td>
+            <td>${isOffer ? '<span class="badge badge-success">عرض</span>' : '<span class="badge badge-info">عادي</span>'}</td>
             <td>${p.stock || 100}</td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="editProduct(${i})"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteProduct(${i})"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function openAddProduct() {
@@ -387,23 +419,29 @@ function saveProduct(e) {
     const products = getProducts();
     
     const product = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
         name: document.getElementById('productName').value.trim(),
+        nameEn: document.getElementById('productName').value.trim(),
         price: parseFloat(document.getElementById('productPrice').value),
         category: document.getElementById('productCategory').value,
+        categoryEn: document.getElementById('productCategory').value === 'فاكهة' ? 'Fruits' : 'Vegetables',
         emoji: document.getElementById('productEmoji').value.trim() || '🍎',
         desc: document.getElementById('productDesc').value.trim(),
+        descEn: document.getElementById('productDesc').value.trim(),
         offerPrice: parseFloat(document.getElementById('productOfferPrice').value) || null,
         offerText: document.getElementById('productOfferText').value.trim() || null,
         stock: parseInt(document.getElementById('productStock').value) || 100,
-        sales: 0
+        popular: 0,
+        oldPrice: null,
+        offer: null,
+        description: document.getElementById('productDesc').value.trim()
     };
     
     if (index === '') {
-        product.id = Date.now();
         products.push(product);
     } else {
         const idx = parseInt(index);
-        product.id = products[idx].id || Date.now();
+        product.id = products[idx].id || product.id;
         products[idx] = product;
     }
     
@@ -446,7 +484,9 @@ function renderOffersTable() {
         return;
     }
     
-    tbody.innerHTML = offers.map((p, i) => `
+    tbody.innerHTML = offers.map((p, i) => {
+        const idx = products.indexOf(p);
+        return `
         <tr>
             <td>${p.emoji || '🍎'} ${p.name}</td>
             <td>${p.price || 0} ج.م</td>
@@ -454,11 +494,11 @@ function renderOffersTable() {
             <td>${((p.price - p.offerPrice) / p.price * 100).toFixed(0)}%</td>
             <td><span class="badge badge-success">نشط</span></td>
             <td>
-                <button class="btn btn-primary btn-sm" onclick="editProduct(${products.indexOf(p)})"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-danger btn-sm" onclick="removeOffer(${products.indexOf(p)})"><i class="fas fa-times"></i></button>
+                <button class="btn btn-primary btn-sm" onclick="editProduct(${idx})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="removeOffer(${idx})"><i class="fas fa-times"></i></button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function removeOffer(index) {
@@ -512,26 +552,28 @@ function viewUser(index) {
 
 async function loadUsers() {
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             return;
         }
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('users')
             .select('*')
             .order('created_at', { ascending: false });
         
         if (error) throw error;
         
-        if (data) {
+        if (data && data.length > 0) {
             saveUsers(data);
             renderUsersTable();
             updateDashboard();
             showToast('تم جلب المستخدمين ✅', 'success');
+        } else {
+            showToast('لا يوجد مستخدمين مسجلين', 'info');
         }
     } catch (error) {
-        console.error('خطأ في جلب المستخدمين:', error);
-        showToast('خطأ في جلب المستخدمين', 'error');
+        console.error('❌ خطأ في جلب المستخدمين:', error);
+        showToast('خطأ في جلب المستخدمين: ' + error.message, 'error');
     }
 }
 
@@ -570,7 +612,7 @@ function loadSettings() {
             document.getElementById('freeDeliveryMin').value = settings.freeDeliveryMin || 200;
             document.getElementById('welcomeMessage').value = settings.welcomeMessage || 'مرحباً بكم في متجر الواحة';
         }
-    } catch {}
+    } catch (e) {}
 }
 
 function resetSettings() {
@@ -608,8 +650,10 @@ async function syncAllData() {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المزامنة...';
     }
     
+    const results = [];
+    
     try {
-        if (typeof supabase === 'undefined') {
+        if (typeof supabaseClient === 'undefined') {
             showToast('⚠️ Supabase غير متصل', 'error');
             if (btn) {
                 btn.disabled = false;
@@ -618,65 +662,74 @@ async function syncAllData() {
             return;
         }
         
-        // Sync Products
-        const { data: productsData, error: productsError } = await supabase
-            .from('products')
-            .select('*');
-        
-        if (productsError) throw productsError;
-        if (productsData && productsData.length > 0) {
-            localStorage.setItem('alwaha_products', JSON.stringify(productsData));
-        } else {
-            // If no products in Supabase, upload default ones
-            const defaultProducts = JSON.parse(localStorage.getItem('alwaha_products') || '[]');
-            if (defaultProducts.length > 0) {
-                const { error: insertError } = await supabase
-                    .from('products')
-                    .insert(defaultProducts);
-                if (insertError) throw insertError;
-                localStorage.setItem('alwaha_products', JSON.stringify(defaultProducts));
+        // 1. Sync Products
+        try {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*');
+            if (error) throw error;
+            if (data && data.length > 0) {
+                localStorage.setItem('alwaha_products', JSON.stringify(data));
+                results.push('✅ المنتجات');
+            } else {
+                const defaultProducts = JSON.parse(localStorage.getItem('alwaha_products') || '[]');
+                if (defaultProducts.length > 0) {
+                    await supabaseClient.from('products').insert(defaultProducts);
+                    results.push('✅ المنتجات (تم رفع الافتراضية)');
+                }
             }
+        } catch (e) {
+            results.push('❌ المنتجات: ' + e.message);
         }
         
-        // Sync Orders
-        const { data: ordersData, error: ordersError } = await supabase
-            .from('orders')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (ordersError) throw ordersError;
-        if (ordersData) {
-            localStorage.setItem('alwaha_orders', JSON.stringify(ordersData));
-        }
-        
-        // Sync Coupons
-        const { data: couponsData, error: couponsError } = await supabase
-            .from('coupons')
-            .select('*');
-        
-        if (couponsError) throw couponsError;
-        if (couponsData && couponsData.length > 0) {
-            localStorage.setItem('alwaha_coupons', JSON.stringify(couponsData));
-        } else {
-            const defaultCoupons = JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
-            if (defaultCoupons.length > 0) {
-                const { error: insertError } = await supabase
-                    .from('coupons')
-                    .insert(defaultCoupons);
-                if (insertError) throw insertError;
-                localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
+        // 2. Sync Orders
+        try {
+            const { data, error } = await supabaseClient
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) {
+                localStorage.setItem('alwaha_orders', JSON.stringify(data));
+                results.push('✅ الطلبات');
             }
+        } catch (e) {
+            results.push('❌ الطلبات: ' + e.message);
         }
         
-        // Sync Users
-        const { data: usersData, error: usersError } = await supabase
-            .from('users')
-            .select('*')
-            .order('created_at', { ascending: false });
+        // 3. Sync Coupons
+        try {
+            const { data, error } = await supabaseClient
+                .from('coupons')
+                .select('*');
+            if (error) throw error;
+            if (data && data.length > 0) {
+                localStorage.setItem('alwaha_coupons', JSON.stringify(data));
+                results.push('✅ الكوبونات');
+            } else {
+                const defaultCoupons = JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
+                if (defaultCoupons.length > 0) {
+                    await supabaseClient.from('coupons').insert(defaultCoupons);
+                    results.push('✅ الكوبونات (تم رفع الافتراضية)');
+                }
+            }
+        } catch (e) {
+            results.push('❌ الكوبونات: ' + e.message);
+        }
         
-        if (usersError) throw usersError;
-        if (usersData) {
-            localStorage.setItem('alwaha_users', JSON.stringify(usersData));
+        // 4. Sync Users
+        try {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) {
+                localStorage.setItem('alwaha_users', JSON.stringify(data));
+                results.push('✅ المستخدمين');
+            }
+        } catch (e) {
+            results.push('❌ المستخدمين: ' + e.message);
         }
         
         // Update UI
@@ -686,9 +739,9 @@ async function syncAllData() {
         renderUsersTable();
         updateDashboard();
         
-        showToast('✅ تمت المزامنة بنجاح!', 'success');
+        showToast('✅ تمت المزامنة:\n' + results.join('\n'), 'success');
     } catch (error) {
-        console.error('خطأ في المزامنة:', error);
+        console.error('❌ خطأ في المزامنة:', error);
         showToast('❌ حدث خطأ في المزامنة: ' + (error.message || 'غير معروف'), 'error');
     }
     
@@ -747,13 +800,14 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.style.cssText = `
         position: fixed; bottom: 20px; left: 20px; 
-        background: ${type === 'success' ? '#1A5C3A' : '#dc3545'}; 
+        background: ${type === 'success' ? '#1A5C3A' : type === 'error' ? '#dc3545' : '#17a2b8'}; 
         color: white; padding: 12px 24px; 
         border-radius: 12px; font-weight: 600; 
         box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
         z-index: 9999; font-family: 'Tajawal', sans-serif;
         animation: slideInRight 0.3s ease;
         max-width: 90%;
+        white-space: pre-line;
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -761,7 +815,7 @@ function showToast(message, type = 'success') {
         toast.style.opacity = '0';
         toast.style.transition = '0.3s';
         setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, 4000);
 }
 
 // ============================================================
@@ -785,10 +839,10 @@ function initAdmin() {
     renderUsersTable();
     loadSettings();
     
-    // Auto sync on load - استدعاء فوري للمزامنة
+    // Auto sync on load
     setTimeout(() => {
         syncAllData();
-    }, 1000);
+    }, 1500);
 }
 
 // تصدير الدوال
@@ -815,4 +869,4 @@ window.resetSettings = resetSettings;
 window.backupData = backupData;
 window.syncAllData = syncAllData;
 window.loadUsers = loadUsers;
-window.viewUser = viewUser; 
+window.viewUser = viewUser;

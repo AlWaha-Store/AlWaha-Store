@@ -8,10 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
     
-    <!-- ===== Firebase SDK ===== -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- ===== Supabase SDK ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         /* ===== ADMIN STYLES ===== */
@@ -51,7 +49,7 @@
             padding: 20px;
         }
         .login-box {
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             padding: 40px;
@@ -117,64 +115,112 @@
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
         }
 
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR - تصميم جديد فخم ===== */
         .sidebar {
             position: fixed;
             top: 0;
             right: 0;
-            width: 240px;
+            width: 260px;
             height: 100vh;
-            background: rgba(26, 92, 58, 0.92);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(180deg, rgba(26, 92, 58, 0.95), rgba(15, 61, 38, 0.98));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             color: white;
             padding: 20px 0;
             overflow-y: auto;
             z-index: 1000;
             transition: 0.3s;
             border-left: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 4px 0 30px rgba(0,0,0,0.1);
         }
         .sidebar .logo {
             text-align: center;
-            padding: 20px 0 30px;
-            font-size: 24px;
+            padding: 20px 0 25px;
+            font-size: 26px;
             font-weight: 800;
             color: #D4AF37;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 2px solid rgba(212,175,55,0.15);
+            margin-bottom: 10px;
         }
         .sidebar .logo i {
             margin-left: 8px;
+            font-size: 30px;
+        }
+        .sidebar .logo span {
+            display: block;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 400;
+            margin-top: 2px;
         }
         .sidebar .menu-item {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px 20px;
-            color: rgba(255,255,255,0.7);
+            margin: 4px 10px;
+            color: rgba(255,255,255,0.6);
             text-decoration: none;
             transition: 0.3s;
             cursor: pointer;
+            border-radius: 10px;
             border-right: 3px solid transparent;
         }
-        .sidebar .menu-item:hover,
-        .sidebar .menu-item.active {
+        .sidebar .menu-item:hover {
             background: rgba(255,255,255,0.05);
             color: white;
+            transform: translateX(-4px);
+        }
+        .sidebar .menu-item.active {
+            background: rgba(212, 175, 55, 0.1);
+            color: white;
             border-right-color: #D4AF37;
+            box-shadow: inset 0 0 20px rgba(212,175,55,0.05);
         }
         .sidebar .menu-item i {
-            width: 20px;
+            width: 22px;
             text-align: center;
+            font-size: 16px;
+        }
+        .sidebar .menu-item .badge-count {
+            background: #D4AF37;
+            color: #1A5C3A;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 30px;
+            margin-right: auto;
+        }
+        .sidebar .menu-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            margin: 10px 20px;
         }
         .sidebar .menu-item.logout {
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 20px;
+            margin-top: 10px;
             color: #ff6b6b;
+            border-top: 1px solid rgba(255,255,255,0.03);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .sidebar .menu-item.logout:hover {
+            background: rgba(255,0,0,0.1);
+        }
+
+        .sidebar .sidebar-footer {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+            left: 0;
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.2);
+            padding: 10px;
         }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
-            margin-right: 240px;
+            margin-right: 260px;
             padding: 20px;
             min-height: 100vh;
             background: var(--admin-bg);
@@ -183,10 +229,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
+            padding: 15px 25px;
             background: var(--admin-card);
             backdrop-filter: blur(12px);
-            border-radius: 14px;
+            border-radius: 16px;
             box-shadow: 0 2px 20px rgba(0,0,0,0.03);
             margin-bottom: 25px;
             border: 1px solid var(--admin-border);
@@ -194,6 +240,11 @@
         .main-content .header h1 {
             font-size: 24px;
             color: #1A5C3A;
+            font-weight: 800;
+        }
+        .main-content .header h1 i {
+            color: #D4AF37;
+            margin-left: 8px;
         }
         .main-content .header .admin-info {
             display: flex;
@@ -212,11 +263,15 @@
             font-weight: 700;
             font-size: 18px;
         }
+        .main-content .header .admin-info .admin-name {
+            font-weight: 600;
+            color: var(--admin-text);
+        }
 
-        /* ===== STATS CARDS ===== */
+        /* ===== STATS CARDS - تصميم جديد ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -228,6 +283,22 @@
             box-shadow: 0 2px 20px rgba(0,0,0,0.03);
             text-align: center;
             border: 1px solid var(--admin-border);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #D4AF37, #1A5C3A);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.06);
         }
         .stat-card .stat-number {
             font-size: 32px;
@@ -235,14 +306,14 @@
             color: #1A5C3A;
         }
         .stat-card .stat-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #5a7a5a;
             margin-top: 4px;
         }
         .stat-card .stat-icon {
-            font-size: 28px;
+            font-size: 24px;
             color: #D4AF37;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         /* ===== TABLES ===== */
@@ -262,6 +333,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 18px;
+        }
+        .table-container h3 i {
+            color: #D4AF37;
         }
         .table-container table {
             width: 100%;
@@ -295,6 +370,7 @@
         .badge-warning { background: #fff3cd; color: #856404; }
         .badge-danger { background: #f8d7da; color: #721c24; }
         .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-primary { background: #cce5ff; color: #004085; }
 
         /* ===== BUTTONS ===== */
         .btn {
@@ -313,12 +389,40 @@
         .btn-primary { background: #1A5C3A; color: white; }
         .btn-primary:hover { background: #2a7a4e; transform: scale(1.02); }
         .btn-gold { background: #D4AF37; color: #1A5C3A; }
-        .btn-gold:hover { background: #e8c94a; transform: scale(1.02); }
+        .btn-gold:hover { background: #e8c94a; transform: scale(1.02); box-shadow: 0 4px 15px rgba(212,175,55,0.3); }
         .btn-danger { background: #dc3545; color: white; }
         .btn-danger:hover { background: #c82333; transform: scale(1.02); }
         .btn-sm { padding: 4px 10px; font-size: 12px; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; transform: scale(1.02); }
+        .btn-outline { background: transparent; border: 2px solid #1A5C3A; color: #1A5C3A; }
+        .btn-outline:hover { background: #1A5C3A; color: white; }
+
+        /* ===== SYNC BUTTON ===== */
+        .sync-btn {
+            background: linear-gradient(135deg, #1A5C3A, #2a7a4e);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sync-btn:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 20px rgba(26, 92, 58, 0.3);
+        }
+        .sync-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
 
         /* ===== FORMS ===== */
         .form-group {
@@ -420,7 +524,7 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar { right: -240px; }
+            .sidebar { right: -260px; }
             .sidebar.open { right: 0; }
             .main-content { margin-right: 0; padding: 15px; }
             .hamburger { display: block !important; }
@@ -452,32 +556,6 @@
         .coupon-item .coupon-discount {
             color: #5a7a5a;
             font-size: 13px;
-        }
-
-        /* ===== FIREBASE SYNC BUTTON ===== */
-        .sync-btn {
-            background: linear-gradient(135deg, #1A5C3A, #2a7a4e);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .sync-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(26, 92, 58, 0.3);
-        }
-        .sync-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
         }
 
         /* ===== DARK MODE SUPPORT ===== */
@@ -560,13 +638,14 @@
             color: #666;
         }
         [data-theme="dark"] .sidebar {
-            background: rgba(10, 30, 15, 0.95);
+            background: linear-gradient(180deg, rgba(10, 30, 15, 0.98), rgba(5, 20, 10, 0.99));
             border-color: rgba(255,255,255,0.03);
         }
         [data-theme="dark"] .badge-success { background: #1a3a2a; color: #7ae0a0; }
         [data-theme="dark"] .badge-warning { background: #3a2a0a; color: #e8c94a; }
         [data-theme="dark"] .badge-danger { background: #3a1a1a; color: #ff6b6b; }
         [data-theme="dark"] .badge-info { background: #1a2a3a; color: #6bc8ff; }
+        [data-theme="dark"] .badge-primary { background: #1a2a3a; color: #6bc8ff; }
         [data-theme="dark"] .btn-primary { background: #2a7a4e; }
         [data-theme="dark"] .btn-primary:hover { background: #3a9a6e; }
         [data-theme="dark"] .coupon-item .coupon-code {
@@ -602,14 +681,42 @@
     <!-- ===== ADMIN PANEL ===== -->
     <div id="adminPanel" style="display:none;">
         <div class="sidebar" id="sidebar">
-            <div class="logo"><i class="fas fa-leaf"></i> الواحة</div>
-            <div class="menu-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> لوحة التحكم</div>
-            <div class="menu-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> الطلبات</div>
-            <div class="menu-item" data-tab="products"><i class="fas fa-box"></i> المنتجات</div>
-            <div class="menu-item" data-tab="offers"><i class="fas fa-tag"></i> العروض</div>
-            <div class="menu-item" data-tab="coupons"><i class="fas fa-ticket-alt"></i> الكوبونات</div>
-            <div class="menu-item" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</div>
-            <div class="menu-item logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
+            <div class="logo">
+                <i class="fas fa-leaf"></i> الواحة
+                <span>لوحة التحكم</span>
+            </div>
+            <div class="menu-item active" data-tab="dashboard">
+                <i class="fas fa-chart-pie"></i> لوحة التحكم
+                <span class="badge-count" id="dashCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="orders">
+                <i class="fas fa-shopping-cart"></i> الطلبات
+                <span class="badge-count" id="ordersCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="products">
+                <i class="fas fa-box"></i> المنتجات
+                <span class="badge-count" id="productsCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="offers">
+                <i class="fas fa-tag"></i> العروض
+                <span class="badge-count" id="offersCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="coupons">
+                <i class="fas fa-ticket-alt"></i> الكوبونات
+                <span class="badge-count" id="couponsCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="users">
+                <i class="fas fa-users"></i> المستخدمين
+                <span class="badge-count" id="usersCount">0</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item" data-tab="settings">
+                <i class="fas fa-cog"></i> الإعدادات
+            </div>
+            <div class="menu-item logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+            </div>
+            <div class="sidebar-footer">الواحة v2.0</div>
         </div>
 
         <div class="main-content">
@@ -618,10 +725,13 @@
                     <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 id="pageTitle">لوحة التحكم</h1>
+                    <h1><i class="fas fa-leaf"></i> <span id="pageTitle">لوحة التحكم</span></h1>
                 </div>
                 <div class="admin-info">
-                    <span id="adminName">مرحباً، مدير المتجر</span>
+                    <button class="sync-btn" id="syncBtn" onclick="syncAllData()">
+                        <i class="fas fa-sync"></i> مزامنة
+                    </button>
+                    <span class="admin-name" id="adminName">مرحباً، مدير المتجر</span>
                     <div class="avatar" id="adminAvatar">م</div>
                 </div>
             </div>
@@ -653,6 +763,11 @@
                         <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
                         <div class="stat-number" id="totalCoupons">0</div>
                         <div class="stat-label">الكوبونات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">المستخدمين المسجلين</div>
                     </div>
                 </div>
                 
@@ -729,6 +844,20 @@
                     <table>
                         <thead><tr><th>الكود</th><th>الخصم</th><th>النوع</th><th>عدد مرات الاستخدام</th><th>الحالة</th><th>إجراء</th></tr></thead>
                         <tbody id="couponsList"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد كوبونات</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== TAB: USERS ===== -->
+            <div class="tab-content" id="tab-users">
+                <div class="table-container">
+                    <h3><i class="fas fa-users"></i> إدارة المستخدمين</h3>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadUsers()"><i class="fas fa-sync"></i> تحديث</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>#</th><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>تاريخ التسجيل</th><th>المشاركات</th><th>إجراء</th></tr></thead>
+                        <tbody id="usersList"><tr><td colspan="7" style="text-align:center;color:#999;">لا توجد مستخدمين</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -826,32 +955,14 @@
         </div>
     </div>
 
-    <!-- ===== FIREBASE CONFIG - بإعداداتك الصحيحة ===== -->
+    <!-- ===== SUPABASE CONFIG ===== -->
     <script>
-        // 🔑 إعدادات Firebase الخاصة بمشروعك
-        const firebaseConfig = {
-            apiKey: "AIzaSyBpNlEO7b0zu6BniRQ6cXljjbMaOmyYkqw",
-            authDomain: "alwaha-store-77c74.firebaseapp.com",
-            projectId: "alwaha-store-77c74",
-            storageBucket: "alwaha-store-77c74.firebasestorage.app",
-            messagingSenderId: "860841497840",
-            appId: "1:860841497840:web:05dd68b77c32188ee45e35",
-            measurementId: "G-Q8K9BLF8Y1"
-        };
-
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // تمكين المزامنة دون اتصال
-        db.enablePersistence({
-            synchronizeTabs: true
-        }).catch(err => {
-            console.warn('Firestore persistence error:', err);
-        });
+        // 🔑 إعدادات Supabase - استبدل هذه بقيم مشروعك
+        const supabaseUrl = 'https://your-project.supabase.co';
+        const supabaseKey = 'your-anon-key';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 
     <script src="admin-script.js"></script>
 </body>
-    </html>
+                        </html> 

@@ -1,5 +1,5 @@
 // ============================================================
-// admin-script.js - لوحة التحكم
+// admin-script.js - لوحة التحكم مع Supabase
 // ============================================================
 
 // ============================================================
@@ -139,6 +139,16 @@ function saveProducts(products) {
     localStorage.setItem('alwaha_products', JSON.stringify(products));
 }
 
+function getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem('alwaha_users') || '[]');
+    } catch { return []; }
+}
+
+function saveUsers(users) {
+    localStorage.setItem('alwaha_users', JSON.stringify(users));
+}
+
 // ============================================================
 // 4. DASHBOARD
 // ============================================================
@@ -146,13 +156,23 @@ function updateDashboard() {
     const orders = getOrders();
     const products = getProducts();
     const coupons = getCoupons();
+    const users = getUsers();
+    
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.discountedTotal || o.total || 0), 0);
     
     document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('totalRevenue').textContent = 
-        orders.reduce((sum, o) => sum + (o.discountedTotal || o.total || 0), 0).toFixed(2) + ' ج.م';
+    document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2) + ' ج.م';
     document.getElementById('totalProducts').textContent = products.length || 0;
     document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice).length || 0;
     document.getElementById('totalCoupons').textContent = coupons.length || 0;
+    document.getElementById('totalUsers').textContent = users.length || 0;
+    
+    document.getElementById('dashCount').textContent = orders.length;
+    document.getElementById('ordersCount').textContent = orders.length;
+    document.getElementById('productsCount').textContent = products.length;
+    document.getElementById('offersCount').textContent = products.filter(p => p.offerPrice).length;
+    document.getElementById('couponsCount').textContent = coupons.length;
+    document.getElementById('usersCount').textContent = users.length;
     
     const recentOrders = orders.slice(0, 5);
     const tbody = document.getElementById('recentOrders');
@@ -452,7 +472,62 @@ function openAddOffer() {
 }
 
 // ============================================================
-// 8. SETTINGS
+// 8. USERS
+// ============================================================
+function renderUsersTable() {
+    const users = getUsers();
+    const tbody = document.getElementById('usersList');
+    
+    if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">لا توجد مستخدمين</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = users.map((u, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td>${u.display_name || 'غير معروف'}</td>
+            <td>${u.email || '--'}</td>
+            <td>${u.phone || '--'}</td>
+            <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('ar-EG') : '--'}</td>
+            <td>${u.referral_count || 0}</td>
+            <td>
+                <button class="btn btn-primary btn-sm" onclick="viewUser(${i})"><i class="fas fa-eye"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function viewUser(index) {
+    const users = getUsers();
+    const user = users[index];
+    if (!user) return;
+    showToast(`👤 ${user.display_name || 'مستخدم'}: ${user.email || '--'}`, 'info');
+}
+
+async function loadUsers() {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (data) {
+            saveUsers(data);
+            renderUsersTable();
+            updateDashboard();
+            showToast('تم جلب المستخدمين ✅', 'success');
+        }
+    } catch (error) {
+        console.error('خطأ في جلب المستخدمين:', error);
+        showToast('خطأ في جلب المستخدمين', 'error');
+    }
+}
+
+// ============================================================
+// 9. SETTINGS
 // ============================================================
 function saveSettings(e) {
     e.preventDefault();
@@ -501,6 +576,7 @@ function backupData() {
         products: getProducts(),
         orders: getOrders(),
         coupons: getCoupons(),
+        users: getUsers(),
         settings: JSON.parse(localStorage.getItem('alwaha_settings') || '{}'),
         date: new Date().toISOString()
     };
@@ -514,105 +590,75 @@ function backupData() {
 }
 
 // ============================================================
-// 9. FIREBASE SYNC
+// 10. SYNC ALL DATA
 // ============================================================
-async function loadProductsFromFirebase() {
+async function syncAllData() {
+    const btn = document.getElementById('syncBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المزامنة...';
+    
     try {
-        if (typeof db === 'undefined') {
-            showToast('Firebase غير متصل', 'error');
-            return;
+        // Sync Products
+        const { data: productsData, error: productsError } = await supabase
+            .from('products')
+            .select('*');
+        
+        if (productsError) throw productsError;
+        if (productsData) {
+            localStorage.setItem('alwaha_products', JSON.stringify(productsData));
         }
-        const snapshot = await db.collection('products').get();
-        const products = [];
-        snapshot.forEach(doc => {
-            products.push({ id: doc.id, ...doc.data() });
-        });
-        localStorage.setItem('alwaha_products', JSON.stringify(products));
+        
+        // Sync Orders
+        const { data: ordersData, error: ordersError } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (ordersError) throw ordersError;
+        if (ordersData) {
+            localStorage.setItem('alwaha_orders', JSON.stringify(ordersData));
+        }
+        
+        // Sync Coupons
+        const { data: couponsData, error: couponsError } = await supabase
+            .from('coupons')
+            .select('*');
+        
+        if (couponsError) throw couponsError;
+        if (couponsData) {
+            localStorage.setItem('alwaha_coupons', JSON.stringify(couponsData));
+        }
+        
+        // Sync Users
+        const { data: usersData, error: usersError } = await supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (usersError) throw usersError;
+        if (usersData) {
+            localStorage.setItem('alwaha_users', JSON.stringify(usersData));
+        }
+        
+        // Update UI
         renderProductsTable();
-        updateDashboard();
-        showToast('تم جلب المنتجات من Firebase ✅', 'success');
-    } catch (error) {
-        console.error('خطأ في جلب المنتجات:', error);
-        showToast('خطأ في جلب المنتجات من Firebase', 'error');
-    }
-}
-
-async function loadOrdersFromFirebase() {
-    try {
-        if (typeof db === 'undefined') {
-            showToast('Firebase غير متصل', 'error');
-            return;
-        }
-        const snapshot = await db.collection('orders')
-            .orderBy('createdAt', 'desc')
-            .get();
-        const orders = [];
-        snapshot.forEach(doc => {
-            orders.push({ id: doc.id, ...doc.data() });
-        });
-        localStorage.setItem('alwaha_orders', JSON.stringify(orders));
         renderOrders(document.getElementById('orderFilter')?.value || 'all');
-        updateDashboard();
-        showToast('تم جلب الطلبات من Firebase ✅', 'success');
-    } catch (error) {
-        console.error('خطأ في جلب الطلبات:', error);
-        showToast('خطأ في جلب الطلبات من Firebase', 'error');
-    }
-}
-
-async function loadCouponsFromFirebase() {
-    try {
-        if (typeof db === 'undefined') {
-            showToast('Firebase غير متصل', 'error');
-            return;
-        }
-        const snapshot = await db.collection('coupons').get();
-        const coupons = [];
-        snapshot.forEach(doc => {
-            coupons.push({ id: doc.id, ...doc.data() });
-        });
-        localStorage.setItem('alwaha_coupons', JSON.stringify(coupons));
         renderCouponsTable();
+        renderUsersTable();
         updateDashboard();
-        showToast('تم جلب الكوبونات من Firebase ✅', 'success');
+        
+        showToast('✅ تمت المزامنة بنجاح!', 'success');
     } catch (error) {
-        console.error('خطأ في جلب الكوبونات:', error);
-        showToast('خطأ في جلب الكوبونات من Firebase', 'error');
+        console.error('خطأ في المزامنة:', error);
+        showToast('❌ حدث خطأ في المزامنة', 'error');
     }
-}
-
-function addSyncButton() {
-    const header = document.querySelector('.main-content .header');
-    if (header) {
-        const btn = document.createElement('button');
-        btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
-        btn.className = 'btn btn-gold';
-        btn.style.marginRight = '10px';
-        btn.style.padding = '8px 16px';
-        btn.style.fontSize = '14px';
-        btn.onclick = async function() {
-            if (typeof db === 'undefined') {
-                showToast('⚠️ Firebase غير متصل، تأكد من الإعدادات', 'error');
-                return;
-            }
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
-            this.disabled = true;
-            await loadProductsFromFirebase();
-            await loadOrdersFromFirebase();
-            await loadCouponsFromFirebase();
-            this.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
-            this.disabled = false;
-            showToast('تمت المزامنة بنجاح ✅', 'success');
-        };
-        const adminInfo = header.querySelector('.admin-info');
-        if (adminInfo) {
-            adminInfo.prepend(btn);
-        }
-    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
 }
 
 // ============================================================
-// 10. MODALS
+// 11. MODALS
 // ============================================================
 function closeModal(id) {
     document.getElementById(id).classList.remove('open');
@@ -625,7 +671,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ============================================================
-// 11. TABS
+// 12. TABS
 // ============================================================
 document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
     item.addEventListener('click', function() {
@@ -636,19 +682,25 @@ document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');
         
-        document.getElementById('pageTitle').textContent = {
+        const titles = {
             'dashboard': 'لوحة التحكم',
             'orders': 'الطلبات',
             'products': 'المنتجات',
             'offers': 'العروض',
             'coupons': 'الكوبونات',
+            'users': 'المستخدمين',
             'settings': 'الإعدادات'
-        }[tab] || 'لوحة التحكم';
+        };
+        document.getElementById('pageTitle').textContent = titles[tab] || 'لوحة التحكم';
+        
+        if (tab === 'users') {
+            loadUsers();
+        }
     });
 });
 
 // ============================================================
-// 12. TOAST
+// 13. TOAST
 // ============================================================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -660,6 +712,7 @@ function showToast(message, type = 'success') {
         box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
         z-index: 9999; font-family: 'Tajawal', sans-serif;
         animation: slideInRight 0.3s ease;
+        max-width: 90%;
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -671,7 +724,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================
-// 13. INIT
+// 14. INIT
 // ============================================================
 function initAdmin() {
     const style = document.createElement('style');
@@ -688,7 +741,35 @@ function initAdmin() {
     renderProductsTable();
     renderOffersTable();
     renderCouponsTable();
+    renderUsersTable();
     loadSettings();
     
-    setTimeout(addSyncButton, 1000);
-                } 
+    // Auto sync on load
+    setTimeout(syncAllData, 2000);
+}
+
+// تصدير الدوال
+window.login = login;
+window.logout = logout;
+window.openAddProduct = openAddProduct;
+window.saveProduct = saveProduct;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.exportProducts = exportProducts;
+window.openAddOffer = openAddOffer;
+window.removeOffer = removeOffer;
+window.openAddCoupon = openAddCoupon;
+window.saveCoupon = saveCoupon;
+window.deleteCoupon = deleteCoupon;
+window.filterOrders = filterOrders;
+window.updateOrderStatus = updateOrderStatus;
+window.deleteOrder = deleteOrder;
+window.viewOrder = viewOrder;
+window.exportOrders = exportOrders;
+window.closeModal = closeModal;
+window.saveSettings = saveSettings;
+window.resetSettings = resetSettings;
+window.backupData = backupData;
+window.syncAllData = syncAllData;
+window.loadUsers = loadUsers;
+window.viewUser = viewUser; 

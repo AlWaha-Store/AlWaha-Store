@@ -1,6 +1,11 @@
 // ============================================================
-// admin-script.js - لوحة التحكم مع Supabase
+// إعدادات Supabase (نفس القيم الموجودة في index.html)
 // ============================================================
+const supabaseUrl = 'https://togcddwoizdbfqpqslyg.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ2NkZHdvaXpkYmZxcHFzbHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1ODMxNjIsImV4cCI6MjEwMDE1OTE2Mn0.oXcsEk5ib5ZZRPnmls7HgL4ah49aB3nZOYRLCWA8FHg';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+console.log('✅ admin-script.js loaded - Supabase initialized');
 
 // ============================================================
 // 1. AUTHENTICATION
@@ -507,6 +512,10 @@ function viewUser(index) {
 
 async function loadUsers() {
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -594,18 +603,39 @@ function backupData() {
 // ============================================================
 async function syncAllData() {
     const btn = document.getElementById('syncBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المزامنة...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المزامنة...';
+    }
     
     try {
+        if (typeof supabase === 'undefined') {
+            showToast('⚠️ Supabase غير متصل', 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
+            }
+            return;
+        }
+        
         // Sync Products
         const { data: productsData, error: productsError } = await supabase
             .from('products')
             .select('*');
         
         if (productsError) throw productsError;
-        if (productsData) {
+        if (productsData && productsData.length > 0) {
             localStorage.setItem('alwaha_products', JSON.stringify(productsData));
+        } else {
+            // If no products in Supabase, upload default ones
+            const defaultProducts = JSON.parse(localStorage.getItem('alwaha_products') || '[]');
+            if (defaultProducts.length > 0) {
+                const { error: insertError } = await supabase
+                    .from('products')
+                    .insert(defaultProducts);
+                if (insertError) throw insertError;
+                localStorage.setItem('alwaha_products', JSON.stringify(defaultProducts));
+            }
         }
         
         // Sync Orders
@@ -625,8 +655,17 @@ async function syncAllData() {
             .select('*');
         
         if (couponsError) throw couponsError;
-        if (couponsData) {
+        if (couponsData && couponsData.length > 0) {
             localStorage.setItem('alwaha_coupons', JSON.stringify(couponsData));
+        } else {
+            const defaultCoupons = JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
+            if (defaultCoupons.length > 0) {
+                const { error: insertError } = await supabase
+                    .from('coupons')
+                    .insert(defaultCoupons);
+                if (insertError) throw insertError;
+                localStorage.setItem('alwaha_coupons', JSON.stringify(defaultCoupons));
+            }
         }
         
         // Sync Users
@@ -650,11 +689,13 @@ async function syncAllData() {
         showToast('✅ تمت المزامنة بنجاح!', 'success');
     } catch (error) {
         console.error('خطأ في المزامنة:', error);
-        showToast('❌ حدث خطأ في المزامنة', 'error');
+        showToast('❌ حدث خطأ في المزامنة: ' + (error.message || 'غير معروف'), 'error');
     }
     
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync"></i> مزامنة';
+    }
 }
 
 // ============================================================
@@ -744,8 +785,10 @@ function initAdmin() {
     renderUsersTable();
     loadSettings();
     
-    // Auto sync on load
-    setTimeout(syncAllData, 2000);
+    // Auto sync on load - استدعاء فوري للمزامنة
+    setTimeout(() => {
+        syncAllData();
+    }, 1000);
 }
 
 // تصدير الدوال

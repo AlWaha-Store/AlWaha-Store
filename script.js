@@ -18,10 +18,10 @@ let currentUser = null;
 let currentUserData = null;
 
 // ============================================================
-// 2. PRODUCTS DATA (جميع المنتجات من الصورة)
+// 2. PRODUCTS DATA (جميع المنتجات من الصورة - 50 منتج)
 // ============================================================
 const defaultProducts = [
-    // ===== فاكهة =====
+    // ===== فاكهة (25 منتج) =====
     { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25, oldPrice: null, offer: null, description: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, stock: 100 },
     { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20, oldPrice: null, offer: null, description: 'برتقال عصير طازج', descEn: 'Fresh juice oranges', popular: 95, stock: 100 },
     { id: 3, name: 'موز', nameEn: 'Banana', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍌', price: 28, oldPrice: null, offer: null, description: 'موز طازج من المزرعة', descEn: 'Fresh bananas from the farm', popular: 150, stock: 100 },
@@ -48,7 +48,7 @@ const defaultProducts = [
     { id: 24, name: 'كاكا', nameEn: 'Persimmon', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 35, oldPrice: null, offer: null, description: 'كاكا طازجة حلوة', descEn: 'Fresh sweet persimmon', popular: 50, stock: 100 },
     { id: 25, name: 'يوسفي', nameEn: 'Tangerine', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 18, oldPrice: null, offer: null, description: 'يوسفي طازج حلو', descEn: 'Fresh sweet tangerine', popular: 130, stock: 100 },
     
-    // ===== خضار =====
+    // ===== خضار (25 منتج) =====
     { id: 26, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15, oldPrice: 20, offer: 'خصم 25%', description: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190, stock: 100 },
     { id: 27, name: 'خيار', nameEn: 'Cucumber', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 15, oldPrice: null, offer: null, description: 'خيار طازج مقرمش', descEn: 'Fresh crunchy cucumber', popular: 140, stock: 100 },
     { id: 28, name: 'فلفل', nameEn: 'Pepper', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫑', price: 30, oldPrice: null, offer: null, description: 'فلفل ألوان طازج', descEn: 'Fresh colorful peppers', popular: 90, stock: 100 },
@@ -162,7 +162,6 @@ function renderProducts(sort = currentSort, search = '') {
 
     let fruits = products.filter(p => p.category === 'فاكهة');
     let vegetables = products.filter(p => p.category === 'خضار');
-    // العروض: المنتجات التي لها offer (سواء كان سعر مخفض أو نص عرض)
     let offers = products.filter(p => p.offer !== null && p.offer !== '' || p.oldPrice !== null);
 
     if (search.trim()) {
@@ -338,7 +337,7 @@ function shareProduct(platform) {
     const productName = getProductName(p);
     const productDesc = getProductDesc(p);
     const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م/كجم';
-    const siteUrl = window.location.href;
+    const siteUrl = window.location.origin + window.location.pathname;
     
     let priceText = `${p.price} ${priceLabel}`;
     if (p.oldPrice) {
@@ -402,7 +401,6 @@ function shareStore() {
     message += `💰 أسعار مميزة وعروض حصرية\n\n`;
     message += `📱 للتواصل والاستفسار: 01229156909`;
     
-    // عرض نافذة مشاركة
     if (navigator.share) {
         navigator.share({
             title: `متجر ${shopName} - خضروات وفاكهة طازجة`,
@@ -410,11 +408,9 @@ function shareStore() {
             url: referralLink
         }).catch(() => {});
     } else {
-        // نسخ الرابط
         navigator.clipboard.writeText(referralLink).then(() => {
             showToast('✅ تم نسخ رابط المشاركة! شاركه مع أصدقائك', 'success');
         }).catch(() => {
-            // عرض الرابط في رسالة
             showToast(`📋 رابط المشاركة: ${referralLink}`, 'info');
         });
     }
@@ -793,7 +789,14 @@ function setMinDeliveryTime() {
     now.setMinutes(now.getMinutes() + 30);
     const isoString = now.toISOString().slice(0, 16);
     const deliveryTime = document.getElementById('deliveryTime');
-    if (deliveryTime) deliveryTime.min = isoString;
+    if (deliveryTime) {
+        deliveryTime.min = isoString;
+        // إذا كان الوقت المحدد مفعل، اضبط القيمة
+        const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
+        if (deliveryRadio && deliveryRadio.value === 'وقت محدد') {
+            deliveryTime.value = isoString;
+        }
+    }
 }
 
 function validateCheckoutForm() {
@@ -814,7 +817,6 @@ function validateCheckoutForm() {
         isDeliveryTimeValid = deliveryTimeInput && deliveryTimeInput.value !== '';
     }
 
-    // التحقق من طريقة الدفع
     const paymentRadio = document.querySelector('input[name="payment"]:checked');
     const isPaymentSelected = paymentRadio !== null;
 
@@ -1023,7 +1025,6 @@ async function confirmOrder() {
     };
 
     try {
-        // حفظ في Supabase
         if (typeof supabaseClient !== 'undefined' && currentUser) {
             const { error } = await supabaseClient
                 .from('orders')
@@ -1046,12 +1047,10 @@ async function confirmOrder() {
             if (error) throw error;
         }
         
-        // حفظ في localStorage
         let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
         localStorage.setItem('alwaha_orders', JSON.stringify(orders));
 
-        // ===== إضافة نقطة إحالة للمستخدم الذي دعى هذا الشخص =====
         await handleReferral(orderData);
 
         const shopNumber = '201229156909';
@@ -1085,24 +1084,19 @@ async function confirmOrder() {
 // ============================================================
 async function handleReferral(orderData) {
     try {
-        // التحقق من وجود معرف المحيل في الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const referrerId = urlParams.get('ref');
         
         if (!referrerId) return;
         if (!currentUser) return;
-        if (referrerId === currentUser.id) return; // لا يحسب لنفسه
+        if (referrerId === currentUser.id) return;
         
-        // التحقق من أن هذا المستخدم لم يسبق له الشراء (مرة واحدة فقط)
         const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         const userOrders = orders.filter(o => o.phone === orderData.phone || o.customer === orderData.customer);
         
-        // إذا كان هذا ليس أول طلب لهذا المستخدم، لا نعطي نقاط
         if (userOrders.length > 1) return;
         
-        // إضافة نقطة للمحيل
         if (typeof supabaseClient !== 'undefined') {
-            // جلب بيانات المحيل
             const { data: referrerData, error: referrerError } = await supabaseClient
                 .from('users')
                 .select('*')
@@ -1123,7 +1117,6 @@ async function handleReferral(orderData) {
                     })
                     .eq('id', referrerId);
                 
-                // تحديث localStorage
                 let users = JSON.parse(localStorage.getItem('alwaha_users') || '[]');
                 const userIndex = users.findIndex(u => u.id === referrerId);
                 if (userIndex !== -1) {
@@ -1243,872 +1236,4 @@ function updateLanguage(lang) {
     if (offersSubTitle) offersSubTitle.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? 'Offers & Discounts' : 'العروض والخصومات'}`;
 
     const sortLabel = document.getElementById('sortLabel');
-    if (sortLabel) sortLabel.textContent = isEn ? 'Sort:' : 'ترتيب:';
-    const sortFilter = document.getElementById('sortFilter');
-    if (sortFilter) {
-        const options = sortFilter.options;
-        if (options[0]) options[0].textContent = isEn ? 'Default' : 'الافتراضي';
-        if (options[1]) options[1].textContent = isEn ? 'Price (Low to High)' : 'السعر (من الأقل)';
-        if (options[2]) options[2].textContent = isEn ? 'Price (High to Low)' : 'السعر (من الأعلى)';
-        if (options[3]) options[3].textContent = isEn ? 'Most Popular' : 'الأكثر طلباً';
-    }
-
-    const offersTitle = document.getElementById('offersTitle');
-    if (offersTitle) offersTitle.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? "Today's Offers" : 'عروض اليوم'}`;
-    const offersDesc = document.getElementById('offersDesc');
-    if (offersDesc) offersDesc.textContent = isEn ? '20% off on all seasonal fruits' : 'خصم 20% على جميع الفواكه الموسمية';
-    
-    const cdItems = document.querySelectorAll('.countdown .cd-item span');
-    if (cdItems.length >= 3) {
-        cdItems[0].textContent = isEn ? 'Hours' : 'ساعات';
-        cdItems[1].textContent = isEn ? 'Minutes' : 'دقائق';
-        cdItems[2].textContent = isEn ? 'Seconds' : 'ثواني';
-    }
-
-    const contactTitle = document.getElementById('contactTitle');
-    if (contactTitle) contactTitle.innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
-    const contactSub = document.getElementById('contactSub');
-    if (contactSub) contactSub.textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
-
-    const cartTotalHeader = document.getElementById('cartTotalHeader');
-    if (cartTotalHeader) {
-        const totalPrice = document.getElementById('cartTotalPrice');
-        cartTotalHeader.innerHTML = 
-            `<span id="cartHeaderTotal">${totalPrice ? totalPrice.textContent : '0 ج.م'}</span>
-            <small>${isEn ? 'Total without delivery fee' : 'المجموع بدون قيمة التوصيل'}</small>`;
-    }
-    const checkoutSmall = document.querySelector('.cart-header .btn-checkout-small');
-    if (checkoutSmall) checkoutSmall.innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
-    const labelTotal = document.getElementById('labelTotal');
-    if (labelTotal) labelTotal.textContent = isEn ? 'Total' : 'المجموع';
-    
-    const emptyMsg = document.getElementById('emptyCartMsg');
-    if(emptyMsg) {
-        emptyMsg.innerHTML = `<i class="fas fa-shopping-cart"></i>${isEn ? 'Your cart is empty' : 'سلتك فارغة'}`;
-    }
-    const totalNote = document.querySelector('.cart-total-note');
-    if(totalNote) {
-        totalNote.textContent = isEn ? '* Total without delivery fee' : '* المجموع بدون قيمة التوصيل';
-    }
-
-    const checkoutTitle = document.getElementById('checkoutTitle');
-    if (checkoutTitle) checkoutTitle.innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
-    const checkoutSub = document.getElementById('checkoutSub');
-    if (checkoutSub) checkoutSub.textContent = isEn ? 'Fill in your details' : 'املأ بياناتك لإتمام الطلب';
-
-    const labelCustName = document.getElementById('labelCustName');
-    if (labelCustName) labelCustName.innerHTML = `${isEn ? 'Full Name' : 'الاسم الكامل'} <span class="required">*</span>`;
-    const labelCustPhone = document.getElementById('labelCustPhone');
-    if (labelCustPhone) labelCustPhone.innerHTML = `${isEn ? 'Phone Number' : 'رقم الجوال'} <span class="required">*</span>`;
-    const labelCustAddress = document.getElementById('labelCustAddress');
-    if (labelCustAddress) labelCustAddress.innerHTML = `${isEn ? 'Address Details' : 'معلومات المكان'} <span class="required">*</span>`;
-    const labelCustNotes = document.getElementById('labelCustNotes');
-    if (labelCustNotes) labelCustNotes.innerHTML = `${isEn ? 'Notes' : 'ملاحظات'}`;
-    const labelDeliveryTime = document.getElementById('labelDeliveryTime');
-    if (labelDeliveryTime) labelDeliveryTime.innerHTML = `${isEn ? 'Delivery Time' : 'وقت التوصيل'} <span class="required">*</span>`;
-    const labelPaymentMethod = document.getElementById('labelPaymentMethod');
-    if (labelPaymentMethod) labelPaymentMethod.innerHTML = `${isEn ? 'Payment Method' : 'طريقة الدفع'} <span class="required">*</span>`;
-
-    const deliveryLabels = document.querySelectorAll('#deliveryOptions label');
-    if (deliveryLabels.length >= 2) {
-        deliveryLabels[0].innerHTML =
-            `<input type="radio" name="delivery" value="اسرع وقت" checked /> <i class="fas fa-clock"></i> ${isEn ? 'Fastest time' : 'أسرع وقت'}`;
-        deliveryLabels[1].innerHTML =
-            `<input type="radio" name="delivery" value="وقت محدد" /> <i class="fas fa-calendar-alt"></i> ${isEn ? 'Specific time' : 'وقت محدد'}`;
-    }
-
-    const deliveryNote = document.querySelector('.delivery-note');
-    if (deliveryNote) {
-        deliveryNote.innerHTML = `<i class="fas fa-info-circle"></i> ${isEn ? 'Delivery fee ranges from 15 EGP to 30 EGP depending on distance' : 'قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة'}`;
-    }
-
-    const btnConfirmOrder = document.getElementById('btnConfirmOrder');
-    if (btnConfirmOrder) btnConfirmOrder.innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
-    const btnCancelOrder = document.getElementById('btnCancelOrder');
-    if (btnCancelOrder) btnCancelOrder.textContent = isEn ? 'Cancel' : 'إلغاء';
-
-    const labelWeight = document.getElementById('labelWeight');
-    if (labelWeight) labelWeight.textContent = isEn ? 'Weight (kg):' : 'الوزن (كجم):';
-    const addBtn = document.getElementById('modalAddBtn');
-    if (addBtn) addBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${isEn ? 'Add' : 'إضافة'}`;
-
-    const shareLinks = document.querySelectorAll('.share-popup a');
-    if (shareLinks.length >= 2) {
-        shareLinks[0].innerHTML = `<i class="fab fa-whatsapp"></i> ${isEn ? 'WhatsApp' : 'واتساب'}`;
-        shareLinks[1].innerHTML = `<i class="fas fa-copy"></i> ${isEn ? 'Copy' : 'نسخ'}`;
-    }
-
-    const paymentLabels = document.querySelectorAll('.payment-options label');
-    if (paymentLabels.length >= 3) {
-        paymentLabels[0].innerHTML =
-            `<input type="radio" name="payment" value="كاش عند التوصيل" checked /> <i class="fas fa-money-bill-wave"></i> ${isEn ? 'Cash on delivery' : 'كاش عند التوصيل'}`;
-        paymentLabels[1].innerHTML =
-            `<input type="radio" name="payment" value="إنستا باي" /> <i class="fas fa-mobile-alt"></i> ${isEn ? 'InstaPay' : 'إنستا باي'}`;
-        paymentLabels[2].innerHTML =
-            `<input type="radio" name="payment" value="محفظة إلكترونية" /> <i class="fas fa-wallet"></i> ${isEn ? 'e-Wallet' : 'محفظة إلكترونية'}`;
-    }
-
-    const phoneHint = document.querySelector('.phone-hint');
-    if (phoneHint) {
-        phoneHint.innerHTML = `<i class="fas fa-info-circle"></i> ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}`;
-    }
-
-    const couponLabel = document.getElementById('couponLabel');
-    if (couponLabel) couponLabel.textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
-    const couponCode = document.getElementById('couponCode');
-    if (couponCode) couponCode.placeholder = isEn ? 'Enter code' : 'أدخل الكود';
-    const couponBtn = document.querySelector('.coupon-row .coupon-btn');
-    if (couponBtn) couponBtn.textContent = isEn ? 'Apply' : 'تطبيق';
-}
-
-// ============================================================
-// 21. SCROLL TO TOP
-// ============================================================
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.addEventListener('scroll', function() {
-    const btn = document.getElementById('backToTop');
-    if (btn) btn.classList.toggle('show', window.scrollY > 400);
-});
-
-// ============================================================
-// 22. COUNTDOWN
-// ============================================================
-let countdownInterval;
-
-function startCountdown() {
-    let hours = 12, minutes = 30, seconds = 45;
-    const cdEl = document.getElementById('countdown');
-    if (!cdEl) return;
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
-        seconds--;
-        if (seconds < 0) { seconds = 59; minutes--; }
-        if (minutes < 0) { minutes = 59; hours--; }
-        if (hours < 0) { hours = 23; minutes = 59; seconds = 59; }
-        const h = String(hours).padStart(2, '0');
-        const m = String(minutes).padStart(2, '0');
-        const s = String(seconds).padStart(2, '0');
-        const hourLabel = currentLang === 'en' ? 'Hours' : 'ساعات';
-        const minLabel = currentLang === 'en' ? 'Minutes' : 'دقائق';
-        const secLabel = currentLang === 'en' ? 'Seconds' : 'ثواني';
-        cdEl.innerHTML = `
-            <div class="cd-item"><span>${hourLabel}</span> ${h}</div>
-            <div class="cd-item"><span>${minLabel}</span> ${m}</div>
-            <div class="cd-item"><span>${secLabel}</span> ${s}</div>
-        `;
-    }, 1000);
-}
-
-// ============================================================
-// 23. ADMIN ACCESS
-// ============================================================
-let logoClickCount = 0;
-let clickTimer = null;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const logoTrigger = document.getElementById('logoTrigger');
-    if (logoTrigger) {
-        logoTrigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            logoClickCount++;
-            
-            clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => {
-                logoClickCount = 0;
-            }, 3000);
-
-            if (logoClickCount >= 5) {
-                const password = prompt('🔐 أدخل كلمة مرور لوحة التحكم:');
-                if (password === 'QQZ#154p') {
-                    window.location.href = 'admin.html';
-                } else if (password !== null) {
-                    showToast('❌ كلمة المرور غير صحيحة!', 'error', '⚠️');
-                }
-                logoClickCount = 0;
-            }
-        });
-    }
-});
-
-// ============================================================
-// 24. SUPABASE AUTH
-// ============================================================
-async function loadUserData(userId) {
-    try {
-        if (typeof supabaseClient === 'undefined') {
-            console.warn('⚠️ Supabase not available');
-            return;
-        }
-        const { data, error } = await supabaseClient
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
-        
-        if (error && error.code !== 'PGRST116') throw error;
-        
-        if (data) {
-            currentUserData = data;
-        } else {
-            const newUser = {
-                id: userId,
-                email: currentUser.email,
-                display_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'مستخدم',
-                phone: '',
-                address: '',
-                referral_points: 0,
-                referral_count: 0,
-                created_at: new Date().toISOString()
-            };
-            if (typeof supabaseClient !== 'undefined') {
-                const { error: insertError } = await supabaseClient
-                    .from('users')
-                    .insert([newUser]);
-                if (insertError && insertError.code !== '23505') throw insertError;
-            }
-            currentUserData = newUser;
-        }
-    } catch (error) {
-        console.error('❌ خطأ في تحميل بيانات المستخدم:', error);
-    }
-}
-
-// ===== مراقبة حالة المصادقة =====
-if (typeof supabaseClient !== 'undefined') {
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log('🔄 Auth state changed:', event, session?.user?.email);
-        if (session) {
-            currentUser = session.user;
-            console.log('✅ مستخدم مسجل:', currentUser.email);
-            await loadUserData(currentUser.id);
-            updateUIForLoggedInUser();
-            await syncCartFromSupabase();
-        } else {
-            currentUser = null;
-            currentUserData = null;
-            updateUIForGuestUser();
-            console.log('👤 مستخدم ضيف');
-            loadCart();
-            updateCartUI();
-        }
-    });
-}
-
-// ===== تسجيل الدخول بالبريد =====
-async function loginWithEmail(email, password) {
-    if (!email || !password) {
-        showToast('⚠️ الرجاء إدخال البريد وكلمة المرور', 'error');
-        return;
-    }
-    
-    try {
-        if (typeof supabaseClient === 'undefined') {
-            showToast('⚠️ Supabase غير متصل', 'error');
-            return;
-        }
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        if (error) throw error;
-        showToast('تم تسجيل الدخول بنجاح! 🎉', 'success');
-        closeAuthModal();
-    } catch (error) {
-        console.error('❌ خطأ في تسجيل الدخول:', error);
-        showToast(error.message || 'حدث خطأ في تسجيل الدخول', 'error');
-        const loginError = document.getElementById('loginError');
-        if (loginError) {
-            loginError.textContent = error.message || 'حدث خطأ';
-            loginError.classList.add('show');
-        }
-    }
-}
-
-// ===== إنشاء حساب =====
-async function signupWithEmail(email, password, displayName) {
-    if (!email || !password || !displayName) {
-        showToast('⚠️ الرجاء ملء جميع الحقول', 'error');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showToast('⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
-        return;
-    }
-    
-    try {
-        if (typeof supabaseClient === 'undefined') {
-            showToast('⚠️ Supabase غير متصل', 'error');
-            return;
-        }
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: displayName
-                }
-            }
-        });
-        if (error) throw error;
-        showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
-        closeAuthModal();
-    } catch (error) {
-        console.error('❌ خطأ في إنشاء الحساب:', error);
-        showToast(error.message || 'حدث خطأ في إنشاء الحساب', 'error');
-        const signupError = document.getElementById('signupError');
-        if (signupError) {
-            signupError.textContent = error.message || 'حدث خطأ';
-            signupError.classList.add('show');
-        }
-    }
-}
-
-// ===== تسجيل الدخول بجوجل =====
-async function loginWithGoogle() {
-    const googleBtn = document.getElementById('googleBtn');
-    if (googleBtn) {
-        googleBtn.disabled = true;
-        googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري...';
-    }
-    
-    try {
-        if (typeof supabaseClient === 'undefined') {
-            showToast('⚠️ Supabase غير متصل', 'error');
-            if (googleBtn) {
-                googleBtn.disabled = false;
-                googleBtn.innerHTML = `
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                    <span>تسجيل الدخول بجوجل</span>
-                `;
-            }
-            return;
-        }
-        
-        // استخدام الرابط الحالي للموقع
-        const redirectUrl = window.location.origin + window.location.pathname;
-        console.log('🔄 إعادة التوجيه إلى:', redirectUrl);
-        
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: redirectUrl
-            }
-        });
-        if (error) throw error;
-        showToast('جاري التوجيه إلى جوجل...', 'info');
-    } catch (error) {
-        console.error('❌ خطأ في تسجيل الدخول بجوجل:', error);
-        showToast(error.message || 'حدث خطأ في تسجيل الدخول بجوجل', 'error');
-        if (googleBtn) {
-            googleBtn.disabled = false;
-            googleBtn.innerHTML = `
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                <span>تسجيل الدخول بجوجل</span>
-            `;
-        }
-    }
-}
-
-// ===== تسجيل الخروج =====
-async function logout() {
-    try {
-        if (typeof supabaseClient !== 'undefined') {
-            await supabaseClient.auth.signOut();
-        }
-        showToast('تم تسجيل الخروج', 'info');
-        const dropdown = document.getElementById('userDropdown');
-        if (dropdown) dropdown.classList.remove('show');
-        loadCart();
-        updateCartUI();
-        updateUIForGuestUser();
-    } catch (error) {
-        console.error('❌ خطأ في تسجيل الخروج:', error);
-        showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
-    }
-}
-
-// ===== نسيان كلمة المرور =====
-async function resetPassword(email) {
-    if (!email) {
-        showToast('⚠️ أدخل بريدك الإلكتروني أولاً', 'error');
-        return;
-    }
-    
-    try {
-        if (typeof supabaseClient === 'undefined') {
-            showToast('⚠️ Supabase غير متصل', 'error');
-            return;
-        }
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href
-        });
-        if (error) throw error;
-        showToast('✅ تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك', 'success');
-    } catch (error) {
-        console.error('❌ خطأ في إعادة تعيين كلمة المرور:', error);
-        showToast(error.message || 'حدث خطأ', 'error');
-    }
-}
-
-// ============================================================
-// 25. UPDATE UI
-// ============================================================
-function updateUIForLoggedInUser() {
-    const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
-    const initial = (name || 'م')[0];
-    
-    const userBtn = document.getElementById('userBtn');
-    if (userBtn) {
-        userBtn.innerHTML = initial;
-        userBtn.className = 'user-btn';
-        userBtn.onclick = toggleUserMenu;
-        // إضافة نقطة اتصال
-        if (!userBtn.querySelector('.online-dot')) {
-            const dot = document.createElement('span');
-            dot.className = 'online-dot';
-            userBtn.appendChild(dot);
-        }
-    }
-    
-    const userMenu = document.getElementById('userMenu');
-    const guestMenu = document.getElementById('guestMenu');
-    const userName = document.getElementById('userName');
-    const userAvatar = document.getElementById('userAvatar');
-    
-    if (userMenu) userMenu.style.display = 'flex';
-    if (guestMenu) guestMenu.style.display = 'none';
-    if (userName) userName.textContent = name;
-    if (userAvatar) userAvatar.textContent = initial;
-}
-
-function updateUIForGuestUser() {
-    const userBtn = document.getElementById('userBtn');
-    if (userBtn) {
-        userBtn.innerHTML = '<i class="fas fa-user"></i>';
-        userBtn.className = 'user-btn guest';
-        userBtn.onclick = openAuthModal;
-        // إزالة النقطة
-        const dot = userBtn.querySelector('.online-dot');
-        if (dot) dot.remove();
-    }
-    
-    const userMenu = document.getElementById('userMenu');
-    const guestMenu = document.getElementById('guestMenu');
-    
-    if (userMenu) userMenu.style.display = 'none';
-    if (guestMenu) guestMenu.style.display = 'flex';
-}
-
-// ============================================================
-// 26. USER CLICK HANDLER
-// ============================================================
-function handleUserClick() {
-    if (currentUser) {
-        toggleUserMenu();
-    } else {
-        openAuthModal();
-    }
-}
-
-// ============================================================
-// 27. AUTH MODAL
-// ============================================================
-function openAuthModal() {
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-        authModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        switchAuthTab('login');
-    } else {
-        console.warn('⚠️ authModal not found');
-    }
-}
-
-function closeAuthModal() {
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-        authModal.classList.remove('open');
-        document.body.style.overflow = '';
-    }
-}
-
-function switchAuthTab(tab) {
-    document.querySelectorAll('.auth-tabs button').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tab);
-    });
-    document.querySelectorAll('.auth-form').forEach(form => {
-        form.classList.toggle('active', form.id === (tab === 'login' ? 'loginForm' : 'signupForm'));
-    });
-    const loginError = document.getElementById('loginError');
-    if (loginError) loginError.classList.remove('show');
-    const signupError = document.getElementById('signupError');
-    if (signupError) signupError.classList.remove('show');
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail')?.value || '';
-    const password = document.getElementById('loginPassword')?.value || '';
-    loginWithEmail(email, password);
-}
-
-function handleSignup(e) {
-    e.preventDefault();
-    const name = document.getElementById('signupName')?.value || '';
-    const email = document.getElementById('signupEmail')?.value || '';
-    const password = document.getElementById('signupPassword')?.value || '';
-    signupWithEmail(email, password, name);
-}
-
-function handleForgotPassword() {
-    const email = document.getElementById('loginEmail')?.value || '';
-    resetPassword(email);
-}
-
-function handleGoogleLogin() {
-    loginWithGoogle();
-}
-
-// ============================================================
-// 28. USER MENU DROPDOWN
-// ============================================================
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) dropdown.classList.toggle('show');
-}
-
-document.addEventListener('click', function(e) {
-    const userBtn = document.getElementById('userBtn');
-    const dropdown = document.getElementById('userDropdown');
-    if (userBtn && dropdown && !userBtn.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
-
-// ============================================================
-// 29. PROFILE
-// ============================================================
-function viewProfile() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) dropdown.classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    
-    // ملء بيانات الملف الشخصي
-    const profileModal = document.getElementById('profileModal');
-    if (profileModal) {
-        const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
-        const email = currentUser?.email || '--';
-        const phone = currentUserData?.phone || '';
-        const address = currentUserData?.address || '';
-        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-        const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
-        const points = currentUserData?.referral_points || 0;
-        const referrals = currentUserData?.referral_count || 0;
-        const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
-        
-        document.getElementById('profileAvatar').textContent = '👤';
-        document.getElementById('profileName').textContent = name;
-        document.getElementById('profileEmail').textContent = email;
-        document.getElementById('profileDisplayName').value = name;
-        document.getElementById('profilePhone').value = phone;
-        document.getElementById('profileAddress').value = address;
-        document.getElementById('profileShareLink').value = shareLink;
-        document.getElementById('profileOrders').textContent = userOrders.length;
-        document.getElementById('profilePoints').textContent = points;
-        document.getElementById('profileReferrals').textContent = referrals;
-        
-        profileModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeProfileModal() {
-    const profileModal = document.getElementById('profileModal');
-    if (profileModal) {
-        profileModal.classList.remove('open');
-        document.body.style.overflow = '';
-    }
-}
-
-function saveProfile() {
-    const name = document.getElementById('profileDisplayName')?.value?.trim();
-    const phone = document.getElementById('profilePhone')?.value?.trim();
-    const address = document.getElementById('profileAddress')?.value?.trim();
-    
-    if (!name) {
-        showToast('⚠️ الاسم مطلوب', 'error');
-        return;
-    }
-    
-    try {
-        if (typeof supabaseClient !== 'undefined' && currentUser) {
-            supabaseClient
-                .from('users')
-                .update({
-                    display_name: name,
-                    phone: phone || '',
-                    address: address || ''
-                })
-                .eq('id', currentUser.id)
-                .then(({ error }) => {
-                    if (error) throw error;
-                    if (currentUserData) {
-                        currentUserData.display_name = name;
-                        currentUserData.phone = phone || '';
-                        currentUserData.address = address || '';
-                    }
-                    localStorage.setItem('alwaha_name', name);
-                    localStorage.setItem('alwaha_phone', phone || '');
-                    localStorage.setItem('alwaha_address', address || '');
-                    updateUIForLoggedInUser();
-                    showToast('✅ تم حفظ التغييرات', 'success');
-                    closeProfileModal();
-                })
-                .catch(error => {
-                    console.error('❌ خطأ في حفظ الملف الشخصي:', error);
-                    showToast('حدث خطأ في الحفظ', 'error');
-                });
-        } else {
-            // حفظ محلي
-            if (currentUserData) {
-                currentUserData.display_name = name;
-                currentUserData.phone = phone || '';
-                currentUserData.address = address || '';
-            }
-            localStorage.setItem('alwaha_name', name);
-            localStorage.setItem('alwaha_phone', phone || '');
-            localStorage.setItem('alwaha_address', address || '');
-            updateUIForLoggedInUser();
-            showToast('✅ تم حفظ التغييرات', 'success');
-            closeProfileModal();
-        }
-    } catch (error) {
-        console.error('❌ خطأ في حفظ الملف الشخصي:', error);
-        showToast('حدث خطأ في الحفظ', 'error');
-    }
-}
-
-function copyShareLink() {
-    const linkInput = document.getElementById('profileShareLink');
-    if (linkInput) {
-        navigator.clipboard.writeText(linkInput.value).then(() => {
-            showToast('✅ تم نسخ الرابط', 'success');
-        }).catch(() => {
-            linkInput.select();
-            document.execCommand('copy');
-            showToast('✅ تم نسخ الرابط', 'success');
-        });
-    }
-}
-
-function viewOrders() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) dropdown.classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    
-    const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-    const userOrders = orders.filter(o => o.phone === currentUserData?.phone || o.customer === currentUserData?.display_name);
-    
-    if (userOrders.length === 0) {
-        showToast('📦 لا توجد طلبات سابقة', 'info');
-        return;
-    }
-    
-    let message = '📦 *طلباتي السابقة*\n';
-    message += '───────────────────\n';
-    userOrders.forEach((o, i) => {
-        message += `${i+1}. ${o.dateAr || o.date || '--'}\n`;
-        message += `   🛒 ${o.items ? o.items.length : 0} منتج\n`;
-        message += `   💰 ${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م\n`;
-        message += `   📌 ${o.status || 'جديد'}\n`;
-        message += `───────────────────\n`;
-    });
-    showToast(message, 'info');
-}
-
-function viewFavorites() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) dropdown.classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    showToast('❤️ المفضلة - قيد التطوير', 'info');
-}
-
-// ============================================================
-// 30. PAYMENT & DELIVERY SELECTION - FIX
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // تفعيل اختيار طريقة الدفع
-    document.querySelectorAll('.payment-options label').forEach(label => {
-        label.addEventListener('click', function(e) {
-            e.stopPropagation();
-            document.querySelectorAll('.payment-options label').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            validateCheckoutForm();
-        });
-    });
-
-    // تفعيل اختيار وقت التوصيل
-    document.querySelectorAll('#deliveryOptions label').forEach(label => {
-        label.addEventListener('click', function(e) {
-            e.stopPropagation();
-            document.querySelectorAll('#deliveryOptions label').forEach(l => l.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            
-            const deliveryTimeInput = document.getElementById('deliveryTimeInput');
-            const deliveryTime = document.getElementById('deliveryTime');
-            if (radio && radio.value === 'وقت محدد') {
-                deliveryTimeInput.classList.add('show');
-                deliveryTime.required = true;
-                setMinDeliveryTime();
-            } else {
-                deliveryTimeInput.classList.remove('show');
-                deliveryTime.required = false;
-                deliveryTime.value = '';
-            }
-            validateCheckoutForm();
-        });
-    });
-
-    // تحديد الخيارات الافتراضية
-    const defaultPayment = document.querySelector('.payment-options label:first-child');
-    if (defaultPayment) {
-        defaultPayment.classList.add('selected');
-        const radio = defaultPayment.querySelector('input[type="radio"]');
-        if (radio) radio.checked = true;
-    }
-
-    const defaultDelivery = document.querySelector('#deliveryOptions label:first-child');
-    if (defaultDelivery) {
-        defaultDelivery.classList.add('selected');
-        const radio = defaultDelivery.querySelector('input[type="radio"]');
-        if (radio) radio.checked = true;
-    }
-});
-
-// ============================================================
-// 31. INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ script.js loaded successfully');
-    renderProducts('default', '');
-    updateCartUI();
-    startCountdown();
-
-    const bgStatic = document.getElementById('bg-static');
-    if (bgStatic) {
-        const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', '🧅', '🧄', '🫒', '🌶️', '🍑', '🍒', '🍉', '🍐', '🥥', '🌽'];
-        const rotations = [-14, -12, -10, -8, -6, -4, -2, 2, 4, 6, 8, 10, 12, 14];
-        bgStatic.innerHTML = emojis.map((emoji, i) => {
-            const rot = rotations[i % rotations.length] + (Math.random() * 6 - 3);
-            return `<span style="--rot: ${rot}deg;">${emoji}</span>`;
-        }).join('');
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const productModal = document.getElementById('productModal');
-            if (productModal && productModal.classList.contains('open')) closeProductModal();
-            const checkoutModal = document.getElementById('checkoutModal');
-            if (checkoutModal && checkoutModal.classList.contains('open')) closeCheckout();
-            const cartSidebar = document.getElementById('cartSidebar');
-            if (cartSidebar && cartSidebar.classList.contains('open')) toggleCart();
-            const profileModal = document.getElementById('profileModal');
-            if (profileModal && profileModal.classList.contains('open')) closeProfileModal();
-        }
-    });
-
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => filterProducts(), 200);
-        });
-    }
-    
-    setMinDeliveryTime();
-    
-    // تحميل الإعدادات المحفوظة
-    const savedTheme = localStorage.getItem('alwaha_theme');
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        currentTheme = 'dark';
-        const checkbox = document.getElementById('themeCheckbox');
-        if (checkbox) checkbox.checked = true;
-        const bgStatic = document.getElementById('bg-static');
-        if (bgStatic) bgStatic.style.opacity = '0.02';
-    }
-    
-    const savedLang = localStorage.getItem('alwaha_lang');
-    if (savedLang === 'en') {
-        document.documentElement.setAttribute('lang', 'en');
-        currentLang = 'en';
-        updateLanguage('en');
-    }
-});
-
-// ===== تصدير الدوال للاستخدام العام =====
-window.toggleLang = toggleLang;
-window.filterProducts = filterProducts;
-window.applySort = applySort;
-window.openProductModal = openProductModal;
-window.closeProductModal = closeProductModal;
-window.changeModalWeight = changeModalWeight;
-window.addFromModal = addFromModal;
-window.toggleCart = toggleCart;
-window.openCheckout = openCheckout;
-window.closeCheckout = closeCheckout;
-window.confirmOrder = confirmOrder;
-window.applyCoupon = applyCoupon;
-window.shareProduct = shareProduct;
-window.shareStore = shareStore;
-window.toggleSharePopup = toggleSharePopup;
-window.scrollToTop = scrollToTop;
-window.changeQty = changeQty;
-window.removeItem = removeItem;
-window.validateCheckoutForm = validateCheckoutForm;
-window.logout = logout;
-window.openAuthModal = openAuthModal;
-window.closeAuthModal = closeAuthModal;
-window.switchAuthTab = switchAuthTab;
-window.handleLogin = handleLogin;
-window.handleSignup = handleSignup;
-window.handleForgotPassword = handleForgotPassword;
-window.handleGoogleLogin = handleGoogleLogin;
-window.loginWithEmail = loginWithEmail;
-window.signupWithEmail = signupWithEmail;
-window.loginWithGoogle = loginWithGoogle;
-window.resetPassword = resetPassword;
-window.toggleSearch = toggleSearch;
-window.toggleUserMenu = toggleUserMenu;
-window.handleUserClick = handleUserClick;
-window.viewProfile = viewProfile;
-window.closeProfileModal = closeProfileModal;
-window.saveProfile = saveProfile;
-window.copyShareLink = copyShareLink;
-window.viewOrders = viewOrders;
-window.viewFavorites = viewFavorites;
-window.getProductsData = getProductsData;
-window.toggleTheme = toggleTheme;
-
-console.log('✅ All functions exported successfully'); 
+    if (sortLabel) sortLabel.textContent = isEn ? 

@@ -18,9 +18,10 @@ let currentUser = null;
 let currentUserData = null;
 
 // ============================================================
-// 2. PRODUCTS DATA (50 منتج)
+// 2. PRODUCTS DATA (جميع المنتجات من الصورة)
 // ============================================================
 const defaultProducts = [
+    // ===== فاكهة =====
     { id: 1, name: 'تفاح', nameEn: 'Apple', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 25, oldPrice: null, offer: null, description: 'تفاح طازج من مزارعنا', descEn: 'Fresh apples from our farms', popular: 120, stock: 100 },
     { id: 2, name: 'برتقال', nameEn: 'Orange', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 20, oldPrice: null, offer: null, description: 'برتقال عصير طازج', descEn: 'Fresh juice oranges', popular: 95, stock: 100 },
     { id: 3, name: 'موز', nameEn: 'Banana', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍌', price: 28, oldPrice: null, offer: null, description: 'موز طازج من المزرعة', descEn: 'Fresh bananas from the farm', popular: 150, stock: 100 },
@@ -42,10 +43,12 @@ const defaultProducts = [
     { id: 19, name: 'رطب', nameEn: 'Fresh Dates', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🌴', price: 30, oldPrice: null, offer: null, description: 'رطب طازج من النخيل', descEn: 'Fresh dates from palm', popular: 100, stock: 100 },
     { id: 20, name: 'أفوكادو', nameEn: 'Avocado', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥑', price: 55, oldPrice: null, offer: null, description: 'أفوكادو طازج غني بالدهون الصحية', descEn: 'Fresh healthy fat avocado', popular: 150, stock: 100 },
     { id: 21, name: 'جوافة', nameEn: 'Guava', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍐', price: 20, oldPrice: null, offer: null, description: 'جوافة طازجة غنية بفيتامين C', descEn: 'Fresh Vitamin C rich guava', popular: 90, stock: 100 },
-    { id: 22, name: 'مانجو', nameEn: 'Mango', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🥭', price: 25, oldPrice: null, offer: null, description: 'مانجو طازج - موسمي', descEn: 'Fresh seasonal mango', popular: 170, stock: 100 },
-    { id: 23, name: 'فاكهة التنين', nameEn: 'Dragon Fruit', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🐉', price: 60, oldPrice: null, offer: null, description: 'فاكهة التنين الطازجة', descEn: 'Fresh dragon fruit', popular: 120, stock: 100 },
-    { id: 24, name: 'ليتشي', nameEn: 'Lychee', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 45, oldPrice: null, offer: null, description: 'ليتشي طازج حلو', descEn: 'Fresh sweet lychee', popular: 80, stock: 100 },
-    { id: 25, name: 'رمان', nameEn: 'Pomegranate', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍎', price: 28, oldPrice: null, offer: null, description: 'رمان طازج غني بمضادات الأكسدة', descEn: 'Fresh antioxidant-rich pomegranate', popular: 95, stock: 100 },
+    { id: 22, name: 'فاكهة التنين', nameEn: 'Dragon Fruit', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🐉', price: 60, oldPrice: null, offer: null, description: 'فاكهة التنين الطازجة', descEn: 'Fresh dragon fruit', popular: 120, stock: 100 },
+    { id: 23, name: 'ليتشي', nameEn: 'Lychee', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍓', price: 45, oldPrice: null, offer: null, description: 'ليتشي طازج حلو', descEn: 'Fresh sweet lychee', popular: 80, stock: 100 },
+    { id: 24, name: 'كاكا', nameEn: 'Persimmon', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 35, oldPrice: null, offer: null, description: 'كاكا طازجة حلوة', descEn: 'Fresh sweet persimmon', popular: 50, stock: 100 },
+    { id: 25, name: 'يوسفي', nameEn: 'Tangerine', category: 'فاكهة', categoryEn: 'Fruits', emoji: '🍊', price: 18, oldPrice: null, offer: null, description: 'يوسفي طازج حلو', descEn: 'Fresh sweet tangerine', popular: 130, stock: 100 },
+    
+    // ===== خضار =====
     { id: 26, name: 'طماطم', nameEn: 'Tomato', category: 'خضار', categoryEn: 'Vegetables', emoji: '🍅', price: 15, oldPrice: 20, offer: 'خصم 25%', description: 'طماطم طازجة - عرض خاص', descEn: 'Fresh tomatoes - Special offer', popular: 190, stock: 100 },
     { id: 27, name: 'خيار', nameEn: 'Cucumber', category: 'خضار', categoryEn: 'Vegetables', emoji: '🥒', price: 15, oldPrice: null, offer: null, description: 'خيار طازج مقرمش', descEn: 'Fresh crunchy cucumber', popular: 140, stock: 100 },
     { id: 28, name: 'فلفل', nameEn: 'Pepper', category: 'خضار', categoryEn: 'Vegetables', emoji: '🫑', price: 30, oldPrice: null, offer: null, description: 'فلفل ألوان طازج', descEn: 'Fresh colorful peppers', popular: 90, stock: 100 },
@@ -77,10 +80,10 @@ const defaultProducts = [
 // 3. COUPONS
 // ============================================================
 const defaultCoupons = [
-    { code: 'SAVE10', discount: 10, type: 'percentage', used: 0, maxUses: 100 },
-    { code: 'SAVE20', discount: 20, type: 'percentage', used: 0, maxUses: 50 },
-    { code: 'SAVE50', discount: 50, type: 'fixed', used: 0, maxUses: 20 },
-    { code: 'WELCOME', discount: 15, type: 'percentage', used: 0, maxUses: 200 }
+    { code: 'SAVE10', discount: 10, type: 'percentage', used: 0, maxUses: 100, applicableTo: 'all' },
+    { code: 'SAVE20', discount: 20, type: 'percentage', used: 0, maxUses: 50, applicableTo: 'all' },
+    { code: 'SAVE50', discount: 50, type: 'fixed', used: 0, maxUses: 20, applicableTo: 'all' },
+    { code: 'WELCOME', discount: 15, type: 'percentage', used: 0, maxUses: 200, applicableTo: 'all' }
 ];
 
 // ============================================================
@@ -159,7 +162,8 @@ function renderProducts(sort = currentSort, search = '') {
 
     let fruits = products.filter(p => p.category === 'فاكهة');
     let vegetables = products.filter(p => p.category === 'خضار');
-    let offers = products.filter(p => p.offer !== null && p.offer !== '');
+    // العروض: المنتجات التي لها offer (سواء كان سعر مخفض أو نص عرض)
+    let offers = products.filter(p => p.offer !== null && p.offer !== '' || p.oldPrice !== null);
 
     if (search.trim()) {
         const s = search.trim().toLowerCase();
@@ -190,7 +194,7 @@ function renderProducts(sort = currentSort, search = '') {
         items.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card' + (isOffer ? ' offer-product' : '');
-            let offerHtml = p.offer ? `<span class="offer-badge">عرض</span>` : '';
+            let offerHtml = p.offer ? `<span class="offer-badge">${p.offer}</span>` : '';
             let priceHtml = p.oldPrice ?
                 `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
                 `${p.price} <small>${priceLabel}</small>`;
@@ -320,7 +324,7 @@ function changeModalWeight(delta) {
 }
 
 // ============================================================
-// 10. SHARE
+// 10. SHARE PRODUCT
 // ============================================================
 function toggleSharePopup() {
     document.getElementById('sharePopup')?.classList.toggle('show');
@@ -378,7 +382,46 @@ function shareProduct(platform) {
 }
 
 // ============================================================
-// 11. CART FUNCTIONS
+// 11. SHARE STORE
+// ============================================================
+function shareStore() {
+    if (!currentUser) {
+        showToast('⚠️ يجب تسجيل الدخول أولاً للمشاركة', 'error');
+        openAuthModal();
+        return;
+    }
+    
+    const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
+    const siteUrl = window.location.origin + window.location.pathname;
+    const referralLink = `${siteUrl}?ref=${currentUser.id}`;
+    
+    let message = `🌿 مرحباً! تعالوا واستمتعوا بأجود الخضروات والفاكهة الطازجة من متجر ${shopName}!\n\n`;
+    message += `🛒 تسوق الآن من هنا:\n${referralLink}\n\n`;
+    message += `🍎 خضروات وفاكهة طازجة 100%\n`;
+    message += `🚚 توصيل سريع لجميع المناطق\n`;
+    message += `💰 أسعار مميزة وعروض حصرية\n\n`;
+    message += `📱 للتواصل والاستفسار: 01229156909`;
+    
+    // عرض نافذة مشاركة
+    if (navigator.share) {
+        navigator.share({
+            title: `متجر ${shopName} - خضروات وفاكهة طازجة`,
+            text: message,
+            url: referralLink
+        }).catch(() => {});
+    } else {
+        // نسخ الرابط
+        navigator.clipboard.writeText(referralLink).then(() => {
+            showToast('✅ تم نسخ رابط المشاركة! شاركه مع أصدقائك', 'success');
+        }).catch(() => {
+            // عرض الرابط في رسالة
+            showToast(`📋 رابط المشاركة: ${referralLink}`, 'info');
+        });
+    }
+}
+
+// ============================================================
+// 12. CART FUNCTIONS
 // ============================================================
 function loadCart() {
     try {
@@ -457,7 +500,6 @@ async function syncCartFromSupabase() {
             }).filter(Boolean);
             
             if (cloudCart.length > 0) {
-                // إذا كانت السلة المحلية تحتوي على عناصر، دمجها
                 if (cart.length > 0) {
                     const merged = [...cloudCart];
                     cart.forEach(localItem => {
@@ -532,7 +574,7 @@ function addFromModal() {
 }
 
 // ============================================================
-// 12. CART UI
+// 13. CART UI
 // ============================================================
 function updateCartUI() {
     const list = document.getElementById('cartItemsList');
@@ -641,7 +683,7 @@ function removeItem(key) {
 }
 
 // ============================================================
-// 13. TOGGLE CART
+// 14. TOGGLE CART
 // ============================================================
 function toggleCart() {
     const sidebar = document.getElementById('cartSidebar');
@@ -653,7 +695,7 @@ function toggleCart() {
 }
 
 // ============================================================
-// 14. CHECKOUT
+// 15. CHECKOUT
 // ============================================================
 function openCheckout() {
     if (cart.length === 0) {
@@ -772,8 +814,12 @@ function validateCheckoutForm() {
         isDeliveryTimeValid = deliveryTimeInput && deliveryTimeInput.value !== '';
     }
 
+    // التحقق من طريقة الدفع
+    const paymentRadio = document.querySelector('input[name="payment"]:checked');
+    const isPaymentSelected = paymentRadio !== null;
+
     if (confirmBtn) {
-        if (nameVal.length >= 3 && phoneVal.length >= 7 && addressVal.length >= 10 && isDeliveryTimeValid) {
+        if (nameVal.length >= 3 && phoneVal.length >= 7 && addressVal.length >= 10 && isDeliveryTimeValid && isPaymentSelected) {
             confirmBtn.removeAttribute('disabled');
         } else {
             confirmBtn.setAttribute('disabled', 'true');
@@ -782,7 +828,7 @@ function validateCheckoutForm() {
 }
 
 // ============================================================
-// 15. COUPONS
+// 16. COUPONS
 // ============================================================
 function getCouponsList() {
     try {
@@ -863,12 +909,13 @@ function updateCheckoutTotal() {
 }
 
 // ============================================================
-// 16. CONFIRM ORDER
+// 17. CONFIRM ORDER
 // ============================================================
 function buildWhatsAppMessage(order) {
     const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
     const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
     const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
+    const siteUrl = window.location.origin + window.location.pathname;
     
     let msg = `🌿 *طلب جديد من متجر ${shopName}* 🛒\n`;
     msg += `───────────────────\n`;
@@ -902,6 +949,7 @@ function buildWhatsAppMessage(order) {
         msg += `مع ضرورة إرسال لقطة شاشة (Screenshot) للتحويل هنا لتأكيد الطلب وبدء الشحن.\n`;
     }
     msg += `───────────────────\n`;
+    msg += `🌐 *رابط المتجر:* ${siteUrl}\n`;
     msg += `🌸 *نشكرك على اختيارك متجر الواحة - طازج وصحي دائماً!*`;
     
     return msg;
@@ -1002,7 +1050,10 @@ async function confirmOrder() {
         let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
         localStorage.setItem('alwaha_orders', JSON.stringify(orders));
-        
+
+        // ===== إضافة نقطة إحالة للمستخدم الذي دعى هذا الشخص =====
+        await handleReferral(orderData);
+
         const shopNumber = '201229156909';
         const msg = buildWhatsAppMessage(orderData);
         const whatsappUrl = `https://wa.me/${shopNumber}?text=${encodeURIComponent(msg)}`;
@@ -1030,7 +1081,68 @@ async function confirmOrder() {
 }
 
 // ============================================================
-// 17. THEME
+// 18. REFERRAL SYSTEM
+// ============================================================
+async function handleReferral(orderData) {
+    try {
+        // التحقق من وجود معرف المحيل في الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        const referrerId = urlParams.get('ref');
+        
+        if (!referrerId) return;
+        if (!currentUser) return;
+        if (referrerId === currentUser.id) return; // لا يحسب لنفسه
+        
+        // التحقق من أن هذا المستخدم لم يسبق له الشراء (مرة واحدة فقط)
+        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        const userOrders = orders.filter(o => o.phone === orderData.phone || o.customer === orderData.customer);
+        
+        // إذا كان هذا ليس أول طلب لهذا المستخدم، لا نعطي نقاط
+        if (userOrders.length > 1) return;
+        
+        // إضافة نقطة للمحيل
+        if (typeof supabaseClient !== 'undefined') {
+            // جلب بيانات المحيل
+            const { data: referrerData, error: referrerError } = await supabaseClient
+                .from('users')
+                .select('*')
+                .eq('id', referrerId)
+                .single();
+            
+            if (referrerError) throw referrerError;
+            
+            if (referrerData) {
+                const newPoints = (referrerData.referral_points || 0) + 1;
+                const newReferrals = (referrerData.referral_count || 0) + 1;
+                
+                await supabaseClient
+                    .from('users')
+                    .update({
+                        referral_points: newPoints,
+                        referral_count: newReferrals
+                    })
+                    .eq('id', referrerId);
+                
+                // تحديث localStorage
+                let users = JSON.parse(localStorage.getItem('alwaha_users') || '[]');
+                const userIndex = users.findIndex(u => u.id === referrerId);
+                if (userIndex !== -1) {
+                    users[userIndex].referral_points = newPoints;
+                    users[userIndex].referral_count = newReferrals;
+                    localStorage.setItem('alwaha_users', JSON.stringify(users));
+                }
+                
+                console.log(`✅ تم إضافة نقطة للمحيل ${referrerId}`);
+                showToast('🎉 تم إضافة نقطة إحالة للمستخدم الذي دعاك!', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('❌ خطأ في معالجة الإحالة:', error);
+    }
+}
+
+// ============================================================
+// 19. THEME
 // ============================================================
 let currentTheme = 'light';
 
@@ -1055,26 +1167,8 @@ function toggleTheme() {
     localStorage.setItem('alwaha_theme', currentTheme);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const savedTheme = localStorage.getItem('alwaha_theme');
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        currentTheme = 'dark';
-        const checkbox = document.getElementById('themeCheckbox');
-        if (checkbox) checkbox.checked = true;
-        const bgStatic = document.getElementById('bg-static');
-        if (bgStatic) bgStatic.style.opacity = '0.02';
-    }
-    const themeCheckbox = document.getElementById('themeCheckbox');
-    if (themeCheckbox) {
-        themeCheckbox.addEventListener('change', function() {
-            toggleTheme();
-        });
-    }
-});
-
 // ============================================================
-// 18. LANGUAGE
+// 20. LANGUAGE
 // ============================================================
 function toggleLang() {
     const html = document.documentElement;
@@ -1092,6 +1186,7 @@ function toggleLang() {
     localStorage.setItem('alwaha_lang', currentLang);
     renderProducts(currentSort, document.getElementById('searchInput')?.value || '');
     updateCartUI();
+    updateUIForLoggedInUser();
     if (modalProductId) {
         const products = getProductsData();
         const p = products.find(item => item.id === modalProductId);
@@ -1266,15 +1361,8 @@ function updateLanguage(lang) {
     if (couponBtn) couponBtn.textContent = isEn ? 'Apply' : 'تطبيق';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const savedLang = localStorage.getItem('alwaha_lang');
-    if (savedLang === 'en') {
-        toggleLang();
-    }
-});
-
 // ============================================================
-// 19. SCROLL TO TOP
+// 21. SCROLL TO TOP
 // ============================================================
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1286,7 +1374,7 @@ window.addEventListener('scroll', function() {
 });
 
 // ============================================================
-// 20. COUNTDOWN
+// 22. COUNTDOWN
 // ============================================================
 let countdownInterval;
 
@@ -1315,7 +1403,7 @@ function startCountdown() {
 }
 
 // ============================================================
-// 21. ADMIN ACCESS
+// 23. ADMIN ACCESS
 // ============================================================
 let logoClickCount = 0;
 let clickTimer = null;
@@ -1346,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// 22. SUPABASE AUTH
+// 24. SUPABASE AUTH
 // ============================================================
 async function loadUserData(userId) {
     try {
@@ -1371,6 +1459,7 @@ async function loadUserData(userId) {
                 display_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'مستخدم',
                 phone: '',
                 address: '',
+                referral_points: 0,
                 referral_count: 0,
                 created_at: new Date().toISOString()
             };
@@ -1498,10 +1587,15 @@ async function loginWithGoogle() {
             }
             return;
         }
+        
+        // استخدام الرابط الحالي للموقع
+        const redirectUrl = window.location.origin + window.location.pathname;
+        console.log('🔄 إعادة التوجيه إلى:', redirectUrl);
+        
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.href
+                redirectTo: redirectUrl
             }
         });
         if (error) throw error;
@@ -1561,10 +1655,24 @@ async function resetPassword(email) {
 }
 
 // ============================================================
-// 23. UPDATE UI
+// 25. UPDATE UI
 // ============================================================
 function updateUIForLoggedInUser() {
     const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
+    const initial = (name || 'م')[0];
+    
+    const userBtn = document.getElementById('userBtn');
+    if (userBtn) {
+        userBtn.innerHTML = initial;
+        userBtn.className = 'user-btn';
+        userBtn.onclick = toggleUserMenu;
+        // إضافة نقطة اتصال
+        if (!userBtn.querySelector('.online-dot')) {
+            const dot = document.createElement('span');
+            dot.className = 'online-dot';
+            userBtn.appendChild(dot);
+        }
+    }
     
     const userMenu = document.getElementById('userMenu');
     const guestMenu = document.getElementById('guestMenu');
@@ -1574,10 +1682,20 @@ function updateUIForLoggedInUser() {
     if (userMenu) userMenu.style.display = 'flex';
     if (guestMenu) guestMenu.style.display = 'none';
     if (userName) userName.textContent = name;
-    if (userAvatar) userAvatar.textContent = (name || 'م')[0];
+    if (userAvatar) userAvatar.textContent = initial;
 }
 
 function updateUIForGuestUser() {
+    const userBtn = document.getElementById('userBtn');
+    if (userBtn) {
+        userBtn.innerHTML = '<i class="fas fa-user"></i>';
+        userBtn.className = 'user-btn guest';
+        userBtn.onclick = openAuthModal;
+        // إزالة النقطة
+        const dot = userBtn.querySelector('.online-dot');
+        if (dot) dot.remove();
+    }
+    
     const userMenu = document.getElementById('userMenu');
     const guestMenu = document.getElementById('guestMenu');
     
@@ -1586,7 +1704,18 @@ function updateUIForGuestUser() {
 }
 
 // ============================================================
-// 24. AUTH MODAL
+// 26. USER CLICK HANDLER
+// ============================================================
+function handleUserClick() {
+    if (currentUser) {
+        toggleUserMenu();
+    } else {
+        openAuthModal();
+    }
+}
+
+// ============================================================
+// 27. AUTH MODAL
 // ============================================================
 function openAuthModal() {
     const authModal = document.getElementById('authModal');
@@ -1645,7 +1774,7 @@ function handleGoogleLogin() {
 }
 
 // ============================================================
-// 25. USER MENU DROPDOWN
+// 28. USER MENU DROPDOWN
 // ============================================================
 function toggleUserMenu() {
     const dropdown = document.getElementById('userDropdown');
@@ -1653,13 +1782,16 @@ function toggleUserMenu() {
 }
 
 document.addEventListener('click', function(e) {
-    const userMenu = document.getElementById('userMenu');
+    const userBtn = document.getElementById('userBtn');
     const dropdown = document.getElementById('userDropdown');
-    if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+    if (userBtn && dropdown && !userBtn.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.classList.remove('show');
     }
 });
 
+// ============================================================
+// 29. PROFILE
+// ============================================================
 function viewProfile() {
     const dropdown = document.getElementById('userDropdown');
     if (dropdown) dropdown.classList.remove('show');
@@ -1668,7 +1800,113 @@ function viewProfile() {
         openAuthModal();
         return;
     }
-    showToast('👤 عرض الملف الشخصي - قيد التطوير', 'info');
+    
+    // ملء بيانات الملف الشخصي
+    const profileModal = document.getElementById('profileModal');
+    if (profileModal) {
+        const name = currentUserData?.display_name || currentUser?.email?.split('@')[0] || 'مستخدم';
+        const email = currentUser?.email || '--';
+        const phone = currentUserData?.phone || '';
+        const address = currentUserData?.address || '';
+        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
+        const points = currentUserData?.referral_points || 0;
+        const referrals = currentUserData?.referral_count || 0;
+        const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
+        
+        document.getElementById('profileAvatar').textContent = '👤';
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileEmail').textContent = email;
+        document.getElementById('profileDisplayName').value = name;
+        document.getElementById('profilePhone').value = phone;
+        document.getElementById('profileAddress').value = address;
+        document.getElementById('profileShareLink').value = shareLink;
+        document.getElementById('profileOrders').textContent = userOrders.length;
+        document.getElementById('profilePoints').textContent = points;
+        document.getElementById('profileReferrals').textContent = referrals;
+        
+        profileModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeProfileModal() {
+    const profileModal = document.getElementById('profileModal');
+    if (profileModal) {
+        profileModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+function saveProfile() {
+    const name = document.getElementById('profileDisplayName')?.value?.trim();
+    const phone = document.getElementById('profilePhone')?.value?.trim();
+    const address = document.getElementById('profileAddress')?.value?.trim();
+    
+    if (!name) {
+        showToast('⚠️ الاسم مطلوب', 'error');
+        return;
+    }
+    
+    try {
+        if (typeof supabaseClient !== 'undefined' && currentUser) {
+            supabaseClient
+                .from('users')
+                .update({
+                    display_name: name,
+                    phone: phone || '',
+                    address: address || ''
+                })
+                .eq('id', currentUser.id)
+                .then(({ error }) => {
+                    if (error) throw error;
+                    if (currentUserData) {
+                        currentUserData.display_name = name;
+                        currentUserData.phone = phone || '';
+                        currentUserData.address = address || '';
+                    }
+                    localStorage.setItem('alwaha_name', name);
+                    localStorage.setItem('alwaha_phone', phone || '');
+                    localStorage.setItem('alwaha_address', address || '');
+                    updateUIForLoggedInUser();
+                    showToast('✅ تم حفظ التغييرات', 'success');
+                    closeProfileModal();
+                })
+                .catch(error => {
+                    console.error('❌ خطأ في حفظ الملف الشخصي:', error);
+                    showToast('حدث خطأ في الحفظ', 'error');
+                });
+        } else {
+            // حفظ محلي
+            if (currentUserData) {
+                currentUserData.display_name = name;
+                currentUserData.phone = phone || '';
+                currentUserData.address = address || '';
+            }
+            localStorage.setItem('alwaha_name', name);
+            localStorage.setItem('alwaha_phone', phone || '');
+            localStorage.setItem('alwaha_address', address || '');
+            updateUIForLoggedInUser();
+            showToast('✅ تم حفظ التغييرات', 'success');
+            closeProfileModal();
+        }
+    } catch (error) {
+        console.error('❌ خطأ في حفظ الملف الشخصي:', error);
+        showToast('حدث خطأ في الحفظ', 'error');
+    }
+}
+
+function copyShareLink() {
+    const linkInput = document.getElementById('profileShareLink');
+    if (linkInput) {
+        navigator.clipboard.writeText(linkInput.value).then(() => {
+            showToast('✅ تم نسخ الرابط', 'success');
+        }).catch(() => {
+            linkInput.select();
+            document.execCommand('copy');
+            showToast('✅ تم نسخ الرابط', 'success');
+        });
+    }
 }
 
 function viewOrders() {
@@ -1679,7 +1917,25 @@ function viewOrders() {
         openAuthModal();
         return;
     }
-    showToast('📦 طلباتي - قيد التطوير', 'info');
+    
+    const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+    const userOrders = orders.filter(o => o.phone === currentUserData?.phone || o.customer === currentUserData?.display_name);
+    
+    if (userOrders.length === 0) {
+        showToast('📦 لا توجد طلبات سابقة', 'info');
+        return;
+    }
+    
+    let message = '📦 *طلباتي السابقة*\n';
+    message += '───────────────────\n';
+    userOrders.forEach((o, i) => {
+        message += `${i+1}. ${o.dateAr || o.date || '--'}\n`;
+        message += `   🛒 ${o.items ? o.items.length : 0} منتج\n`;
+        message += `   💰 ${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م\n`;
+        message += `   📌 ${o.status || 'جديد'}\n`;
+        message += `───────────────────\n`;
+    });
+    showToast(message, 'info');
 }
 
 function viewFavorites() {
@@ -1693,24 +1949,64 @@ function viewFavorites() {
     showToast('❤️ المفضلة - قيد التطوير', 'info');
 }
 
-function shareProfile() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) dropdown.classList.remove('show');
-    if (!currentUser) {
-        showToast('يجب تسجيل الدخول أولاً', 'error');
-        openAuthModal();
-        return;
-    }
-    const shareLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.id}`;
-    navigator.clipboard.writeText(shareLink).then(() => {
-        showToast('تم نسخ رابط المشاركة! 📋', 'success');
-    }).catch(() => {
-        showToast('رابط المشاركة: ' + shareLink, 'info');
+// ============================================================
+// 30. PAYMENT & DELIVERY SELECTION - FIX
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // تفعيل اختيار طريقة الدفع
+    document.querySelectorAll('.payment-options label').forEach(label => {
+        label.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.querySelectorAll('.payment-options label').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            validateCheckoutForm();
+        });
     });
-}
+
+    // تفعيل اختيار وقت التوصيل
+    document.querySelectorAll('#deliveryOptions label').forEach(label => {
+        label.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.querySelectorAll('#deliveryOptions label').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            
+            const deliveryTimeInput = document.getElementById('deliveryTimeInput');
+            const deliveryTime = document.getElementById('deliveryTime');
+            if (radio && radio.value === 'وقت محدد') {
+                deliveryTimeInput.classList.add('show');
+                deliveryTime.required = true;
+                setMinDeliveryTime();
+            } else {
+                deliveryTimeInput.classList.remove('show');
+                deliveryTime.required = false;
+                deliveryTime.value = '';
+            }
+            validateCheckoutForm();
+        });
+    });
+
+    // تحديد الخيارات الافتراضية
+    const defaultPayment = document.querySelector('.payment-options label:first-child');
+    if (defaultPayment) {
+        defaultPayment.classList.add('selected');
+        const radio = defaultPayment.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+    }
+
+    const defaultDelivery = document.querySelector('#deliveryOptions label:first-child');
+    if (defaultDelivery) {
+        defaultDelivery.classList.add('selected');
+        const radio = defaultDelivery.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+    }
+});
 
 // ============================================================
-// 26. INIT
+// 31. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ script.js loaded successfully');
@@ -1736,6 +2032,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (checkoutModal && checkoutModal.classList.contains('open')) closeCheckout();
             const cartSidebar = document.getElementById('cartSidebar');
             if (cartSidebar && cartSidebar.classList.contains('open')) toggleCart();
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal && profileModal.classList.contains('open')) closeProfileModal();
         }
     });
 
@@ -1749,6 +2047,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     setMinDeliveryTime();
+    
+    // تحميل الإعدادات المحفوظة
+    const savedTheme = localStorage.getItem('alwaha_theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        currentTheme = 'dark';
+        const checkbox = document.getElementById('themeCheckbox');
+        if (checkbox) checkbox.checked = true;
+        const bgStatic = document.getElementById('bg-static');
+        if (bgStatic) bgStatic.style.opacity = '0.02';
+    }
+    
+    const savedLang = localStorage.getItem('alwaha_lang');
+    if (savedLang === 'en') {
+        document.documentElement.setAttribute('lang', 'en');
+        currentLang = 'en';
+        updateLanguage('en');
+    }
 });
 
 // ===== تصدير الدوال للاستخدام العام =====
@@ -1765,6 +2081,7 @@ window.closeCheckout = closeCheckout;
 window.confirmOrder = confirmOrder;
 window.applyCoupon = applyCoupon;
 window.shareProduct = shareProduct;
+window.shareStore = shareStore;
 window.toggleSharePopup = toggleSharePopup;
 window.scrollToTop = scrollToTop;
 window.changeQty = changeQty;
@@ -1784,10 +2101,14 @@ window.loginWithGoogle = loginWithGoogle;
 window.resetPassword = resetPassword;
 window.toggleSearch = toggleSearch;
 window.toggleUserMenu = toggleUserMenu;
+window.handleUserClick = handleUserClick;
 window.viewProfile = viewProfile;
+window.closeProfileModal = closeProfileModal;
+window.saveProfile = saveProfile;
+window.copyShareLink = copyShareLink;
 window.viewOrders = viewOrders;
 window.viewFavorites = viewFavorites;
-window.shareProfile = shareProfile;
 window.getProductsData = getProductsData;
+window.toggleTheme = toggleTheme;
 
 console.log('✅ All functions exported successfully'); 

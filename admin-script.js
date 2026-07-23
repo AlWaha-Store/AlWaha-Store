@@ -38,99 +38,25 @@ function logout() {
 }
 
 // ============================================================
-// 2. COUPONS
+// 2. DATA FUNCTIONS
 // ============================================================
-function getCoupons() {
+function getProducts() {
     try {
-        const data = localStorage.getItem('alwaha_coupons');
+        const data = localStorage.getItem('alwaha_products');
         if (data) {
             const parsed = JSON.parse(data);
             return Array.isArray(parsed) ? parsed : [];
         }
     } catch (e) {
-        console.warn('⚠️ خطأ في قراءة الكوبونات');
+        console.warn('⚠️ خطأ في قراءة المنتجات');
     }
     return [];
 }
 
-function saveCoupons(coupons) {
-    localStorage.setItem('alwaha_coupons', JSON.stringify(coupons));
+function saveProducts(products) {
+    localStorage.setItem('alwaha_products', JSON.stringify(products));
 }
 
-function renderCouponsTable() {
-    const coupons = getCoupons();
-    const tbody = document.getElementById('couponsList');
-    
-    if (coupons.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">لا توجد كوبونات</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = coupons.map((c, i) => `
-        <tr>
-            <td><span class="coupon-code">${c.code}</span></td>
-            <td>${c.discount}${c.type === 'percentage' ? '%' : ' ج.م'}</td>
-            <td>${c.type === 'percentage' ? 'نسبة مئوية' : 'قيمة ثابتة'}</td>
-            <td>${c.used || 0}</td>
-            <td><span class="badge badge-success">نشط</span></td>
-            <td>
-                <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${i})"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function openAddCoupon() {
-    document.getElementById('couponModalTitle').textContent = 'إضافة كوبون جديد';
-    document.getElementById('editCouponIndex').value = '';
-    document.getElementById('couponForm').reset();
-    document.getElementById('couponModal').classList.add('open');
-}
-
-function saveCoupon(e) {
-    e.preventDefault();
-    const code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
-    const discount = parseFloat(document.getElementById('couponDiscount').value);
-    const type = document.getElementById('couponType').value;
-    const index = document.getElementById('editCouponIndex').value;
-    
-    if (!code || !discount) {
-        alert('الرجاء إدخال جميع البيانات');
-        return;
-    }
-    
-    const coupons = getCoupons();
-    
-    if (index === '') {
-        if (coupons.find(c => c.code === code)) {
-            alert('هذا الكود موجود بالفعل');
-            return;
-        }
-        coupons.push({ code, discount, type, used: 0 });
-    } else {
-        coupons[parseInt(index)] = { code, discount, type, used: coupons[parseInt(index)].used || 0 };
-    }
-    
-    saveCoupons(coupons);
-    renderCouponsTable();
-    updateDashboard();
-    closeModal('couponModal');
-    showToast('تم حفظ الكوبون بنجاح', 'success');
-}
-
-function deleteCoupon(index) {
-    if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return;
-    const coupons = getCoupons();
-    coupons.splice(index, 1);
-    saveCoupons(coupons);
-    renderCouponsTable();
-    updateDashboard();
-    showToast('تم حذف الكوبون', 'success');
-}
-
-// ============================================================
-// 3. DATA
-// ============================================================
 function getOrders() {
     try {
         const data = localStorage.getItem('alwaha_orders');
@@ -148,21 +74,21 @@ function saveOrders(orders) {
     localStorage.setItem('alwaha_orders', JSON.stringify(orders));
 }
 
-function getProducts() {
+function getCoupons() {
     try {
-        const data = localStorage.getItem('alwaha_products');
+        const data = localStorage.getItem('alwaha_coupons');
         if (data) {
             const parsed = JSON.parse(data);
             return Array.isArray(parsed) ? parsed : [];
         }
     } catch (e) {
-        console.warn('⚠️ خطأ في قراءة المنتجات');
+        console.warn('⚠️ خطأ في قراءة الكوبونات');
     }
     return [];
 }
 
-function saveProducts(products) {
-    localStorage.setItem('alwaha_products', JSON.stringify(products));
+function saveCoupons(coupons) {
+    localStorage.setItem('alwaha_coupons', JSON.stringify(coupons));
 }
 
 function getUsers() {
@@ -183,7 +109,7 @@ function saveUsers(users) {
 }
 
 // ============================================================
-// 4. DASHBOARD
+// 3. DASHBOARD
 // ============================================================
 function updateDashboard() {
     const orders = getOrders();
@@ -192,21 +118,23 @@ function updateDashboard() {
     const users = getUsers();
     
     const totalRevenue = orders.reduce((sum, o) => sum + (o.discountedTotal || o.total || 0), 0);
+    const offersCount = products.filter(p => p.offerPrice && p.offerPrice < p.price).length;
     
     document.getElementById('totalOrders').textContent = orders.length;
     document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2) + ' ج.م';
     document.getElementById('totalProducts').textContent = products.length || 0;
-    document.getElementById('totalOffers').textContent = products.filter(p => p.offerPrice && p.offerPrice < p.price).length || 0;
+    document.getElementById('totalOffers').textContent = offersCount || 0;
     document.getElementById('totalCoupons').textContent = coupons.length || 0;
     document.getElementById('totalUsers').textContent = users.length || 0;
     
     document.getElementById('dashCount').textContent = orders.length;
     document.getElementById('ordersCount').textContent = orders.length;
     document.getElementById('productsCount').textContent = products.length;
-    document.getElementById('offersCount').textContent = products.filter(p => p.offerPrice && p.offerPrice < p.price).length;
+    document.getElementById('offersCount').textContent = offersCount;
     document.getElementById('couponsCount').textContent = coupons.length;
     document.getElementById('usersCount').textContent = users.length;
     
+    // Recent orders
     const recentOrders = orders.slice(0, 5);
     const tbody = document.getElementById('recentOrders');
     if (recentOrders.length === 0) {
@@ -236,7 +164,7 @@ function getStatusBadge(status) {
 }
 
 // ============================================================
-// 5. ORDERS
+// 4. ORDERS
 // ============================================================
 function renderOrders(filter = 'all') {
     const orders = getOrders();
@@ -359,7 +287,7 @@ function exportOrders() {
 }
 
 // ============================================================
-// 6. PRODUCTS
+// 5. PRODUCTS
 // ============================================================
 function renderProductsTable() {
     const products = getProducts();
@@ -406,9 +334,9 @@ function editProduct(index) {
     document.getElementById('productPrice').value = p.price || '';
     document.getElementById('productCategory').value = p.category || 'فاكهة';
     document.getElementById('productEmoji').value = p.emoji || '🍎';
-    document.getElementById('productDesc').value = p.desc || '';
+    document.getElementById('productDesc').value = p.description || p.desc || '';
     document.getElementById('productOfferPrice').value = p.offerPrice || '';
-    document.getElementById('productOfferText').value = p.offerText || '';
+    document.getElementById('productOfferText').value = p.offerText || p.offer || '';
     document.getElementById('productStock').value = p.stock || 100;
     document.getElementById('productModal').classList.add('open');
 }
@@ -426,16 +354,22 @@ function saveProduct(e) {
         category: document.getElementById('productCategory').value,
         categoryEn: document.getElementById('productCategory').value === 'فاكهة' ? 'Fruits' : 'Vegetables',
         emoji: document.getElementById('productEmoji').value.trim() || '🍎',
-        desc: document.getElementById('productDesc').value.trim(),
+        description: document.getElementById('productDesc').value.trim(),
         descEn: document.getElementById('productDesc').value.trim(),
         offerPrice: parseFloat(document.getElementById('productOfferPrice').value) || null,
         offerText: document.getElementById('productOfferText').value.trim() || null,
         stock: parseInt(document.getElementById('productStock').value) || 100,
         popular: 0,
         oldPrice: null,
-        offer: null,
-        description: document.getElementById('productDesc').value.trim()
+        offer: document.getElementById('productOfferText').value.trim() || null
     };
+    
+    // إذا كان هناك سعر عرض، نضيفه كـ oldPrice + offer
+    if (product.offerPrice) {
+        product.oldPrice = product.price;
+        product.price = product.offerPrice;
+        product.offer = product.offerText || 'عرض خاص';
+    }
     
     if (index === '') {
         products.push(product);
@@ -472,7 +406,7 @@ function exportProducts() {
 }
 
 // ============================================================
-// 7. OFFERS
+// 6. OFFERS
 // ============================================================
 function renderOffersTable() {
     const products = getProducts();
@@ -489,9 +423,9 @@ function renderOffersTable() {
         return `
         <tr>
             <td>${p.emoji || '🍎'} ${p.name}</td>
-            <td>${p.price || 0} ج.م</td>
+            <td>${p.oldPrice || p.price || 0} ج.م</td>
             <td>${p.offerPrice || 0} ج.م</td>
-            <td>${((p.price - p.offerPrice) / p.price * 100).toFixed(0)}%</td>
+            <td>${((p.oldPrice - p.offerPrice) / p.oldPrice * 100).toFixed(0)}%</td>
             <td><span class="badge badge-success">نشط</span></td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="editProduct(${idx})"><i class="fas fa-edit"></i></button>
@@ -504,16 +438,114 @@ function renderOffersTable() {
 function removeOffer(index) {
     if (!confirm('هل أنت متأكد من إزالة العرض؟')) return;
     const products = getProducts();
-    products[index].offerPrice = null;
-    products[index].offerText = null;
-    saveProducts(products);
-    renderOffersTable();
-    showToast('تم إزالة العرض', 'success');
+    if (products[index]) {
+        products[index].offerPrice = null;
+        products[index].offerText = null;
+        products[index].offer = null;
+        if (products[index].oldPrice) {
+            products[index].price = products[index].oldPrice;
+            products[index].oldPrice = null;
+        }
+        saveProducts(products);
+        renderOffersTable();
+        renderProductsTable();
+        updateDashboard();
+        showToast('تم إزالة العرض', 'success');
+    }
 }
 
 function openAddOffer() {
     openAddProduct();
     document.getElementById('productOfferPrice').focus();
+}
+
+// ============================================================
+// 7. COUPONS
+// ============================================================
+function renderCouponsTable() {
+    const coupons = getCoupons();
+    const tbody = document.getElementById('couponsList');
+    
+    if (coupons.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">لا توجد كوبونات</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = coupons.map((c, i) => `
+        <tr>
+            <td><span class="coupon-code">${c.code}</span></td>
+            <td>${c.discount}${c.type === 'percentage' ? '%' : ' ج.م'}</td>
+            <td>${c.type === 'percentage' ? 'نسبة مئوية' : 'قيمة ثابتة'}</td>
+            <td>${c.used || 0}</td>
+            <td><span class="badge badge-success">نشط</span></td>
+            <td>
+                <button class="btn btn-primary btn-sm" onclick="editCoupon(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${i})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openAddCoupon() {
+    document.getElementById('couponModalTitle').textContent = 'إضافة كوبون جديد';
+    document.getElementById('editCouponIndex').value = '';
+    document.getElementById('couponForm').reset();
+    document.getElementById('couponModal').classList.add('open');
+}
+
+function editCoupon(index) {
+    const coupons = getCoupons();
+    const c = coupons[index];
+    if (!c) return;
+    
+    document.getElementById('couponModalTitle').textContent = 'تعديل الكوبون';
+    document.getElementById('editCouponIndex').value = index;
+    document.getElementById('couponCodeInput').value = c.code || '';
+    document.getElementById('couponDiscount').value = c.discount || '';
+    document.getElementById('couponType').value = c.type || 'percentage';
+    document.getElementById('couponModal').classList.add('open');
+}
+
+function saveCoupon(e) {
+    e.preventDefault();
+    const code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
+    const discount = parseFloat(document.getElementById('couponDiscount').value);
+    const type = document.getElementById('couponType').value;
+    const index = document.getElementById('editCouponIndex').value;
+    
+    if (!code || !discount) {
+        alert('الرجاء إدخال جميع البيانات');
+        return;
+    }
+    
+    const coupons = getCoupons();
+    
+    if (index === '') {
+        if (coupons.find(c => c.code === code)) {
+            alert('هذا الكود موجود بالفعل');
+            return;
+        }
+        coupons.push({ code, discount, type, used: 0 });
+    } else {
+        const idx = parseInt(index);
+        coupons[idx] = { code, discount, type, used: coupons[idx].used || 0 };
+    }
+    
+    saveCoupons(coupons);
+    renderCouponsTable();
+    updateDashboard();
+    closeModal('couponModal');
+    showToast('تم حفظ الكوبون بنجاح', 'success');
+}
+
+function deleteCoupon(index) {
+    if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return;
+    const coupons = getCoupons();
+    coupons.splice(index, 1);
+    saveCoupons(coupons);
+    renderCouponsTable();
+    updateDashboard();
+    showToast('تم حذف الكوبون', 'success');
 }
 
 // ============================================================
@@ -538,6 +570,7 @@ function renderUsersTable() {
             <td>${u.referral_count || 0}</td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="viewUser(${i})"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-gold btn-sm" onclick="editUser(${i})"><i class="fas fa-edit"></i></button>
             </td>
         </tr>
     `).join('');
@@ -547,7 +580,35 @@ function viewUser(index) {
     const users = getUsers();
     const user = users[index];
     if (!user) return;
-    showToast(`👤 ${user.display_name || 'مستخدم'}: ${user.email || '--'}`, 'info');
+    showToast(`👤 ${user.display_name || 'مستخدم'}\n📧 ${user.email || '--'}\n📱 ${user.phone || '--'}\n📍 ${user.address || '--'}\n⭐ نقاط: ${user.referral_points || 0}\n👥 إحالات: ${user.referral_count || 0}`, 'info');
+}
+
+function editUser(index) {
+    const users = getUsers();
+    const user = users[index];
+    if (!user) return;
+    
+    const newName = prompt('الاسم الكامل:', user.display_name || '');
+    if (newName !== null) {
+        user.display_name = newName || user.display_name;
+    }
+    const newPhone = prompt('رقم الجوال:', user.phone || '');
+    if (newPhone !== null) {
+        user.phone = newPhone || '';
+    }
+    const newAddress = prompt('العنوان:', user.address || '');
+    if (newAddress !== null) {
+        user.address = newAddress || '';
+    }
+    const newPoints = prompt('نقاط الإحالة:', user.referral_points || 0);
+    if (newPoints !== null) {
+        user.referral_points = parseFloat(newPoints) || 0;
+    }
+    
+    users[index] = user;
+    saveUsers(users);
+    renderUsersTable();
+    showToast('تم تحديث بيانات المستخدم', 'success');
 }
 
 async function loadUsers() {
@@ -856,6 +917,7 @@ window.exportProducts = exportProducts;
 window.openAddOffer = openAddOffer;
 window.removeOffer = removeOffer;
 window.openAddCoupon = openAddCoupon;
+window.editCoupon = editCoupon;
 window.saveCoupon = saveCoupon;
 window.deleteCoupon = deleteCoupon;
 window.filterOrders = filterOrders;
@@ -870,3 +932,4 @@ window.backupData = backupData;
 window.syncAllData = syncAllData;
 window.loadUsers = loadUsers;
 window.viewUser = viewUser;
+window.editUser = editUser; 

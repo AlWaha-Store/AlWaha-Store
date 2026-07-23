@@ -134,7 +134,6 @@ function updateDashboard() {
     document.getElementById('couponsCount').textContent = coupons.length;
     document.getElementById('usersCount').textContent = users.length;
     
-    // Recent orders
     const recentOrders = orders.slice(0, 5);
     const tbody = document.getElementById('recentOrders');
     if (recentOrders.length === 0) {
@@ -364,7 +363,6 @@ function saveProduct(e) {
         offer: document.getElementById('productOfferText').value.trim() || null
     };
     
-    // إذا كان هناك سعر عرض، نضيفه كـ oldPrice + offer
     if (product.offerPrice) {
         product.oldPrice = product.price;
         product.price = product.offerPrice;
@@ -793,7 +791,6 @@ async function syncAllData() {
             results.push('❌ المستخدمين: ' + e.message);
         }
         
-        // Update UI
         renderProductsTable();
         renderOrders(document.getElementById('orderFilter')?.value || 'all');
         renderCouponsTable();
@@ -900,13 +897,11 @@ function initAdmin() {
     renderUsersTable();
     loadSettings();
     
-    // Auto sync on load
     setTimeout(() => {
         syncAllData();
     }, 1500);
 }
 
-// تصدير الدوال
 window.login = login;
 window.logout = logout;
 window.openAddProduct = openAddProduct;

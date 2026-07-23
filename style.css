@@ -14,7 +14,7 @@
     --bg-modal: rgba(255, 255, 255, 0.95);
     --text-color: #1a2a1a;
     --border-color: rgba(255, 255, 255, 0.3);
-    --header-bg: rgba(26, 92, 58, 0.75);
+    --header-bg: rgba(26, 92, 58, 0.85);
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     --radius: 12px;
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -28,7 +28,7 @@
     --bg-modal: rgba(30, 30, 30, 0.95);
     --text-color: #e8e8e8;
     --border-color: rgba(255, 255, 255, 0.06);
-    --header-bg: rgba(10, 30, 15, 0.85);
+    --header-bg: rgba(10, 30, 15, 0.9);
     --secondary: #121212;
 }
 
@@ -845,7 +845,7 @@ body {
     padding: 8px 10px;
     margin-bottom: 10px;
     font-size: 14px;
-    max-height: 90px;
+    max-height: 120px;
     overflow-y: auto;
 }
 .checkout-summary .cs-item {
@@ -865,7 +865,7 @@ body {
 }
 .checkout-summary .cs-total-note {
     font-size: 12px;
-    color: #7a8a7a;
+    color: #7a7a7a;
     text-align: left;
     padding-top: 2px;
 }
@@ -920,7 +920,7 @@ body {
 .form-group .phone-group input { flex: 1; }
 .form-group .phone-hint {
     font-size: 12px;
-    color: #7a8a7a;
+    color: #7a7a7a;
     margin-top: 2px;
 }
 .form-group .phone-hint i { margin-left: 3px; }
@@ -935,9 +935,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 8px;
     border: 2px solid rgba(26, 92, 58, 0.03);
     cursor: pointer;
     transition: var(--transition);
@@ -945,6 +945,10 @@ body {
     font-size: 14px;
 }
 .payment-options label.selected {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+.payment-options label:hover {
     border-color: var(--gold);
     background: rgba(212, 175, 55, 0.03);
 }
@@ -961,15 +965,19 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 6px 12px;
+    padding: 8px 14px;
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 8px;
     border: 2px solid rgba(26, 92, 58, 0.03);
     cursor: pointer;
     font-size: 14px;
     transition: var(--transition);
 }
 .delivery-options label.selected {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+.delivery-options label:hover {
     border-color: var(--gold);
     background: rgba(212, 175, 55, 0.03);
 }
@@ -981,7 +989,7 @@ body {
 }
 .delivery-options .delivery-time-input.show { display: block; }
 .delivery-options .delivery-time-input input {
-    padding: 6px 10px;
+    padding: 8px 12px;
     border: 2px solid rgba(26, 92, 58, 0.04);
     border-radius: 6px;
     font-size: 14px;
@@ -1110,6 +1118,69 @@ body {
     color: var(--gold);
 }
 
+/* ===== COUPON SECTION ===== */
+.coupon-section {
+    background: rgba(212,175,55,0.04);
+    border: 1px dashed var(--gold);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+}
+.coupon-section .coupon-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.coupon-section .coupon-row i {
+    color: var(--gold);
+    font-size: 16px;
+}
+.coupon-section .coupon-row label {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 12px;
+}
+.coupon-section .coupon-row input {
+    flex: 1;
+    min-width: 80px;
+    padding: 4px 10px;
+    border: 2px solid rgba(26,92,58,0.06);
+    border-radius: 6px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 12px;
+    background: rgba(255,255,255,0.3);
+    color: var(--text-color);
+}
+.coupon-section .coupon-row input:focus {
+    border-color: var(--gold);
+    outline: none;
+}
+.coupon-section .coupon-row .coupon-btn {
+    padding: 4px 12px;
+    background: var(--gold);
+    color: var(--primary-dark);
+    border: none;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 11px;
+    transition: 0.3s;
+}
+.coupon-section .coupon-row .coupon-btn:hover {
+    transform: scale(1.03);
+}
+.coupon-section .coupon-msg {
+    font-size: 11px;
+    color: #5a7a5a;
+    margin-top: 2px;
+}
+#couponMessage {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .hero .hero-title { font-size: 58px; }
@@ -1142,6 +1213,14 @@ body {
         top: 56px;
         left: 8px;
         min-width: 150px;
+    }
+    .payment-options label {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .delivery-options label {
+        padding: 6px 10px;
+        font-size: 13px;
     }
 }
 

@@ -32,6 +32,10 @@ const Cart = {
         if (Auth.isLoggedIn()) {
             this.saveToSupabase();
         }
+        
+        // تحديث عداد السلة في القائمة الجانبية
+        const sideMenuCount = document.getElementById('sideMenuCartCount');
+        if (sideMenuCount) sideMenuCount.textContent = this.getUniqueCount();
     },
 
     // ============================================================
@@ -118,6 +122,46 @@ const Cart = {
             }
         } catch (error) {
             console.error('❌ Error syncing cart from Supabase:', error);
+        }
+    },
+
+    // ============================================================
+    // ADD FROM MODAL
+    // ============================================================
+    
+    addFromModal() {
+        const productId = window._modalProductId;
+        const weight = parseFloat(document.getElementById('modalWeight')?.value) || 1;
+        
+        if (!productId) {
+            showToast('⚠️ حدث خطأ، حاول مرة أخرى', 'error');
+            return;
+        }
+        
+        const products = Products.getData();
+        const p = products.find(item => item.id === productId);
+        if (!p) {
+            showToast('⚠️ المنتج غير موجود', 'error');
+            return;
+        }
+        
+        this.add(p.id, weight);
+        
+        const productName = currentLang === 'en' ? p.nameEn : p.name;
+        const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
+        showToast(`${currentLang === 'en' ? 'Added' : 'تم إضافة'} ${weight.toFixed(2)} ${kgLabel} ${productName}`, 'success', '🛒');
+
+        const btn = document.getElementById('modalAddBtn');
+        if (btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-check"></i> ${currentLang === 'en' ? 'Added!' : 'تمت الإضافة!'}`;
+            btn.style.background = '#27ae60';
+            btn.style.color = 'white';
+            setTimeout(() => {
+                btn.innerHTML = orig;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 1200);
         }
     },
 
@@ -307,6 +351,10 @@ const Cart = {
         if (totalSpan) totalSpan.textContent = totalPrice.toFixed(2) + ' ' + currency;
         if (headerTotal) headerTotal.textContent = totalPrice.toFixed(2) + ' ' + currency;
         if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'flex';
+        
+        // تحديث عداد القائمة الجانبية
+        const sideMenuCount = document.getElementById('sideMenuCartCount');
+        if (sideMenuCount) sideMenuCount.textContent = this.getUniqueCount();
     }
 };
 

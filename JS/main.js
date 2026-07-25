@@ -15,10 +15,11 @@ let appliedCoupon = null;
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Al-Waha Store initialized');
+    console.log('🚀 Al-Waha Store initializing...');
     
-    // 1. Load Products Data
+    // 1. Load Products Data FIRST
     Products.loadData();
+    console.log('📦 Products loaded:', Products.getData().length);
     
     // 2. Render Products
     Products.render('default', '');
@@ -50,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 11. Update side menu cart count
     updateSideMenuCartCount();
+    
+    console.log('✅ All modules initialized successfully');
 });
 
 // ============================================================
@@ -158,10 +161,10 @@ function setupEventListeners() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const productModal = document.getElementById('productModal');
-            if (productModal && productModal.classList.contains('open')) UI.closeProductModal();
+            if (productModal && productModal.classList.contains('open')) closeProductModal();
             
             const checkoutModal = document.getElementById('checkoutModal');
-            if (checkoutModal && checkoutModal.classList.contains('open')) Orders.closeCheckout();
+            if (checkoutModal && checkoutModal.classList.contains('open')) closeCheckout();
             
             const cartSidebar = document.getElementById('cartSidebar');
             if (cartSidebar && cartSidebar.classList.contains('open')) toggleCart();
@@ -179,7 +182,7 @@ function setupEventListeners() {
             this.classList.add('selected');
             const radio = this.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
-            Orders.validateForm();
+            validateCheckoutForm();
         });
     });
 
@@ -202,7 +205,7 @@ function setupEventListeners() {
                 deliveryTime.required = false;
                 deliveryTime.value = '';
             }
-            Orders.validateForm();
+            validateCheckoutForm();
         });
     });
 
@@ -528,9 +531,10 @@ function showToast(message, type = 'success', icon = '') {
 }
 
 // ============================================================
-// GLOBAL EXPORTS (للتوافق مع HTML)
+// GLOBAL EXPORTS (مهم جداً - هذا هو سبب عدم عمل الأزرار)
 // ============================================================
 
+// تصدير جميع الدوال المستخدمة في HTML
 window.toggleLang = toggleLang;
 window.filterProducts = filterProducts;
 window.applySort = applySort;
@@ -564,7 +568,7 @@ window.closeProductModal = closeProductModal;
 window.validateCheckoutForm = validateCheckoutForm;
 
 // ============================================================
-// AUTH MODAL FUNCTIONS (للتوافق مع HTML)
+// AUTH MODAL FUNCTIONS
 // ============================================================
 
 function openAuthModal() {
@@ -622,7 +626,7 @@ function handleGoogleLogin() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS (للتوافق مع HTML)
+// PROFILE FUNCTIONS
 // ============================================================
 
 function closeProfileModal() {
@@ -764,4 +768,5 @@ window.addEventListener('scroll', function() {
     if (btn) btn.classList.toggle('show', window.scrollY > 400);
 });
 
-console.log('✅ All modules loaded successfully'); 
+console.log('✅ All functions exported successfully');
+console.log('📦 Current products count:', Products.getData().length); 

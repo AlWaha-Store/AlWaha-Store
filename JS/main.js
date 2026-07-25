@@ -1,4 +1,3 @@
-
 // ============================================================
 // MAIN APPLICATION - التطبيق الرئيسي
 // ============================================================
@@ -18,33 +17,39 @@ let appliedCoupon = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Al-Waha Store initialized');
     
-    // 1. Initialize Auth
-    Auth.init();
+    // 1. Load Products Data
+    Products.loadData();
     
-    // 2. Load Products
+    // 2. Render Products
     Products.render('default', '');
     
-    // 3. Load Cart
+    // 3. Initialize Auth
+    Auth.init();
+    
+    // 4. Load Cart
     Cart.loadLocal();
     Cart.updateUI();
     
-    // 4. Start Countdown
+    // 5. Start Countdown
     startCountdown();
     
-    // 5. Background Static
+    // 6. Background Static
     initBackgroundStatic();
     
-    // 6. Load Settings
+    // 7. Load Settings
     loadSavedSettings();
     
-    // 7. Set min delivery time
+    // 8. Set min delivery time
     Orders.setMinDeliveryTime();
     
-    // 8. Setup event listeners
+    // 9. Setup event listeners
     setupEventListeners();
     
-    // 9. Admin access
+    // 10. Admin access
     setupAdminAccess();
+    
+    // 11. Update side menu cart count
+    updateSideMenuCartCount();
 });
 
 // ============================================================
@@ -280,6 +285,15 @@ function toggleSearch() {
     }
 }
 
+function toggleSideMenu() {
+    const overlay = document.getElementById('sideMenuOverlay');
+    const menu = document.getElementById('sideMenu');
+    if (!overlay || !menu) return;
+    overlay.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+}
+
 function toggleTheme() {
     const html = document.documentElement;
     const checkbox = document.getElementById('themeCheckbox');
@@ -308,6 +322,12 @@ function applySort() {
 
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSideMenuCartCount() {
+    const count = Cart.getUniqueCount();
+    const el = document.getElementById('sideMenuCartCount');
+    if (el) el.textContent = count;
 }
 
 // ============================================================
@@ -401,9 +421,11 @@ function updateLanguage(lang) {
             <small>${isEn ? 'Total without delivery fee' : 'المجموع بدون قيمة التوصيل'}</small>
         `;
     }
-    document.querySelector('.cart-header .btn-checkout-small').innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
+    const checkoutSmall = document.querySelector('.cart-header .btn-checkout-small');
+    if (checkoutSmall) checkoutSmall.innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
     document.getElementById('labelTotal').textContent = isEn ? 'Total' : 'المجموع';
-    document.querySelector('.cart-total-note').textContent = isEn ? '* Total without delivery fee' : '* المجموع بدون قيمة التوصيل';
+    const totalNote = document.querySelector('.cart-total-note');
+    if (totalNote) totalNote.textContent = isEn ? '* Total without delivery fee' : '* المجموع بدون قيمة التوصيل';
 
     // Checkout
     document.getElementById('checkoutTitle').innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
@@ -430,10 +452,13 @@ function updateLanguage(lang) {
         `;
     }
 
-    document.querySelector('.delivery-note').innerHTML = `
-        <i class="fas fa-info-circle"></i> 
-        ${isEn ? 'Delivery fee ranges from 15 EGP to 30 EGP depending on distance' : 'قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة'}
-    `;
+    const deliveryNote = document.querySelector('.delivery-note');
+    if (deliveryNote) {
+        deliveryNote.innerHTML = `
+            <i class="fas fa-info-circle"></i> 
+            ${isEn ? 'Delivery fee ranges from 15 EGP to 30 EGP depending on distance' : 'قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة'}
+        `;
+    }
 
     document.getElementById('btnConfirmOrder').innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
     document.getElementById('btnCancelOrder').textContent = isEn ? 'Cancel' : 'إلغاء';
@@ -466,14 +491,18 @@ function updateLanguage(lang) {
         `;
     }
 
-    document.querySelector('.phone-hint').innerHTML = `
-        <i class="fas fa-info-circle"></i> 
-        ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}
-    `;
+    const phoneHint = document.querySelector('.phone-hint');
+    if (phoneHint) {
+        phoneHint.innerHTML = `
+            <i class="fas fa-info-circle"></i> 
+            ${isEn ? 'Prefer to write number without leading zero' : 'يُفضل كتابة الرقم بدون الصفر الأول'}
+        `;
+    }
 
     document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
     document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
-    document.querySelector('.coupon-row .coupon-btn').textContent = isEn ? 'Apply' : 'تطبيق';
+    const couponBtn = document.querySelector('.coupon-row .coupon-btn');
+    if (couponBtn) couponBtn.textContent = isEn ? 'Apply' : 'تطبيق';
 }
 
 // ============================================================
@@ -507,6 +536,7 @@ window.filterProducts = filterProducts;
 window.applySort = applySort;
 window.toggleCart = toggleCart;
 window.toggleSearch = toggleSearch;
+window.toggleSideMenu = toggleSideMenu;
 window.toggleTheme = toggleTheme;
 window.scrollToTop = scrollToTop;
 window.showToast = showToast;
@@ -520,6 +550,18 @@ window.handleGoogleLogin = handleGoogleLogin;
 window.closeProfileModal = closeProfileModal;
 window.copyShareLink = copyShareLink;
 window.saveProfile = saveProfile;
+window.shareStore = shareStore;
+window.shareProduct = shareProduct;
+window.addFromModal = addFromModal;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.confirmOrder = confirmOrder;
+window.applyCoupon = applyCoupon;
+window.toggleSharePopup = toggleSharePopup;
+window.changeModalWeight = changeModalWeight;
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
+window.validateCheckoutForm = validateCheckoutForm;
 
 // ============================================================
 // AUTH MODAL FUNCTIONS (للتوافق مع HTML)
@@ -663,6 +705,54 @@ function saveProfile() {
         console.error('❌ Error saving profile:', error);
         showToast('حدث خطأ في الحفظ', 'error');
     }
+}
+
+function shareStore() {
+    Referral.shareStore();
+}
+
+function shareProduct(platform) {
+    UI.shareProduct(platform);
+}
+
+function toggleSharePopup() {
+    UI.toggleSharePopup();
+}
+
+function addFromModal() {
+    Cart.addFromModal();
+}
+
+function openCheckout() {
+    Orders.openCheckout();
+}
+
+function closeCheckout() {
+    Orders.closeCheckout();
+}
+
+function confirmOrder() {
+    Orders.confirmOrder();
+}
+
+function applyCoupon() {
+    Orders.applyCoupon();
+}
+
+function changeModalWeight(delta) {
+    UI.changeModalWeight(delta);
+}
+
+function openProductModal(id) {
+    UI.openProductModal(id);
+}
+
+function closeProductModal() {
+    UI.closeProductModal();
+}
+
+function validateCheckoutForm() {
+    Orders.validateForm();
 }
 
 // ============================================================

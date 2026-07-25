@@ -19,7 +19,7 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            padding: 8px 16px 25px;
+            padding: 10px 16px 25px;
             background: var(--header-bg);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -32,7 +32,6 @@
             min-height: 64px;
         }
 
-        /* ===== تأثير السيلان تحت الهيدر ===== */
         .header::after {
             content: '';
             position: absolute;
@@ -53,8 +52,7 @@
             cursor: pointer;
             text-align: center;
             line-height: 1;
-            flex-shrink: 0;
-            margin-right: auto;
+            flex: 1;
         }
 
         .header .logo .logo-text {
@@ -79,7 +77,7 @@
             50% { text-shadow: 0 0 40px rgba(212, 175, 55, 0.25), 0 0 60px rgba(212, 175, 55, 0.1), 0 0 80px rgba(212, 175, 55, 0.05); }
         }
 
-        /* ===== LEFT SIDE (Buttons) ===== */
+        /* ===== LEFT SIDE ===== */
         .header-left {
             display: flex;
             align-items: center;
@@ -88,155 +86,90 @@
             margin-left: auto;
         }
 
-        .header-left .header-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-            position: relative;
-        }
-        .header-left .header-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: var(--gold);
-            transform: scale(1.05);
-        }
-        .header-left .header-btn .badge-dot {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-        }
-
-        /* ===== User Button ===== */
         .header-left .user-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 8px 16px;
+            border-radius: 30px;
             border: 2px solid var(--gold);
             background: rgba(255, 255, 255, 0.05);
             color: white;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 16px;
+            gap: 8px;
             flex-shrink: 0;
-            font-weight: 700;
-            position: relative;
         }
         .header-left .user-btn:hover {
             background: var(--gold);
             color: var(--primary-dark);
-            transform: scale(1.05);
+            transform: scale(1.04);
+        }
+        .header-left .user-btn .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
         }
         .header-left .user-btn .online-dot {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: #4CAF50;
             border-radius: 50%;
-            border: 2px solid var(--primary);
+            display: inline-block;
         }
         .header-left .user-btn.guest {
             border-color: rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.03);
-            font-size: 12px;
-            font-weight: 700;
-            padding: 0 12px;
-            border-radius: 30px;
-            width: auto;
-            gap: 6px;
         }
         .header-left .user-btn.guest:hover {
             border-color: var(--gold);
             background: rgba(212, 175, 55, 0.1);
         }
-        .header-left .user-btn.guest i {
-            font-size: 14px;
+        .header-left .user-btn .user-name-text {
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        /* ===== Share Button ===== */
-        .header-left .share-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-        .header-left .share-btn:hover {
-            background: var(--gold);
-            color: var(--primary-dark);
-            transform: scale(1.05);
-        }
-
-        /* ===== Language Button ===== */
-        .header-left .lang-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .header-left .lang-toggle:hover {
-            background: var(--gold);
-            color: var(--primary-dark);
-            transform: scale(1.05);
-        }
-
-        /* ===== Search Box ===== */
+        .header-left .share-btn,
+        .header-left .lang-toggle,
         .header-left .search-box {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 50%;
             width: 40px;
             height: 40px;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: var(--transition);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
-            position: relative;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
             flex-shrink: 0;
         }
+        .header-left .share-btn:hover,
+        .header-left .lang-toggle:hover,
         .header-left .search-box:hover {
-            background: rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.12);
             border-color: var(--gold);
+            transform: scale(1.05);
         }
-        .header-left .search-box i {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 16px;
+        .header-left .share-btn:hover { background: var(--gold); color: var(--primary-dark); }
+        .header-left .lang-toggle:hover { background: var(--gold); color: var(--primary-dark); }
+
+        .header-left .search-box {
+            position: relative;
         }
         .header-left .search-box input {
             display: none;
@@ -260,7 +193,7 @@
             display: block;
         }
 
-        /* ===== Theme Switch ===== */
+        /* ===== THEME SWITCH ===== */
         .theme-switch {
             --toggle-size: 16px;
             --container-width: 3.6em;
@@ -307,7 +240,6 @@
             box-shadow: 0em 0.05em 0.187em rgba(0,0,0,0.25) inset, 0em 0.05em 0.187em rgba(0,0,0,0.25) inset;
             border-radius: var(--container-radius);
         }
-
         .theme-switch__checkbox { display: none; }
 
         .theme-switch__circle-container {
@@ -390,12 +322,6 @@
         .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
             left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter));
         }
-        .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container:hover {
-            left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter) - 0.187em);
-        }
-        .theme-switch__circle-container:hover {
-            left: calc(var(--circle-container-offset) + 0.187em);
-        }
         .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__moon {
             transform: translate(0);
         }
@@ -405,6 +331,112 @@
         .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__stars-container {
             top: 50%;
             transform: translateY(-50%);
+        }
+
+        /* ===== RIGHT SIDE (menu button) ===== */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .header-right .menu-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .header-right .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        /* ===== SIDE MENU ===== */
+        .side-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            z-index: 1500;
+            display: none;
+        }
+        .side-menu-overlay.open {
+            display: block;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            max-width: 85vw;
+            height: 100vh;
+            background: var(--bg-modal);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 1600;
+            padding: 20px;
+            transition: right 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.08);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-menu.open {
+            right: 0;
+        }
+        .side-menu .menu-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            align-self: flex-start;
+            padding: 4px;
+        }
+        .side-menu .menu-close:hover { color: #e74c3c; transform: rotate(90deg); }
+        .side-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+            color: var(--text-color);
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .side-menu .menu-item:hover {
+            background: rgba(212, 175, 55, 0.06);
+        }
+        .side-menu .menu-item i {
+            width: 22px;
+            color: var(--gold);
+            font-size: 18px;
+        }
+        .side-menu .menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.04);
+            margin: 4px 0;
         }
 
         /* ===== HERO ===== */
@@ -442,8 +474,6 @@
             opacity: 0.8;
             margin-top: 2px;
         }
-
-        /* ===== HERO BADGE ===== */
         .hero-badge {
             display: inline-block;
             background: rgba(212, 175, 55, 0.08);
@@ -454,9 +484,7 @@
             color: var(--gold);
             margin-top: 8px;
         }
-        .hero-badge i {
-            margin-left: 4px;
-        }
+        .hero-badge i { margin-left: 4px; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -466,18 +494,16 @@
             .header .logo .logo-text i {
                 font-size: 30px;
             }
-            .header-left .header-btn,
-            .header-left .search-box,
-            .header-left .lang-toggle,
             .header-left .share-btn,
-            .header-left .user-btn {
+            .header-left .lang-toggle,
+            .header-left .search-box {
                 width: 36px;
                 height: 36px;
                 font-size: 14px;
             }
-            .header-left .user-btn.guest {
-                font-size: 11px;
-                padding: 0 10px;
+            .header-left .user-btn {
+                font-size: 12px;
+                padding: 6px 12px;
             }
             .theme-switch {
                 --toggle-size: 13px;
@@ -492,6 +518,9 @@
                 width: 160px;
                 right: -20px;
             }
+            .side-menu {
+                width: 280px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -501,18 +530,16 @@
             .header .logo .logo-text i {
                 font-size: 22px;
             }
-            .header-left .header-btn,
-            .header-left .search-box,
-            .header-left .lang-toggle,
             .header-left .share-btn,
-            .header-left .user-btn {
+            .header-left .lang-toggle,
+            .header-left .search-box {
                 width: 32px;
                 height: 32px;
                 font-size: 12px;
             }
-            .header-left .user-btn.guest {
-                font-size: 10px;
-                padding: 0 8px;
+            .header-left .user-btn {
+                font-size: 11px;
+                padding: 4px 10px;
             }
             .theme-switch {
                 --toggle-size: 11px;
@@ -533,6 +560,14 @@
                 font-size: 12px;
                 padding: 6px 12px;
             }
+            .side-menu {
+                width: 250px;
+                padding: 16px;
+            }
+            .side-menu .menu-item {
+                font-size: 14px;
+                padding: 12px 14px;
+            }
         }
     </style>
 </head>
@@ -546,11 +581,17 @@
 
     <!-- ===== HEADER ===== -->
     <header class="header" id="header">
-        <!-- LEFT: All Buttons -->
+        <!-- LEFT: User + Share + Language + Search + Theme -->
         <div class="header-left">
-            <!-- User Button / Login -->
-            <button class="user-btn guest" id="userBtn" onclick="handleUserClick()" title="الحساب">
-                <i class="fas fa-user"></i> <span id="userBtnText">تسجيل</span>
+            <!-- User Button -->
+            <button class="user-btn guest" id="userBtn" onclick="openAuthModal()">
+                <i class="fas fa-user"></i>
+                <span class="user-name-text">تسجيل</span>
+            </button>
+            
+            <!-- Share Button -->
+            <button class="share-btn" onclick="shareStore()" title="مشاركة المتجر">
+                <i class="fas fa-share-alt"></i>
             </button>
             
             <!-- Language Button -->
@@ -558,13 +599,8 @@
                 <i class="fas fa-globe"></i>
             </button>
             
-            <!-- Share Button -->
-            <button class="share-btn" id="shareStoreBtn" onclick="shareStore()" title="مشاركة المتجر">
-                <i class="fas fa-share-alt"></i>
-            </button>
-            
             <!-- Theme Switch -->
-            <label class="theme-switch" id="themeSwitch">
+            <label class="theme-switch">
                 <input type="checkbox" class="theme-switch__checkbox" id="themeCheckbox">
                 <div class="theme-switch__container">
                     <div class="theme-switch__clouds"></div>
@@ -586,79 +622,54 @@
             </label>
             
             <!-- Search Box -->
-            <div class="search-box" id="searchToggle" onclick="toggleSearch()">
+            <div class="search-box" onclick="toggleSearch()">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" placeholder="ابحث..." oninput="filterProducts()" />
             </div>
         </div>
 
-        <!-- CENTER: LOGO (Right side) -->
+        <!-- CENTER: LOGO -->
         <div class="logo" id="logoTrigger" title="اضغط 5 مرات لفتح لوحة التحكم">
             <span class="logo-text"><i class="fas fa-leaf"></i> الواحة</span>
         </div>
+
+        <!-- RIGHT: Menu Button -->
+        <div class="header-right">
+            <button class="menu-btn" onclick="toggleSideMenu()" title="القائمة">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- ===== USER DROPDOWN (غير مستخدم الآن، استبدل بالبروفايل) ===== -->
-    <div class="user-dropdown" id="userDropdown" style="display:none;">
-        <div class="dropdown-item" onclick="viewProfile()"><i class="fas fa-user"></i> حسابي</div>
-        <div class="dropdown-item" onclick="viewOrders()"><i class="fas fa-shopping-bag"></i> طلباتي</div>
-        <div class="dropdown-item" onclick="viewFavorites()"><i class="fas fa-heart"></i> المفضلة</div>
-        <div class="dropdown-item" onclick="shareStore()"><i class="fas fa-share-alt"></i> مشاركة المتجر</div>
-        <div class="dropdown-item" onclick="logout()" style="color:#e74c3c;"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
+    <!-- ===== SIDE MENU ===== -->
+    <div class="side-menu-overlay" id="sideMenuOverlay" onclick="toggleSideMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <button class="menu-close" onclick="toggleSideMenu()"><i class="fas fa-times"></i></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" onclick="toggleSearch(); toggleSideMenu();">
+            <i class="fas fa-search"></i> بحث
+        </button>
+        <button class="menu-item" onclick="toggleTheme(); toggleSideMenu();">
+            <i class="fas fa-moon"></i> تغيير المظهر
+        </button>
+        <button class="menu-item" onclick="toggleLang(); toggleSideMenu();">
+            <i class="fas fa-globe"></i> تغيير اللغة
+        </button>
+        <button class="menu-item" onclick="shareStore(); toggleSideMenu();">
+            <i class="fas fa-share-alt"></i> مشاركة المتجر
+        </button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" onclick="toggleCart(); toggleSideMenu();">
+            <i class="fas fa-shopping-cart"></i> سلة التسوق
+            <span class="badge-count" id="sideMenuCartCount">0</span>
+        </button>
+        <button class="menu-item" onclick="scrollToTop(); toggleSideMenu();">
+            <i class="fas fa-arrow-up"></i> أعلى الصفحة
+        </button>
     </div>
 
-    <!-- ===== PROFILE MODAL (المظهر الجديد) ===== -->
-    <div class="profile-modal-overlay" id="profileModal">
-        <div class="profile-modal-box">
-            <button class="profile-close" onclick="closeProfileModal()"><i class="fas fa-times"></i></button>
-            
-            <div class="profile-header">
-                <div class="profile-avatar" id="profileAvatar">👤</div>
-                <h2 id="profileName">اسم المستخدم</h2>
-                <p id="profileEmail">example@email.com</p>
-            </div>
-            
-            <div class="profile-stats">
-                <div class="profile-stat">
-                    <span class="stat-number" id="profileOrders">0</span>
-                    <span class="stat-label">🛒 الطلبات</span>
-                </div>
-                <div class="profile-stat">
-                    <span class="stat-number" id="profilePoints">0</span>
-                    <span class="stat-label">⭐ النقاط</span>
-                </div>
-                <div class="profile-stat">
-                    <span class="stat-number" id="profileReferrals">0</span>
-                    <span class="stat-label">👥 الإحالات</span>
-                </div>
-            </div>
-            
-            <div class="profile-form">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> الاسم الكامل</label>
-                    <input type="text" id="profileDisplayName" />
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> رقم الجوال</label>
-                    <input type="tel" id="profilePhone" placeholder="0123456789" />
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-map-marker-alt"></i> العنوان</label>
-                    <input type="text" id="profileAddress" placeholder="العنوان بالتفصيل" />
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-link"></i> رابط المشاركة</label>
-                    <div class="share-link-group">
-                        <input type="text" id="profileShareLink" readonly />
-                        <button onclick="copyShareLink()"><i class="fas fa-copy"></i> نسخ</button>
-                    </div>
-                </div>
-                <button onclick="saveProfile()" class="btn-save-profile">
-                    <i class="fas fa-save"></i> حفظ التغييرات
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- ===== USER DROPDOWN ===== -->
+    <div class="user-dropdown" id="userDropdown"></div>
 
     <!-- ===== HERO ===== -->
     <section class="hero" id="home">
@@ -736,21 +747,41 @@
     </section>
 
     <!-- ===== FLOATING ACTIONS ===== -->
-    <button class="floating-cart" id="floatingCart" onclick="toggleCart()"><i class="fas fa-shopping-basket"></i><span class="fbadge" id="floatingBadge">0</span></button>
-    <button class="floating-checkout" id="floatingCheckout" onclick="openCheckout()"><i class="fas fa-credit-card"></i><span id="floatingCheckoutText">شراء</span></button>
-    <button class="back-to-top" id="backToTop" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+    <button class="floating-cart" id="floatingCart" onclick="toggleCart()">
+        <i class="fas fa-shopping-basket"></i>
+        <span class="fbadge" id="floatingBadge">0</span>
+    </button>
+    <button class="floating-checkout" id="floatingCheckout" onclick="openCheckout()">
+        <i class="fas fa-credit-card"></i>
+        <span id="floatingCheckoutText">شراء</span>
+    </button>
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- ===== CART SIDEBAR ===== -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
-            <div class="cart-total-header" id="cartTotalHeader"><span id="cartHeaderTotal">0 ج.م</span><small>المجموع بدون قيمة التوصيل</small></div>
-            <button class="btn-checkout-small" onclick="openCheckout()"><i class="fas fa-credit-card"></i> شراء</button>
+            <div class="cart-total-header" id="cartTotalHeader">
+                <span id="cartHeaderTotal">0 ج.م</span>
+                <small>المجموع بدون قيمة التوصيل</small>
+            </div>
+            <button class="btn-checkout-small" onclick="openCheckout()">
+                <i class="fas fa-credit-card"></i> شراء
+            </button>
             <button class="close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="cart-items-list" id="cartItemsList"><div class="empty-cart-msg" id="emptyCartMsg"><i class="fas fa-shopping-cart"></i> سلتك فارغة</div></div>
+        <div class="cart-items-list" id="cartItemsList">
+            <div class="empty-cart-msg" id="emptyCartMsg">
+                <i class="fas fa-shopping-cart"></i> سلتك فارغة
+            </div>
+        </div>
         <div class="cart-footer">
-            <div class="cart-total"><span id="labelTotal">المجموع</span><span id="cartTotalPrice">0 ج.م</span></div>
+            <div class="cart-total">
+                <span id="labelTotal">المجموع</span>
+                <span id="cartTotalPrice">0 ج.م</span>
+            </div>
             <div class="cart-total-note">* المجموع بدون قيمة التوصيل</div>
         </div>
     </div>
@@ -771,9 +802,13 @@
                 <button class="qty-btn" onclick="changeModalWeight(0.5)">+</button>
             </div>
             <div class="modal-actions">
-                <button class="btn-add-modal" id="modalAddBtn" onclick="addFromModal()"><i class="fas fa-plus-circle"></i> إضافة</button>
+                <button class="btn-add-modal" id="modalAddBtn" onclick="addFromModal()">
+                    <i class="fas fa-plus-circle"></i> إضافة
+                </button>
                 <div style="position:relative;">
-                    <button class="btn-share" onclick="toggleSharePopup()"><i class="fas fa-share-alt"></i></button>
+                    <button class="btn-share" onclick="toggleSharePopup()">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
                     <div class="share-popup" id="sharePopup">
                         <a href="#" onclick="shareProduct('whatsapp')"><i class="fab fa-whatsapp"></i> واتساب</a>
                         <a href="#" onclick="shareProduct('copy')"><i class="fas fa-copy"></i> نسخ</a>
@@ -783,14 +818,13 @@
         </div>
     </div>
 
-    <!-- ===== CHECKOUT MODAL (مع حواف دائرية) ===== -->
+    <!-- ===== CHECKOUT MODAL ===== -->
     <div class="checkout-modal-overlay" id="checkoutModal">
         <div class="checkout-modal-box">
             <h2 id="checkoutTitle"><i class="fas fa-clipboard-check"></i> تأكيد الطلب</h2>
             <div class="sub" id="checkoutSub">املأ بياناتك لإتمام الطلب</div>
             <div class="checkout-summary" id="checkoutSummary"></div>
 
-            <!-- ===== COUPON SECTION ===== -->
             <div class="coupon-section">
                 <div class="coupon-row">
                     <i class="fas fa-ticket-alt"></i>
@@ -801,7 +835,10 @@
                 <div class="coupon-msg" id="couponMessage"></div>
             </div>
 
-            <div class="form-group"><label id="labelCustName">الاسم الكامل <span class="required">*</span></label><input type="text" id="custName" placeholder="أحمد محمد" oninput="validateCheckoutForm()" /></div>
+            <div class="form-group">
+                <label id="labelCustName">الاسم الكامل <span class="required">*</span></label>
+                <input type="text" id="custName" placeholder="أحمد محمد" oninput="validateCheckoutForm()" />
+            </div>
             <div class="form-group">
                 <label id="labelCustPhone">رقم الجوال <span class="required">*</span></label>
                 <div class="phone-group">
@@ -843,25 +880,52 @@
                 </div>
                 <div class="phone-hint"><i class="fas fa-info-circle"></i> يُفضل كتابة الرقم بدون الصفر الأول</div>
             </div>
-            <div class="form-group"><label id="labelCustAddress">معلومات المكان <span class="required">*</span></label><textarea id="custAddress" placeholder="اكتب العنوان بالتفصيل..." oninput="validateCheckoutForm()"></textarea></div>
-            <div class="form-group"><label id="labelCustNotes">ملاحظات</label><textarea id="custNotes" placeholder="مثلاً: الاتصال قبل الوصول..."></textarea></div>
+            <div class="form-group">
+                <label id="labelCustAddress">معلومات المكان <span class="required">*</span></label>
+                <textarea id="custAddress" placeholder="اكتب العنوان بالتفصيل..." oninput="validateCheckoutForm()"></textarea>
+            </div>
+            <div class="form-group">
+                <label id="labelCustNotes">ملاحظات</label>
+                <textarea id="custNotes" placeholder="مثلاً: الاتصال قبل الوصول..."></textarea>
+            </div>
             
             <label id="labelDeliveryTime" style="font-weight:600;color:var(--primary);font-size:14px;">وقت التوصيل <span class="required">*</span></label>
             <div class="delivery-options" id="deliveryOptions">
-                <label class="selected"><input type="radio" name="delivery" value="اسرع وقت" checked /><i class="fas fa-clock"></i> أسرع وقت</label>
-                <label><input type="radio" name="delivery" value="وقت محدد" /><i class="fas fa-calendar-alt"></i> وقت محدد</label>
-                <div class="delivery-time-input" id="deliveryTimeInput"><input type="datetime-local" id="deliveryTime" onchange="validateCheckoutForm()" /></div>
+                <label class="selected">
+                    <input type="radio" name="delivery" value="اسرع وقت" checked />
+                    <i class="fas fa-clock"></i> أسرع وقت
+                </label>
+                <label>
+                    <input type="radio" name="delivery" value="وقت محدد" />
+                    <i class="fas fa-calendar-alt"></i> وقت محدد
+                </label>
+                <div class="delivery-time-input" id="deliveryTimeInput">
+                    <input type="datetime-local" id="deliveryTime" onchange="validateCheckoutForm()" />
+                </div>
             </div>
-            <div class="delivery-note"><i class="fas fa-info-circle"></i> قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة</div>
+            <div class="delivery-note">
+                <i class="fas fa-info-circle"></i> قيمة التوصيل تتراوح بين 15ج إلى 30ج حسب المسافة
+            </div>
             
             <label id="labelPaymentMethod" style="font-weight:600;color:var(--primary);font-size:14px;margin-top:8px;display:block;">طريقة الدفع <span class="required">*</span></label>
             <div class="payment-options" id="paymentOptions">
-                <label class="selected"><input type="radio" name="payment" value="كاش عند التوصيل" checked /><i class="fas fa-money-bill-wave"></i> كاش عند التوصيل</label>
-                <label><input type="radio" name="payment" value="إنستا باي" /><i class="fas fa-mobile-alt"></i> إنستا باي</label>
-                <label><input type="radio" name="payment" value="محفظة إلكترونية" /><i class="fas fa-wallet"></i> محفظة إلكترونية</label>
+                <label class="selected">
+                    <input type="radio" name="payment" value="كاش عند التوصيل" checked />
+                    <i class="fas fa-money-bill-wave"></i> كاش عند التوصيل
+                </label>
+                <label>
+                    <input type="radio" name="payment" value="إنستا باي" />
+                    <i class="fas fa-mobile-alt"></i> إنستا باي
+                </label>
+                <label>
+                    <input type="radio" name="payment" value="محفظة إلكترونية" />
+                    <i class="fas fa-wallet"></i> محفظة إلكترونية
+                </label>
             </div>
             
-            <button class="btn-confirm-order" id="btnConfirmOrder" onclick="confirmOrder()" disabled><i class="fas fa-check-circle"></i> تأكيد الشراء</button>
+            <button class="btn-confirm-order" id="btnConfirmOrder" onclick="confirmOrder()" disabled>
+                <i class="fas fa-check-circle"></i> تأكيد الشراء
+            </button>
             <button class="btn-close-checkout" id="btnCancelOrder" onclick="closeCheckout()">إلغاء</button>
         </div>
     </div>
@@ -870,18 +934,15 @@
     <div class="auth-modal-overlay" id="authModal">
         <div class="auth-modal-box">
             <button class="auth-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            
             <div class="auth-header">
                 <span class="auth-icon">🌿</span>
                 <h2>مرحباً بك</h2>
                 <p>سجل الدخول أو أنشئ حساباً جديداً</p>
             </div>
-            
             <div class="auth-tabs">
                 <button class="active" data-tab="login" onclick="switchAuthTab('login')">تسجيل دخول</button>
                 <button data-tab="signup" onclick="switchAuthTab('signup')">حساب جديد</button>
             </div>
-            
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
@@ -897,7 +958,6 @@
                 </button>
                 <div class="auth-forgot" onclick="handleForgotPassword()">نسيت كلمة المرور؟</div>
             </form>
-            
             <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> الاسم الكامل</label>
@@ -916,11 +976,9 @@
                     <i class="fas fa-user-plus"></i> إنشاء حساب
                 </button>
             </form>
-            
             <div class="auth-divider">
                 <hr /><span>أو</span><hr />
             </div>
-            
             <div class="social-buttons">
                 <button class="btn-social btn-social-google" id="googleBtn" onclick="loginWithGoogle()">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
@@ -930,6 +988,69 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- ===== PROFILE MODAL ===== -->
+    <div class="profile-modal-overlay" id="profileModal">
+        <div class="profile-modal-box">
+            <button class="profile-close" onclick="closeProfileModal()"><i class="fas fa-times"></i></button>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">👤</div>
+                <h2 id="profileName">اسم المستخدم</h2>
+                <p id="profileEmail">example@email.com</p>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <span class="stat-number" id="profileOrders">0</span>
+                    <span class="stat-label">🛒 الطلبات</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="stat-number" id="profilePoints">0</span>
+                    <span class="stat-label">⭐ النقاط</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="stat-number" id="profileReferrals">0</span>
+                    <span class="stat-label">👥 الإحالات</span>
+                </div>
+            </div>
+            <div id="profilePendingOrders" style="margin-bottom:16px;"></div>
+            <div class="profile-form">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> الاسم الكامل</label>
+                    <input type="text" id="profileDisplayName" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> رقم الجوال</label>
+                    <input type="tel" id="profilePhone" placeholder="0123456789" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> العنوان</label>
+                    <input type="text" id="profileAddress" placeholder="العنوان بالتفصيل" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-link"></i> رابط المشاركة</label>
+                    <div class="share-link-group">
+                        <input type="text" id="profileShareLink" readonly />
+                        <button onclick="copyShareLink()"><i class="fas fa-copy"></i> نسخ</button>
+                    </div>
+                </div>
+                <button onclick="saveProfile()" class="btn-save-profile">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================================ -->
+    
+    <script src="supabase/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/referral.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/main.js"></script>
+
 </body>
     </html> 

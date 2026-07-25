@@ -21,15 +21,9 @@ const UI = {
                 <span class="user-name-text">${name.length > 8 ? name.substring(0, 8) + '...' : name}</span>
                 <span class="online-dot"></span>
             `;
-            userBtn.className = 'user-btn logged-in';
+            userBtn.className = 'user-btn';
             userBtn.onclick = () => this.toggleUserMenu();
         }
-        
-        const guestMenu = document.getElementById('guestMenu');
-        const userMenu = document.getElementById('userMenu');
-        
-        if (guestMenu) guestMenu.style.display = 'none';
-        if (userMenu) userMenu.style.display = 'flex';
     },
 
     updateForGuestUser() {
@@ -42,12 +36,6 @@ const UI = {
             userBtn.className = 'user-btn guest';
             userBtn.onclick = () => openAuthModal();
         }
-        
-        const guestMenu = document.getElementById('guestMenu');
-        const userMenu = document.getElementById('userMenu');
-        
-        if (guestMenu) guestMenu.style.display = 'flex';
-        if (userMenu) userMenu.style.display = 'none';
     },
 
     // ============================================================
@@ -75,7 +63,7 @@ const UI = {
         
         const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
-        const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم');
+        const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم' && o.status !== 'ملغي');
         
         const dropdown = document.getElementById('userDropdown');
         if (dropdown) {
@@ -158,6 +146,7 @@ const UI = {
         
         const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
         const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
+        const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم' && o.status !== 'ملغي');
         
         const profileModal = document.getElementById('profileModal');
         if (profileModal) {
@@ -172,8 +161,6 @@ const UI = {
             document.getElementById('profilePoints').textContent = points;
             document.getElementById('profileReferrals').textContent = referrals;
             
-            // عرض الطلبات الحالية
-            const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم');
             const pendingContainer = document.getElementById('profilePendingOrders');
             if (pendingContainer) {
                 if (pendingOrders.length > 0) {
@@ -288,8 +275,20 @@ const UI = {
         document.getElementById('sharePopup')?.classList.remove('show');
     },
 
+    changeModalWeight(delta) {
+        const input = document.getElementById('modalWeight');
+        if (!input) return;
+        let val = parseFloat(input.value) || 1;
+        val = Math.max(0.25, Math.round((val + delta) * 100) / 100);
+        input.value = val;
+    },
+
+    toggleSharePopup() {
+        document.getElementById('sharePopup')?.classList.toggle('show');
+    },
+
     // ============================================================
-    // SHARE
+    // SHARE PRODUCT
     // ============================================================
     
     shareProduct(platform) {
@@ -331,10 +330,6 @@ const UI = {
             });
             document.getElementById('sharePopup')?.classList.remove('show');
         }
-    },
-
-    toggleSharePopup() {
-        document.getElementById('sharePopup')?.classList.toggle('show');
     }
 };
 

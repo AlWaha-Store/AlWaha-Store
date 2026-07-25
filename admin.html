@@ -6,7 +6,7 @@
     <title>لوحة التحكم - الواحة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="admin-style.css" />
     
     <!-- ===== Supabase SDK ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,21 +18,13 @@
             --admin-primary-light: #2a7a4e;
             --admin-gold: #D4AF37;
             --admin-gold-light: #e8c94a;
-            --admin-bg: #f0f2f5;
-            --admin-card: rgba(255, 255, 255, 0.9);
-            --admin-text: #1a2a1a;
-            --admin-border: rgba(255, 255, 255, 0.3);
-            --admin-shadow: 0 8px 32px rgba(0,0,0,0.04);
-            --admin-radius: 16px;
-            --admin-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        [data-theme="dark"] {
-            --admin-bg: #121212;
-            --admin-card: rgba(40, 40, 40, 0.85);
+            --admin-bg: #0a0f0a;
+            --admin-card: rgba(26, 40, 26, 0.85);
             --admin-text: #e8e8e8;
             --admin-border: rgba(255, 255, 255, 0.05);
-            --admin-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            --admin-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --admin-radius: 16px;
+            --admin-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -55,23 +47,23 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, rgba(26, 92, 58, 0.92), rgba(26, 92, 58, 0.7)),
-                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%231A5C3A" width="400" height="300"/%3E%3Ccircle cx="80" cy="60" r="40" fill="%23D4AF37" opacity="0.12"/%3E%3Ccircle cx="320" cy="200" r="60" fill="%23D4AF37" opacity="0.08"/%3E%3C/svg%3E');
+            background: linear-gradient(135deg, #0a1a0a, #1a3a1a),
+                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%231A5C3A" width="400" height="300"/%3E%3Ccircle cx="80" cy="60" r="40" fill="%23D4AF37" opacity="0.08"/%3E%3Ccircle cx="320" cy="200" r="60" fill="%23D4AF37" opacity="0.05"/%3E%3C/svg%3E');
             background-size: cover;
             background-position: center;
             margin: 0;
             padding: 20px;
         }
         .login-box {
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(20, 30, 20, 0.92);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             padding: 44px 36px;
             border-radius: 24px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.15);
             animation: slideUp 0.5s ease;
         }
         @keyframes slideUp {
@@ -85,7 +77,7 @@
             margin-bottom: 8px;
         }
         .login-box h2 {
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             text-align: center;
             margin-bottom: 4px;
             font-size: 28px;
@@ -93,7 +85,7 @@
         }
         .login-box p {
             text-align: center;
-            color: #5a7a5a;
+            color: #8a9a8a;
             margin-bottom: 28px;
             font-size: 14px;
         }
@@ -103,18 +95,22 @@
         .login-box .form-group input {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid rgba(26, 92, 58, 0.08);
+            border: 2px solid rgba(212, 175, 55, 0.1);
             border-radius: 12px;
             font-size: 16px;
             font-family: 'Tajawal', sans-serif;
             text-align: center;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.03);
+            color: #e8e8e8;
             transition: 0.3s;
         }
         .login-box .form-group input:focus {
             border-color: var(--admin-gold);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.05);
+        }
+        .login-box .form-group input::placeholder {
+            color: #666;
         }
         .login-box .btn {
             width: 100%;
@@ -129,11 +125,11 @@
         }
         .login-box .btn-gold {
             background: linear-gradient(135deg, var(--admin-gold), var(--admin-gold-light));
-            color: var(--admin-primary);
+            color: #1a2a1a;
         }
         .login-box .btn-gold:hover {
             transform: scale(1.02);
-            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.3);
         }
 
         /* ===== SIDEBAR ===== */
@@ -143,7 +139,7 @@
             right: 0;
             width: 260px;
             height: 100vh;
-            background: linear-gradient(180deg, rgba(26, 92, 58, 0.96), rgba(15, 61, 38, 0.98));
+            background: linear-gradient(180deg, rgba(10, 30, 15, 0.98), rgba(5, 20, 10, 0.99));
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             color: white;
@@ -151,8 +147,8 @@
             overflow-y: auto;
             z-index: 1000;
             transition: 0.3s;
-            border-left: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 4px 0 40px rgba(0,0,0,0.08);
+            border-left: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 4px 0 40px rgba(0,0,0,0.2);
         }
         .sidebar::-webkit-scrollbar { width: 3px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -164,7 +160,7 @@
             font-size: 28px;
             font-weight: 800;
             color: var(--admin-gold);
-            border-bottom: 2px solid rgba(212,175,55,0.12);
+            border-bottom: 2px solid rgba(212,175,55,0.1);
             margin-bottom: 12px;
         }
         .sidebar .logo i {
@@ -174,7 +170,7 @@
         .sidebar .logo span {
             display: block;
             font-size: 12px;
-            color: rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.25);
             font-weight: 400;
             margin-top: 2px;
         }
@@ -184,7 +180,7 @@
             gap: 12px;
             padding: 12px 20px;
             margin: 4px 10px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             text-decoration: none;
             transition: 0.3s;
             cursor: pointer;
@@ -193,15 +189,14 @@
             font-size: 14px;
         }
         .sidebar .menu-item:hover {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.04);
             color: white;
             transform: translateX(-4px);
         }
         .sidebar .menu-item.active {
-            background: rgba(212, 175, 55, 0.12);
+            background: rgba(212, 175, 55, 0.08);
             color: white;
             border-right-color: var(--admin-gold);
-            box-shadow: inset 0 0 30px rgba(212,175,55,0.03);
         }
         .sidebar .menu-item i {
             width: 22px;
@@ -210,7 +205,7 @@
         }
         .sidebar .menu-item .badge-count {
             background: var(--admin-gold);
-            color: var(--admin-primary);
+            color: #1a2a1a;
             font-size: 11px;
             font-weight: 700;
             padding: 1px 10px;
@@ -221,7 +216,7 @@
         }
         .sidebar .menu-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
             margin: 10px 20px;
         }
         .sidebar .menu-item.logout {
@@ -232,7 +227,7 @@
             margin-top: 15px;
         }
         .sidebar .menu-item.logout:hover {
-            background: rgba(255,0,0,0.08);
+            background: rgba(255,0,0,0.06);
         }
         .sidebar .sidebar-footer {
             position: absolute;
@@ -241,7 +236,7 @@
             left: 0;
             text-align: center;
             font-size: 11px;
-            color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.1);
             padding: 10px;
         }
 
@@ -268,7 +263,7 @@
         }
         .main-content .header h1 {
             font-size: 24px;
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             font-weight: 800;
         }
         .main-content .header h1 i {
@@ -288,7 +283,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--admin-primary);
+            color: #1a2a1a;
             font-weight: 700;
             font-size: 18px;
         }
@@ -330,16 +325,16 @@
         }
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
         }
         .stat-card .stat-number {
             font-size: 32px;
             font-weight: 800;
-            color: var(--admin-primary);
+            color: var(--admin-gold);
         }
         .stat-card .stat-label {
             font-size: 13px;
-            color: #5a7a5a;
+            color: #8a9a8a;
             margin-top: 4px;
         }
         .stat-card .stat-icon {
@@ -362,7 +357,7 @@
             transition: background 0.4s, border-color 0.4s;
         }
         .table-container h3 {
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             margin-bottom: 16px;
             display: flex;
             align-items: center;
@@ -379,21 +374,22 @@
             font-size: 14px;
         }
         .table-container table th {
-            background: rgba(26, 92, 58, 0.04);
+            background: rgba(212, 175, 55, 0.03);
             padding: 12px 10px;
             text-align: right;
             font-weight: 700;
-            color: var(--admin-primary);
-            border-bottom: 2px solid rgba(26, 92, 58, 0.06);
+            color: var(--admin-gold);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.05);
             white-space: nowrap;
         }
         .table-container table td {
             padding: 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
             vertical-align: middle;
+            color: #c8c8c8;
         }
         .table-container table tr:hover td {
-            background: rgba(26, 92, 58, 0.02);
+            background: rgba(255,255,255,0.01);
         }
 
         /* ===== BADGES ===== */
@@ -404,11 +400,11 @@
             font-weight: 600;
             display: inline-block;
         }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .badge-danger { background: #f8d7da; color: #721c24; }
-        .badge-info { background: #d1ecf1; color: #0c5460; }
-        .badge-primary { background: #cce5ff; color: #004085; }
+        .badge-success { background: #1a3a2a; color: #7ae0a0; }
+        .badge-warning { background: #3a2a0a; color: #e8c94a; }
+        .badge-danger { background: #3a1a1a; color: #ff6b6b; }
+        .badge-info { background: #1a2a3a; color: #6bc8ff; }
+        .badge-primary { background: #1a2a3a; color: #6bc8ff; }
 
         /* ===== BUTTONS ===== */
         .btn {
@@ -426,20 +422,18 @@
         }
         .btn-primary { background: var(--admin-primary); color: white; }
         .btn-primary:hover { background: var(--admin-primary-light); transform: scale(1.02); }
-        .btn-gold { background: var(--admin-gold); color: var(--admin-primary); }
-        .btn-gold:hover { background: var(--admin-gold-light); transform: scale(1.02); box-shadow: 0 4px 20px rgba(212,175,55,0.3); }
+        .btn-gold { background: var(--admin-gold); color: #1a2a1a; }
+        .btn-gold:hover { background: var(--admin-gold-light); transform: scale(1.02); box-shadow: 0 4px 20px rgba(212,175,55,0.2); }
         .btn-danger { background: #dc3545; color: white; }
         .btn-danger:hover { background: #c82333; transform: scale(1.02); }
         .btn-sm { padding: 4px 12px; font-size: 12px; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; transform: scale(1.02); }
-        .btn-outline { background: transparent; border: 2px solid var(--admin-primary); color: var(--admin-primary); }
-        .btn-outline:hover { background: var(--admin-primary); color: white; }
 
         /* ===== SYNC BUTTON ===== */
         .sync-btn {
-            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
-            color: white;
+            background: linear-gradient(135deg, var(--admin-gold), var(--admin-gold-light));
+            color: #1a2a1a;
             border: none;
             padding: 8px 20px;
             border-radius: 30px;
@@ -454,7 +448,7 @@
         }
         .sync-btn:hover {
             transform: scale(1.04);
-            box-shadow: 0 4px 24px rgba(26, 92, 58, 0.3);
+            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.2);
         }
         .sync-btn:disabled {
             opacity: 0.6;
@@ -469,7 +463,7 @@
         .form-group label {
             display: block;
             font-weight: 600;
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             margin-bottom: 5px;
             font-size: 14px;
         }
@@ -478,11 +472,11 @@
         .form-group textarea {
             width: 100%;
             padding: 10px 14px;
-            border: 2px solid rgba(26, 92, 58, 0.06);
+            border: 2px solid rgba(212, 175, 55, 0.05);
             border-radius: 10px;
             font-size: 14px;
             font-family: 'Tajawal', sans-serif;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.02);
             transition: 0.3s;
             color: var(--admin-text);
         }
@@ -491,7 +485,11 @@
         .form-group textarea:focus {
             border-color: var(--admin-gold);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.06);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.03);
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #666;
         }
         .form-group textarea {
             resize: vertical;
@@ -511,7 +509,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.6);
             backdrop-filter: blur(8px);
             z-index: 2000;
             align-items: center;
@@ -522,7 +520,7 @@
             display: flex;
         }
         .modal-box {
-            background: var(--admin-card);
+            background: rgba(20, 30, 20, 0.95);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             padding: 32px 28px;
@@ -532,15 +530,15 @@
             max-height: 90vh;
             overflow-y: auto;
             animation: modalIn 0.3s ease;
-            border: 1px solid var(--admin-border);
-            box-shadow: 0 24px 80px rgba(0,0,0,0.08);
+            border: 1px solid rgba(212, 175, 55, 0.05);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.2);
         }
         @keyframes modalIn {
             from { transform: scale(0.94) translateY(20px); opacity: 0; }
             to { transform: scale(1) translateY(0); opacity: 1; }
         }
         .modal-box h3 {
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             margin-bottom: 16px;
             font-size: 22px;
             font-weight: 700;
@@ -556,11 +554,11 @@
             padding: 10px;
         }
 
-        /* ===== COUPON CODE STYLE ===== */
+        /* ===== COUPON CODE ===== */
         .coupon-code {
             font-weight: 700;
-            color: var(--admin-primary);
-            background: rgba(212, 175, 55, 0.1);
+            color: var(--admin-gold);
+            background: rgba(212, 175, 55, 0.05);
             padding: 2px 14px;
             border-radius: 30px;
             font-size: 13px;
@@ -573,7 +571,7 @@
             background: none;
             border: none;
             font-size: 24px;
-            color: var(--admin-primary);
+            color: var(--admin-gold);
             cursor: pointer;
             padding: 4px;
         }
@@ -590,44 +588,6 @@
         }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        /* ===== DARK MODE SUPPORT ===== */
-        [data-theme="dark"] .login-box {
-            background: rgba(30, 30, 30, 0.96);
-            border-color: rgba(255,255,255,0.05);
-        }
-        [data-theme="dark"] .login-box h2 {
-            color: var(--admin-gold-light);
-        }
-        [data-theme="dark"] .login-box p {
-            color: #8a9a8a;
-        }
-        [data-theme="dark"] .login-box .form-group input {
-            background: rgba(255,255,255,0.05);
-            color: #e8e8e8;
-            border-color: rgba(255,255,255,0.05);
-        }
-        [data-theme="dark"] .login-box .form-group input::placeholder {
-            color: #666;
-        }
-        [data-theme="dark"] .badge-success { background: #1a3a2a; color: #7ae0a0; }
-        [data-theme="dark"] .badge-warning { background: #3a2a0a; color: #e8c94a; }
-        [data-theme="dark"] .badge-danger { background: #3a1a1a; color: #ff6b6b; }
-        [data-theme="dark"] .badge-info { background: #1a2a3a; color: #6bc8ff; }
-        [data-theme="dark"] .badge-primary { background: #1a2a3a; color: #6bc8ff; }
-        [data-theme="dark"] .coupon-code {
-            background: rgba(212, 175, 55, 0.15);
-            color: var(--admin-gold-light);
-        }
-        [data-theme="dark"] .login-box .btn-gold {
-            background: linear-gradient(135deg, #b8962a, var(--admin-gold));
-            color: var(--admin-primary);
-        }
-        [data-theme="dark"] .login-box .btn-gold:hover {
-            background: linear-gradient(135deg, #c8a63a, var(--admin-gold-light));
-        }
-        [data-theme="dark"] .btn-primary { background: #2a7a4e; }
-        [data-theme="dark"] .btn-primary:hover { background: #3a9a6e; }
     </style>
 </head>
 <body>
@@ -661,6 +621,7 @@
             <div class="menu-item" data-tab="orders">
                 <i class="fas fa-shopping-cart"></i> الطلبات
                 <span class="badge-count" id="ordersCount">0</span>
+                <span class="badge-count" id="pendingCount" style="background:#ff6b6b;color:white;">0</span>
             </div>
             <div class="menu-item" data-tab="products">
                 <i class="fas fa-box"></i> المنتجات
@@ -677,6 +638,10 @@
             <div class="menu-item" data-tab="users">
                 <i class="fas fa-users"></i> المستخدمين
                 <span class="badge-count" id="usersCount">0</span>
+            </div>
+            <div class="menu-item" data-tab="customers">
+                <i class="fas fa-address-book"></i> العملاء
+                <span class="badge-count" id="customersCount">0</span>
             </div>
             <div class="menu-divider"></div>
             <div class="menu-item" data-tab="settings">
@@ -719,6 +684,11 @@
                         <div class="stat-label">إجمالي الإيرادات</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-number" id="pendingOrders">0</div>
+                        <div class="stat-label">طلبات معلقة</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-box"></i></div>
                         <div class="stat-number" id="totalProducts">0</div>
                         <div class="stat-label">المنتجات</div>
@@ -727,11 +697,6 @@
                         <div class="stat-icon"><i class="fas fa-tag"></i></div>
                         <div class="stat-number" id="totalOffers">0</div>
                         <div class="stat-label">العروض النشطة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
-                        <div class="stat-number" id="totalCoupons">0</div>
-                        <div class="stat-label">الكوبونات</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
@@ -744,7 +709,7 @@
                     <h3><i class="fas fa-clock"></i> أحدث الطلبات</h3>
                     <table>
                         <thead><tr><th>#</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
-                        <tbody id="recentOrders"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد طلبات</td></tr></tbody>
+                        <tbody id="recentOrders"><tr><td colspan="6" style="text-align:center;color:#666;">لا توجد طلبات</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -755,19 +720,20 @@
                     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                         <h3 style="margin-bottom:0;"><i class="fas fa-shopping-cart"></i> جميع الطلبات</h3>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <select id="orderFilter" onchange="filterOrders()" style="padding:6px 14px;border-radius:30px;border:1px solid rgba(26,92,58,0.08);font-family:'Tajawal',sans-serif;background:rgba(255,255,255,0.4);font-size:13px;">
+                            <select id="orderFilter" onchange="filterOrders()" style="padding:6px 14px;border-radius:30px;border:1px solid rgba(212,175,55,0.05);font-family:'Tajawal',sans-serif;background:rgba(255,255,255,0.02);color:#c8c8c8;font-size:13px;">
                                 <option value="all">جميع الحالات</option>
                                 <option value="جديد">جديد</option>
                                 <option value="قيد التجهيز">قيد التجهيز</option>
                                 <option value="تم التوصيل">تم التوصيل</option>
+                                <option value="تم التسليم">تم التسليم</option>
                                 <option value="ملغي">ملغي</option>
                             </select>
                             <button class="btn btn-primary btn-sm" onclick="exportOrders()"><i class="fas fa-file-export"></i> تصدير</button>
                         </div>
                     </div>
                     <table>
-                        <thead><tr><th>#</th><th>العميل</th><th>المنتجات</th><th>المبلغ</th><th>الخصم</th><th>الإجمالي</th><th>كوبون</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
-                        <tbody id="allOrders"><tr><td colspan="10" style="text-align:center;color:#999;">لا توجد طلبات</td></tr></tbody>
+                        <thead><tr><th>#</th><th>العميل</th><th>الهاتف</th><th>المنتجات</th><th>المبلغ</th><th>الإجمالي</th><th>كوبون</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+                        <tbody id="allOrders"><tr><td colspan="10" style="text-align:center;color:#666;">لا توجد طلبات</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -784,7 +750,7 @@
                 <div class="table-container">
                     <table>
                         <thead><tr><th>#</th><th>المنتج</th><th>التصنيف</th><th>السعر</th><th>حالة العرض</th><th>المخزون</th><th>إجراء</th></tr></thead>
-                        <tbody id="productsList"><tr><td colspan="7" style="text-align:center;color:#999;">لا توجد منتجات</td></tr></tbody>
+                        <tbody id="productsList"><tr><td colspan="7" style="text-align:center;color:#666;">لا توجد منتجات</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -798,7 +764,7 @@
                 <div class="table-container">
                     <table>
                         <thead><tr><th>المنتج</th><th>السعر الأصلي</th><th>سعر العرض</th><th>الخصم</th><th>الحالة</th><th>إجراء</th></tr></thead>
-                        <tbody id="offersList"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد عروض</td></tr></tbody>
+                        <tbody id="offersList"><tr><td colspan="6" style="text-align:center;color:#666;">لا توجد عروض</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -812,7 +778,7 @@
                 <div class="table-container">
                     <table>
                         <thead><tr><th>الكود</th><th>الخصم</th><th>النوع</th><th>عدد الاستخدام</th><th>الحالة</th><th>إجراء</th></tr></thead>
-                        <tbody id="couponsList"><tr><td colspan="6" style="text-align:center;color:#999;">لا توجد كوبونات</td></tr></tbody>
+                        <tbody id="couponsList"><tr><td colspan="6" style="text-align:center;color:#666;">لا توجد كوبونات</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -826,7 +792,21 @@
                     </div>
                     <table>
                         <thead><tr><th>#</th><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>تاريخ التسجيل</th><th>الإحالات</th><th>إجراء</th></tr></thead>
-                        <tbody id="usersList"><tr><td colspan="7" style="text-align:center;color:#999;">لا توجد مستخدمين</td></tr></tbody>
+                        <tbody id="usersList"><tr><td colspan="7" style="text-align:center;color:#666;">لا توجد مستخدمين</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== TAB: CUSTOMERS ===== -->
+            <div class="tab-content" id="tab-customers">
+                <div class="table-container">
+                    <h3><i class="fas fa-address-book"></i> إدارة العملاء</h3>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadCustomers()"><i class="fas fa-sync"></i> تحديث</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>البريد الإلكتروني</th><th>الطلبات</th><th>إجمالي المشتريات</th><th>آخر طلب</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                        <tbody id="customersList"><tr><td colspan="9" style="text-align:center;color:#666;">لا توجد عملاء</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -853,8 +833,8 @@
                             <div class="form-group"><label>الحد الأدنى للطلب المجاني</label><input type="number" id="freeDeliveryMin" value="200" /></div>
                         </div>
                         <div class="form-group"><label>رسالة الترحيب</label><textarea id="welcomeMessage" rows="2">مرحباً بكم في متجر الواحة</textarea></div>
-                        <hr style="margin:20px 0;border-color:rgba(0,0,0,0.05);" />
-                        <h4 style="color:var(--admin-primary);margin-bottom:10px;">تغيير كلمة المرور</h4>
+                        <hr style="margin:20px 0;border-color:rgba(255,255,255,0.03);" />
+                        <h4 style="color:var(--admin-gold);margin-bottom:10px;">تغيير كلمة المرور</h4>
                         <div class="form-row">
                             <div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="currentPassword" placeholder="••••••••" /></div>
                             <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="newPassword" placeholder="••••••••" /></div>
@@ -924,6 +904,8 @@
         </div>
     </div>
 
-    <script src="admin-script.js"></script>
+    <script src="supabase/config.js"></script>
+    <script src="js/admin.js"></script>
+
 </body>
-    </html>
+                </html> 

@@ -7,7 +7,7 @@ const Products = {
     STORAGE_KEY: 'alwaha_products',
 
     // ============================================================
-    // LOAD DATA - تحميل المنتجات من localStorage أو البيانات الافتراضية
+    // LOAD DATA
     // ============================================================
     
     loadData() {
@@ -17,6 +17,7 @@ const Products = {
                 const parsed = JSON.parse(stored);
                 if (parsed && Array.isArray(parsed) && parsed.length > 0) {
                     this.data = parsed;
+                    console.log('✅ Products loaded from localStorage:', this.data.length);
                     return;
                 }
             }
@@ -27,10 +28,11 @@ const Products = {
         // استخدام المنتجات الافتراضية
         this.data = this.getDefaultProducts();
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
+        console.log('✅ Default products loaded:', this.data.length);
     },
 
     // ============================================================
-    // DEFAULT PRODUCTS - 50 منتج
+    // DEFAULT PRODUCTS - 50 منتج كامل
     // ============================================================
     
     getDefaultProducts() {
@@ -96,6 +98,9 @@ const Products = {
     // ============================================================
     
     getData() {
+        if (this.data.length === 0) {
+            this.loadData();
+        }
         return this.data;
     },
 
@@ -121,10 +126,15 @@ const Products = {
     },
 
     // ============================================================
-    // RENDER - عرض المنتجات
+    // RENDER
     // ============================================================
     
     render(sort = 'default', search = '') {
+        // تأكد من تحميل البيانات أولاً
+        if (this.data.length === 0) {
+            this.loadData();
+        }
+        
         const products = this.data;
         const fruitsGrid = document.getElementById('fruitsGrid');
         const vegGrid = document.getElementById('vegetablesGrid');
@@ -199,6 +209,8 @@ const Products = {
         renderGrid(fruitsGrid, fruits);
         renderGrid(vegGrid, vegetables);
         renderGrid(offersGrid, offers, true);
+        
+        console.log('✅ Products rendered:', products.length);
     }
 };
 

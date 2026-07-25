@@ -725,7 +725,6 @@ async function loadCustomers() {
             }
         });
         
-        // تحديث المنتجات المفضلة لكل عميل
         customers.forEach(c => {
             const customerOrders = orders.filter(o => o.phone === c.phone);
             const productCounts = {};

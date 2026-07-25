@@ -1083,6 +1083,143 @@ body {
     color: var(--primary-dark);
 }
 
+/* ===== SIDE MENU ===== */
+.side-menu .badge-count {
+    background: var(--gold);
+    color: var(--primary-dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 10px;
+    border-radius: 30px;
+    margin-right: auto;
+    min-width: 24px;
+    text-align: center;
+}
+
+/* ===== USER DROPDOWN ===== */
+.user-dropdown {
+    position: fixed;
+    top: 64px;
+    right: 16px;
+    background: var(--bg-modal);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 16px;
+    min-width: 280px;
+    max-width: 90vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    border: 1px solid var(--border-color);
+    z-index: 1100;
+    display: none;
+}
+.user-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-dropdown .dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.user-dropdown .dropdown-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+.user-dropdown .dropdown-info {
+    flex: 1;
+}
+.user-dropdown .dropdown-name {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 16px;
+}
+.user-dropdown .dropdown-email {
+    font-size: 13px;
+    color: #7a8a7a;
+}
+.user-dropdown .dropdown-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.04);
+    margin: 8px 0;
+}
+.user-dropdown .dropdown-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 8px 0;
+}
+.user-dropdown .dropdown-stats .stat-item {
+    text-align: center;
+}
+.user-dropdown .dropdown-stats .stat-number {
+    display: block;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gold);
+}
+.user-dropdown .dropdown-stats .stat-label {
+    font-size: 11px;
+    color: #7a8a7a;
+}
+.user-dropdown .dropdown-pending {
+    padding: 8px 0;
+}
+.user-dropdown .dropdown-pending .pending-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 6px;
+}
+.user-dropdown .dropdown-pending .pending-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--text-color);
+    border-bottom: 1px solid rgba(0,0,0,0.02);
+}
+.user-dropdown .dropdown-pending .pending-status {
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 30px;
+    background: #fff3cd;
+    color: #856404;
+}
+.user-dropdown .dropdown-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-color);
+    border-radius: 8px;
+}
+.user-dropdown .dropdown-item:hover {
+    background: rgba(212,175,55,0.06);
+}
+.user-dropdown .dropdown-item i {
+    width: 18px;
+    color: var(--gold);
+}
+
 /* ===== PROFILE MODAL ===== */
 .profile-modal-overlay {
     position: fixed;
@@ -1140,7 +1277,6 @@ body {
     color: #e74c3c;
     transform: rotate(90deg);
 }
-
 .profile-modal-box .profile-header {
     text-align: center;
     margin-bottom: 20px;
@@ -1160,12 +1296,11 @@ body {
     color: #8a9a8a;
     font-size: 14px;
 }
-
 .profile-modal-box .profile-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     background: rgba(26, 92, 58, 0.03);
     border-radius: 12px;
     padding: 12px;
@@ -1183,7 +1318,6 @@ body {
     font-size: 12px;
     color: #7a8a7a;
 }
-
 .profile-modal-box .profile-form .form-group {
     margin-bottom: 12px;
 }
@@ -1214,7 +1348,6 @@ body {
     outline: none;
     box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
 }
-
 .profile-modal-box .share-link-group {
     display: flex;
     gap: 8px;
@@ -1242,7 +1375,6 @@ body {
 .profile-modal-box .share-link-group button:hover {
     transform: scale(1.04);
 }
-
 .profile-modal-box .btn-save-profile {
     width: 100%;
     padding: 12px;
@@ -1263,40 +1395,69 @@ body {
     box-shadow: 0 6px 24px rgba(26, 92, 58, 0.2);
 }
 
-/* ===== USER DROPDOWN ===== */
-.user-dropdown {
-    position: fixed;
-    top: 60px;
-    left: 10px;
-    background: var(--bg-modal);
-    backdrop-filter: blur(20px);
-    border-radius: 12px;
-    padding: 8px 0;
-    min-width: 180px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    border: 1px solid var(--border-color);
-    z-index: 1100;
-    display: none;
+/* ===== PENDING ORDERS IN PROFILE ===== */
+#profilePendingOrders .pending-order-item {
+    background: rgba(26, 92, 58, 0.03);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
 }
-.user-dropdown.show {
-    display: block;
+#profilePendingOrders .pending-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--primary);
 }
-.user-dropdown .dropdown-item {
-    padding: 10px 16px;
-    cursor: pointer;
-    transition: 0.2s;
+#profilePendingOrders .status-badge {
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 30px;
+}
+#profilePendingOrders .status-new {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+#profilePendingOrders .status-processing {
+    background: #fff3cd;
+    color: #856404;
+}
+#profilePendingOrders .order-progress {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 4px;
+}
+#profilePendingOrders .progress-step {
+    font-size: 11px;
+    color: #aaa;
+    padding: 2px 6px;
+    border-radius: 30px;
+    background: #f0f0f0;
+}
+#profilePendingOrders .progress-step.active {
+    color: var(--primary);
+    background: rgba(26, 92, 58, 0.08);
+}
+#profilePendingOrders .progress-line {
+    flex: 1;
+    height: 2px;
+    background: #ddd;
+}
+#profilePendingOrders .progress-line.active {
+    background: var(--gold);
+}
+#profilePendingOrders .no-pending-orders {
+    text-align: center;
+    color: #7a8a7a;
+    padding: 12px;
     font-size: 14px;
-    color: var(--text-color);
 }
-.user-dropdown .dropdown-item:hover {
-    background: rgba(212,175,55,0.08);
-}
-.user-dropdown .dropdown-item i {
-    width: 18px;
-    color: var(--gold);
+#profilePendingOrders .no-pending-orders i {
+    color: #27ae60;
+    font-size: 20px;
+    display: block;
+    margin-bottom: 4px;
 }
 
 /* ===== COUPON SECTION ===== */
@@ -1658,8 +1819,8 @@ body {
     #bg-static { font-size: 28px; gap: 15px 25px; padding: 20px; }
     .user-dropdown {
         top: 56px;
-        left: 8px;
-        min-width: 150px;
+        right: 12px;
+        min-width: 250px;
     }
     .payment-options label {
         padding: 8px 12px;
@@ -1732,12 +1893,12 @@ body {
     #bg-static { font-size: 18px; gap: 10px 15px; padding: 15px; }
     .user-dropdown {
         top: 52px;
-        left: 6px;
-        min-width: 130px;
+        right: 8px;
+        min-width: 220px;
+        padding: 12px;
     }
-    .user-dropdown .dropdown-item {
-        padding: 8px 12px;
-        font-size: 12px;
+    .user-dropdown .dropdown-stats .stat-number {
+        font-size: 17px;
     }
     .profile-modal-box {
         padding: 16px 14px;

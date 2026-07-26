@@ -19,9 +19,41 @@ const SUPABASE_CONFIG = {
 // SUPABASE CLIENT
 // ============================================================
 
-const supabaseClient = supabase.createClient(
-    SUPABASE_CONFIG.url,
-    SUPABASE_CONFIG.key
-);
+let supabaseClient = null;
 
-console.log('✅ Supabase client initialized'); 
+try {
+    if (typeof supabase !== 'undefined') {
+        supabaseClient = supabase.createClient(
+            SUPABASE_CONFIG.url,
+            SUPABASE_CONFIG.key
+        );
+        console.log('✅ Supabase client initialized');
+    } else {
+        console.warn('⚠️ Supabase SDK not loaded');
+    }
+} catch (error) {
+    console.error('❌ Failed to initialize Supabase:', error);
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+function isSupabaseAvailable() {
+    return supabaseClient !== null && typeof supabaseClient !== 'undefined';
+}
+
+function getSupabase() {
+    return supabaseClient;
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+window.SUPABASE_CONFIG = SUPABASE_CONFIG;
+window.supabaseClient = supabaseClient;
+window.isSupabaseAvailable = isSupabaseAvailable;
+window.getSupabase = getSupabase;
+
+console.log('✅ Supabase config loaded'); 

@@ -14,7 +14,7 @@ const UI = {
         const name = userData?.display_name || user?.email?.split('@')[0] || 'مستخدم';
         const initial = (name || 'م')[0];
         
-        const userBtn = document.getElementById('userBtn');
+        const userBtn = getElement('userBtn');
         if (userBtn) {
             userBtn.innerHTML = `
                 <span class="user-avatar">${initial}</span>
@@ -27,15 +27,18 @@ const UI = {
     },
 
     updateForGuestUser() {
-        const userBtn = document.getElementById('userBtn');
+        const userBtn = getElement('userBtn');
         if (userBtn) {
             userBtn.innerHTML = `
                 <i class="fas fa-user"></i>
-                <span class="user-name-text">تسجيل</span>
+                <span class="user-name-text">${currentLang === 'en' ? 'Login' : 'تسجيل'}</span>
             `;
             userBtn.className = 'user-btn guest';
             userBtn.onclick = () => openAuthModal();
         }
+        
+        const dropdown = getElement('userDropdown');
+        if (dropdown) dropdown.classList.remove('show');
     },
 
     // ============================================================
@@ -43,7 +46,7 @@ const UI = {
     // ============================================================
     
     toggleUserMenu() {
-        const dropdown = document.getElementById('userDropdown');
+        const dropdown = getElement('userDropdown');
         if (dropdown) {
             dropdown.classList.toggle('show');
             this.updateUserDropdown();
@@ -57,15 +60,14 @@ const UI = {
         const name = userData?.display_name || user?.email?.split('@')[0] || 'مستخدم';
         const email = user?.email || '--';
         const phone = userData?.phone || 'لم يحدد';
-        const address = userData?.address || 'لم يحدد';
         const points = userData?.referral_points || 0;
         const referrals = userData?.referral_count || 0;
         
-        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        const orders = getData('alwaha_orders');
         const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
         const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم' && o.status !== 'ملغي');
         
-        const dropdown = document.getElementById('userDropdown');
+        const dropdown = getElement('userDropdown');
         if (dropdown) {
             dropdown.innerHTML = `
                 <div class="dropdown-header">
@@ -79,15 +81,15 @@ const UI = {
                 <div class="dropdown-stats">
                     <div class="stat-item">
                         <span class="stat-number">${userOrders.length}</span>
-                        <span class="stat-label">الطلبات</span>
+                        <span class="stat-label">${currentLang === 'en' ? 'Orders' : 'الطلبات'}</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${points}</span>
-                        <span class="stat-label">النقاط</span>
+                        <span class="stat-label">${currentLang === 'en' ? 'Points' : 'النقاط'}</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${referrals}</span>
-                        <span class="stat-label">الإحالات</span>
+                        <span class="stat-label">${currentLang === 'en' ? 'Referrals' : 'الإحالات'}</span>
                     </div>
                 </div>
                 ${pendingOrders.length > 0 ? `
@@ -95,7 +97,7 @@ const UI = {
                     <div class="dropdown-pending">
                         <div class="pending-title">
                             <i class="fas fa-spinner fa-pulse"></i>
-                            طلبات قيد المعالجة (${pendingOrders.length})
+                            ${currentLang === 'en' ? 'Pending Orders' : 'طلبات قيد المعالجة'} (${pendingOrders.length})
                         </div>
                         ${pendingOrders.map(o => `
                             <div class="pending-item">
@@ -107,16 +109,16 @@ const UI = {
                 ` : ''}
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" onclick="UI.viewProfile()">
-                    <i class="fas fa-user"></i> حسابي
+                    <i class="fas fa-user"></i> ${currentLang === 'en' ? 'My Account' : 'حسابي'}
                 </div>
                 <div class="dropdown-item" onclick="UI.viewOrders()">
-                    <i class="fas fa-shopping-bag"></i> طلباتي
+                    <i class="fas fa-shopping-bag"></i> ${currentLang === 'en' ? 'My Orders' : 'طلباتي'}
                 </div>
                 <div class="dropdown-item" onclick="Referral.shareStore()">
-                    <i class="fas fa-share-alt"></i> مشاركة المتجر
+                    <i class="fas fa-share-alt"></i> ${currentLang === 'en' ? 'Share Store' : 'مشاركة المتجر'}
                 </div>
                 <div class="dropdown-item" onclick="Auth.logout()" style="color:#e74c3c;">
-                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    <i class="fas fa-sign-out-alt"></i> ${currentLang === 'en' ? 'Logout' : 'تسجيل الخروج'}
                 </div>
             `;
         }
@@ -128,7 +130,10 @@ const UI = {
     
     viewProfile() {
         if (!Auth.isLoggedIn()) {
-            showToast('يجب تسجيل الدخول أولاً', 'error');
+            showToast(
+                currentLang === 'en' ? 'Please login first' : 'يجب تسجيل الدخول أولاً',
+                'error'
+            );
             openAuthModal();
             return;
         }
@@ -144,40 +149,58 @@ const UI = {
         const referrals = userData?.referral_count || 0;
         const shareLink = `${window.location.origin}${window.location.pathname}?ref=${user.id}`;
         
-        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        const orders = getData('alwaha_orders');
         const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
         const pendingOrders = userOrders.filter(o => o.status !== 'تم التسليم' && o.status !== 'ملغي');
         
-        const profileModal = document.getElementById('profileModal');
+        const profileModal = getElement('profileModal');
         if (profileModal) {
-            document.getElementById('profileAvatar').textContent = '👤';
-            document.getElementById('profileName').textContent = name;
-            document.getElementById('profileEmail').textContent = email;
-            document.getElementById('profileDisplayName').value = name;
-            document.getElementById('profilePhone').value = phone;
-            document.getElementById('profileAddress').value = address;
-            document.getElementById('profileShareLink').value = shareLink;
-            document.getElementById('profileOrders').textContent = userOrders.length;
-            document.getElementById('profilePoints').textContent = points;
-            document.getElementById('profileReferrals').textContent = referrals;
+            const avatar = getElement('profileAvatar');
+            if (avatar) avatar.textContent = '👤';
             
-            const pendingContainer = document.getElementById('profilePendingOrders');
+            const nameEl = getElement('profileName');
+            if (nameEl) nameEl.textContent = name;
+            
+            const emailEl = getElement('profileEmail');
+            if (emailEl) emailEl.textContent = email;
+            
+            setValue('profileDisplayName', name);
+            setValue('profilePhone', phone);
+            setValue('profileAddress', address);
+            setValue('profileShareLink', shareLink);
+            
+            const ordersEl = getElement('profileOrders');
+            if (ordersEl) ordersEl.textContent = userOrders.length;
+            
+            const pointsEl = getElement('profilePoints');
+            if (pointsEl) pointsEl.textContent = points;
+            
+            const referralsEl = getElement('profileReferrals');
+            if (referralsEl) referralsEl.textContent = referrals;
+            
+            const pendingContainer = getElement('profilePendingOrders');
             if (pendingContainer) {
                 if (pendingOrders.length > 0) {
                     pendingContainer.innerHTML = pendingOrders.map(o => `
                         <div class="pending-order-item">
                             <div class="pending-order-header">
-                                <span>طلب #${o.id || '---'}</span>
+                                <span>${currentLang === 'en' ? 'Order' : 'طلب'} #${o.id || '---'}</span>
                                 <span class="status-badge ${o.status === 'جديد' ? 'status-new' : 'status-processing'}">
                                     ${o.status || 'جديد'}
                                 </span>
                             </div>
                             <div class="order-progress">
-                                <div class="progress-step ${o.status === 'جديد' ? 'active' : ''}">جديد</div>
+                                <div class="progress-step ${o.status === 'جديد' ? 'active' : ''}">
+                                    ${currentLang === 'en' ? 'New' : 'جديد'}
+                                </div>
                                 <div class="progress-line ${o.status === 'قيد التجهيز' ? 'active' : ''}"></div>
-                                <div class="progress-step ${o.status === 'قيد التجهيز' ? 'active' : ''}">تجهيز</div>
+                                <div class="progress-step ${o.status === 'قيد التجهيز' ? 'active' : ''}">
+                                    ${currentLang === 'en' ? 'Processing' : 'تجهيز'}
+                                </div>
                                 <div class="progress-line ${o.status === 'تم التوصيل' ? 'active' : ''}"></div>
-                                <div class="progress-step ${o.status === 'تم التوصيل' ? 'active' : ''}">توصيل</div>
+                                <div class="progress-step ${o.status === 'تم التوصيل' ? 'active' : ''}">
+                                    ${currentLang === 'en' ? 'Delivering' : 'توصيل'}
+                                </div>
                             </div>
                         </div>
                     `).join('');
@@ -185,7 +208,7 @@ const UI = {
                     pendingContainer.innerHTML = `
                         <div class="no-pending-orders">
                             <i class="fas fa-check-circle"></i>
-                            لا توجد طلبات قيد المعالجة
+                            ${currentLang === 'en' ? 'No pending orders' : 'لا توجد طلبات قيد المعالجة'}
                         </div>
                     `;
                 }
@@ -193,6 +216,9 @@ const UI = {
             
             profileModal.classList.add('open');
             document.body.style.overflow = 'hidden';
+            
+            const dropdown = getElement('userDropdown');
+            if (dropdown) dropdown.classList.remove('show');
         }
     },
 
@@ -202,7 +228,10 @@ const UI = {
     
     viewOrders() {
         if (!Auth.isLoggedIn()) {
-            showToast('يجب تسجيل الدخول أولاً', 'error');
+            showToast(
+                currentLang === 'en' ? 'Please login first' : 'يجب تسجيل الدخول أولاً',
+                'error'
+            );
             openAuthModal();
             return;
         }
@@ -211,20 +240,23 @@ const UI = {
         const phone = userData?.phone || '';
         const name = userData?.display_name || '';
         
-        const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
+        const orders = getData('alwaha_orders');
         const userOrders = orders.filter(o => o.phone === phone || o.customer === name);
         
         if (userOrders.length === 0) {
-            showToast('📦 لا توجد طلبات سابقة', 'info');
+            showToast(
+                currentLang === 'en' ? '📦 No orders yet' : '📦 لا توجد طلبات سابقة',
+                'info'
+            );
             return;
         }
         
-        let message = '📦 *طلباتي السابقة*\n';
-        message += '───────────────────\n';
+        let message = `📦 ${currentLang === 'en' ? 'My Orders' : 'طلباتي السابقة'}\n`;
+        message += `───────────────────\n`;
         userOrders.forEach((o, i) => {
-            message += `${i+1}. ${o.dateAr || o.date || '--'}\n`;
-            message += `   🛒 ${o.items ? o.items.length : 0} منتج\n`;
-            message += `   💰 ${(o.discountedTotal || o.total || 0).toFixed(2)} ج.م\n`;
+            message += `${i+1}. ${o.dateAr || formatDate(o.date) || '--'}\n`;
+            message += `   🛒 ${o.items ? o.items.length : 0} ${currentLang === 'en' ? 'products' : 'منتج'}\n`;
+            message += `   💰 ${(o.discountedTotal || o.total || 0).toFixed(2)} ${currentLang === 'en' ? 'EGP' : 'ج.م'}\n`;
             message += `   📌 ${o.status || 'جديد'}\n`;
             message += `───────────────────\n`;
         });
@@ -238,31 +270,55 @@ const UI = {
     openProductModal(id) {
         const products = Products.getData();
         const p = products.find(item => item.id === id);
-        if (!p) return;
+        if (!p) {
+            showToast(
+                currentLang === 'en' ? 'Product not found' : 'المنتج غير موجود',
+                'error'
+            );
+            return;
+        }
         
         const priceLabel = currentLang === 'en' ? 'EGP/kg' : 'ج.م / كجم';
         
-        document.getElementById('modalEmoji').textContent = p.emoji;
-        document.getElementById('modalName').textContent = Products.getName(p);
+        const emojiEl = getElement('modalEmoji');
+        if (emojiEl) emojiEl.textContent = p.emoji;
         
-        let priceHtml = p.oldPrice ?
-            `<span class="old-price">${p.oldPrice}</span> ${p.price} <small>${priceLabel}</small>` :
-            `${p.price} <small>${priceLabel}</small>`;
-        document.getElementById('modalPrice').innerHTML = priceHtml;
-        document.getElementById('modalDesc').textContent = Products.getDescription(p);
+        const nameEl = getElement('modalName');
+        if (nameEl) nameEl.textContent = Products.getName(p);
         
-        const offerTag = document.getElementById('modalOfferTag');
-        if (p.offer) {
-            offerTag.style.display = 'inline-block';
-            offerTag.textContent = `🏷️ ${p.offer}`;
-        } else {
-            offerTag.style.display = 'none';
+        const priceEl = getElement('modalPrice');
+        if (priceEl) {
+            const price = Products.getPrice(p);
+            let priceHtml = p.oldPrice && Products.hasOffer(p) ?
+                `<span class="old-price">${p.oldPrice}</span> ${price} <small>${priceLabel}</small>` :
+                `${price} <small>${priceLabel}</small>`;
+            priceEl.innerHTML = priceHtml;
         }
         
-        document.getElementById('modalWeight').value = 1;
-        document.getElementById('sharePopup')?.classList.remove('show');
-        document.getElementById('productModal').classList.add('open');
-        document.body.style.overflow = 'hidden';
+        const descEl = getElement('modalDesc');
+        if (descEl) descEl.textContent = Products.getDescription(p);
+        
+        const offerTag = getElement('modalOfferTag');
+        if (offerTag) {
+            if (Products.hasOffer(p)) {
+                offerTag.style.display = 'inline-block';
+                offerTag.textContent = `🏷️ ${p.offer || 'عرض'}`;
+            } else {
+                offerTag.style.display = 'none';
+            }
+        }
+        
+        const weightInput = getElement('modalWeight');
+        if (weightInput) weightInput.value = 1;
+        
+        const sharePopup = getElement('sharePopup');
+        if (sharePopup) sharePopup.classList.remove('show');
+        
+        const modal = getElement('productModal');
+        if (modal) {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
         
         // حفظ المنتج الحالي للمشاركة
         window._shareProductData = p;
@@ -270,13 +326,16 @@ const UI = {
     },
 
     closeProductModal() {
-        document.getElementById('productModal').classList.remove('open');
+        const modal = getElement('productModal');
+        if (modal) modal.classList.remove('open');
         document.body.style.overflow = '';
-        document.getElementById('sharePopup')?.classList.remove('show');
+        
+        const sharePopup = getElement('sharePopup');
+        if (sharePopup) sharePopup.classList.remove('show');
     },
 
     changeModalWeight(delta) {
-        const input = document.getElementById('modalWeight');
+        const input = getElement('modalWeight');
         if (!input) return;
         let val = parseFloat(input.value) || 1;
         val = Math.max(0.25, Math.round((val + delta) * 100) / 100);
@@ -284,7 +343,8 @@ const UI = {
     },
 
     toggleSharePopup() {
-        document.getElementById('sharePopup')?.classList.toggle('show');
+        const popup = getElement('sharePopup');
+        if (popup) popup.classList.toggle('show');
     },
 
     // ============================================================
@@ -293,32 +353,43 @@ const UI = {
     
     shareProduct(platform) {
         const p = window._shareProductData;
-        if (!p) return;
+        if (!p) {
+            showToast(
+                currentLang === 'en' ? 'Product not found' : 'المنتج غير موجود',
+                'error'
+            );
+            return;
+        }
         
         const shopPhone = '01229156909';
         const shopName = currentLang === 'en' ? 'Al-Waha' : 'الواحة';
         const siteUrl = window.location.origin + window.location.pathname;
+        const price = Products.getPrice(p);
         
-        let priceText = `${p.price} ${currentLang === 'en' ? 'EGP/kg' : 'ج.م/كجم'}`;
-        if (p.oldPrice) {
-            priceText = `${p.oldPrice} → ${p.price} ${currentLang === 'en' ? 'EGP/kg' : 'ج.م/كجم'}`;
+        let priceText = `${price} ${currentLang === 'en' ? 'EGP/kg' : 'ج.م/كجم'}`;
+        if (p.oldPrice && Products.hasOffer(p)) {
+            priceText = `${p.oldPrice} → ${price} ${currentLang === 'en' ? 'EGP/kg' : 'ج.م/كجم'}`;
         }
         
-        let message = `🍎 منتج رائع من متجر ${shopName}!\n\n`;
-        message += `📦 المنتج: ${p.emoji} ${Products.getName(p)}\n`;
-        message += `💰 السعر: ${priceText}\n`;
-        message += `📝 الوصف: ${Products.getDescription(p)}\n\n`;
-        if (p.offer) {
-            message += `🏷️ عرض: ${p.offer}\n\n`;
+        let message = `🍎 ${currentLang === 'en' ? 'Great product from' : 'منتج رائع من متجر'} ${shopName}!\n\n`;
+        message += `📦 ${currentLang === 'en' ? 'Product' : 'المنتج'}: ${p.emoji} ${Products.getName(p)}\n`;
+        message += `💰 ${currentLang === 'en' ? 'Price' : 'السعر'}: ${priceText}\n`;
+        message += `📝 ${currentLang === 'en' ? 'Description' : 'الوصف'}: ${Products.getDescription(p)}\n\n`;
+        if (Products.hasOffer(p)) {
+            message += `🏷️ ${currentLang === 'en' ? 'Offer' : 'عرض'}: ${p.offer || 'عرض خاص'}\n\n`;
         }
-        message += `🛒 اطلبه الآن من متجر ${shopName} : ${siteUrl}\n`;
-        message += `📱 تواصل للطلبات والاستفسار: ${shopPhone}`;
+        message += `🛒 ${currentLang === 'en' ? 'Order now from' : 'اطلبه الآن من متجر'} ${shopName}: ${siteUrl}\n`;
+        message += `📱 ${currentLang === 'en' ? 'Contact for orders' : 'تواصل للطلبات والاستفسار'}: ${shopPhone}`;
 
         if (platform === 'whatsapp') {
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         } else if (platform === 'copy') {
             navigator.clipboard.writeText(message).then(() => {
-                showToast(currentLang === 'en' ? 'Copied!' : 'تم النسخ!', 'success', '📋');
+                showToast(
+                    currentLang === 'en' ? 'Copied!' : 'تم النسخ!',
+                    'success',
+                    '📋'
+                );
             }).catch(() => {
                 const ta = document.createElement('textarea');
                 ta.value = message;
@@ -326,9 +397,15 @@ const UI = {
                 ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
-                showToast(currentLang === 'en' ? 'Copied!' : 'تم النسخ!', 'success', '📋');
+                showToast(
+                    currentLang === 'en' ? 'Copied!' : 'تم النسخ!',
+                    'success',
+                    '📋'
+                );
             });
-            document.getElementById('sharePopup')?.classList.remove('show');
+            
+            const popup = getElement('sharePopup');
+            if (popup) popup.classList.remove('show');
         }
     }
 };
@@ -338,3 +415,5 @@ const UI = {
 // ============================================================
 
 window.UI = UI;
+
+console.log('✅ UI module loaded'); 

@@ -5,17 +5,23 @@
 const Auth = {
     currentUser: null,
     currentUserData: null,
+    isInitialized: false,
 
     // ============================================================
     // INIT
     // ============================================================
     
     init() {
-        if (typeof supabaseClient === 'undefined') {
+        if (this.isInitialized) return;
+        
+        if (!isSupabaseAvailable()) {
             console.warn('⚠️ Supabase client not available');
             return;
         }
         
+        console.log('🔐 Initializing Auth...');
+        
+        // استمع لتغييرات حالة المصادقة
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
             console.log('🔄 Auth state changed:', event);
             
@@ -32,6 +38,20 @@ const Auth = {
                 Cart.updateUI();
             }
         });
+        
+        // تحقق من الجلسة الحالية
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                this.currentUser = session.user;
+                this.loadUserData(session.user.id);
+                UI.updateForLoggedInUser();
+            }
+        }).catch(error => {
+            console.warn('⚠️ Error getting session:', error);
+        });
+        
+        this.isInitialized = true;
+        console.log('✅ Auth initialized');
     },
 
     // ============================================================
@@ -40,7 +60,7 @@ const Auth = {
     
     async loadUserData(userId) {
         try {
-            if (typeof supabaseClient === 'undefined') return;
+            if (!isSupabaseAvailable()) return;
             
             const { data, error } = await supabaseClient
                 .from('users')
@@ -53,6 +73,7 @@ const Auth = {
             if (data) {
                 this.currentUserData = data;
             } else {
+                // إنشاء مستخدم جديد
                 const newUser = {
                     id: userId,
                     email: this.currentUser.email,
@@ -72,6 +93,17 @@ const Auth = {
                 if (insertError && insertError.code !== '23505') throw insertError;
                 this.currentUserData = newUser;
             }
+            
+            // حفظ في localStorage
+            let users = getData('alwaha_users');
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                users[userIndex] = this.currentUserData;
+            } else {
+                users.push(this.currentUserData);
+            }
+            saveData('alwaha_users', users);
+            
         } catch (error) {
             console.error('❌ Error loading user data:', error);
         }
@@ -88,7 +120,7 @@ const Auth = {
         }
         
         try {
-            if (typeof supabaseClient === 'undefined') {
+            if (!isSupabaseAvailable()) {
                 showToast('⚠️ Supabase غير متصل', 'error');
                 return;
             }
@@ -102,11 +134,12 @@ const Auth = {
             
             showToast('تم تسجيل الدخول بنجاح! 🎉', 'success');
             closeAuthModal();
+            
         } catch (error) {
             console.error('❌ Login error:', error);
             showToast(error.message || 'حدث خطأ في تسجيل الدخول', 'error');
             
-            const loginError = document.getElementById('loginError');
+            const loginError = getElement('loginError');
             if (loginError) {
                 loginError.textContent = error.message || 'حدث خطأ';
                 loginError.classList.add('show');
@@ -130,7 +163,7 @@ const Auth = {
         }
         
         try {
-            if (typeof supabaseClient === 'undefined') {
+            if (!isSupabaseAvailable()) {
                 showToast('⚠️ Supabase غير متصل', 'error');
                 return;
             }
@@ -147,11 +180,12 @@ const Auth = {
             
             showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
             closeAuthModal();
+            
         } catch (error) {
             console.error('❌ Signup error:', error);
             showToast(error.message || 'حدث خطأ في إنشاء الحساب', 'error');
             
-            const signupError = document.getElementById('signupError');
+            const signupError = getElement('signupError');
             if (signupError) {
                 signupError.textContent = error.message || 'حدث خطأ';
                 signupError.classList.add('show');
@@ -164,14 +198,14 @@ const Auth = {
     // ============================================================
     
     async loginWithGoogle() {
-        const googleBtn = document.getElementById('googleBtn');
+        const googleBtn = getElement('googleBtn');
         if (googleBtn) {
             googleBtn.disabled = true;
-            googleBtn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> جاري...';
+            googleBtn.innerHTML = '<span class="fas fa-spinner fa-spin"></span> جاري...';
         }
         
         try {
-            if (typeof supabaseClient === 'undefined') {
+            if (!isSupabaseAvailable()) {
                 showToast('⚠️ Supabase غير متصل', 'error');
                 if (googleBtn) {
                     googleBtn.disabled = false;
@@ -193,6 +227,7 @@ const Auth = {
             if (error) throw error;
             
             showToast('جاري التوجيه إلى جوجل...', 'info');
+            
         } catch (error) {
             console.error('❌ Google login error:', error);
             showToast(error.message || 'حدث خطأ في تسجيل الدخول بجوجل', 'error');
@@ -213,18 +248,22 @@ const Auth = {
     
     async logout() {
         try {
-            if (typeof supabaseClient !== 'undefined') {
+            if (isSupabaseAvailable()) {
                 await supabaseClient.auth.signOut();
             }
             
+            this.currentUser = null;
+            this.currentUserData = null;
+            
             showToast('تم تسجيل الخروج', 'info');
             
-            const dropdown = document.getElementById('userDropdown');
+            const dropdown = getElement('userDropdown');
             if (dropdown) dropdown.classList.remove('show');
             
             Cart.loadLocal();
             Cart.updateUI();
             UI.updateForGuestUser();
+            
         } catch (error) {
             console.error('❌ Logout error:', error);
             showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
@@ -242,7 +281,7 @@ const Auth = {
         }
         
         try {
-            if (typeof supabaseClient === 'undefined') {
+            if (!isSupabaseAvailable()) {
                 showToast('⚠️ Supabase غير متصل', 'error');
                 return;
             }
@@ -254,6 +293,7 @@ const Auth = {
             if (error) throw error;
             
             showToast('✅ تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك', 'success');
+            
         } catch (error) {
             console.error('❌ Reset password error:', error);
             showToast(error.message || 'حدث خطأ', 'error');
@@ -281,4 +321,6 @@ const Auth = {
 // EXPORT
 // ============================================================
 
-window.Auth = Auth; 
+window.Auth = Auth;
+
+console.log('✅ Auth module loaded'); 

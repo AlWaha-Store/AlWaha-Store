@@ -398,4 +398,4 @@ const Orders = {
 
 window.Orders = Orders;
 
-console.log('✅ Orders module loaded'); 
+console.log('✅ Orders module loaded');

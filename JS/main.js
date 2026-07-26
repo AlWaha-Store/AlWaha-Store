@@ -6,9 +6,9 @@
 // GLOBAL VARIABLES
 // ============================================================
 
-let currentLang = 'ar';
-let currentSort = 'default';
-let appliedCoupon = null;
+var currentLang = 'ar';
+var currentSort = 'default';
+var appliedCoupon = null;
 
 // ============================================================
 // INITIALIZATION
@@ -17,42 +17,45 @@ let appliedCoupon = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Al-Waha Store initializing...');
     
-    // 1. Load Products Data FIRST
-    Products.loadData();
-    console.log('📦 Products loaded:', Products.getData().length);
-    
-    // 2. Render Products
-    Products.render('default', '');
-    
-    // 3. Initialize Auth
-    Auth.init();
-    
-    // 4. Load Cart
-    Cart.loadLocal();
-    Cart.updateUI();
-    
-    // 5. Start Countdown
-    startCountdown();
-    
-    // 6. Background Static
-    initBackgroundStatic();
-    
-    // 7. Load Settings
-    loadSavedSettings();
-    
-    // 8. Set min delivery time
-    Orders.setMinDeliveryTime();
-    
-    // 9. Setup event listeners
-    setupEventListeners();
-    
-    // 10. Admin access
-    setupAdminAccess();
-    
-    // 11. Update side menu cart count
-    updateSideMenuCartCount();
-    
-    console.log('✅ All modules initialized successfully');
+    try {
+        // 1. Load Products Data
+        Products.loadData();
+        console.log('📦 Products loaded:', Products.getData().length);
+        
+        // 2. Render Products
+        Products.render('default', '');
+        
+        // 3. Initialize Auth
+        Auth.init();
+        
+        // 4. Load Cart
+        Cart.loadLocal();
+        Cart.updateUI();
+        
+        // 5. Start Countdown
+        startCountdown();
+        
+        // 6. Background Static
+        initBackgroundStatic();
+        
+        // 7. Load Settings
+        loadSavedSettings();
+        
+        // 8. Set min delivery time
+        Orders.setMinDeliveryTime();
+        
+        // 9. Setup event listeners
+        setupEventListeners();
+        
+        // 10. Admin access
+        setupAdminAccess();
+        
+        console.log('✅ All modules initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ Initialization error:', error);
+        showToast('⚠️ حدث خطأ في تهيئة التطبيق', 'error');
+    }
 });
 
 // ============================================================
@@ -60,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 
 function initBackgroundStatic() {
-    const bgStatic = document.getElementById('bg-static');
+    const bgStatic = getElement('bg-static');
     if (bgStatic) {
         const emojis = ['🍎', '🥑', '🍋', '🥦', '🍊', '🥬', '🍇', '🥕', '🍓', '🌿', 
                         '🍍', '🥒', '🍌', '🥭', '🍅', '🥔', '🍈', '🥝', '🫑', '🍠', 
@@ -81,7 +84,7 @@ let countdownInterval;
 
 function startCountdown() {
     let hours = 12, minutes = 30, seconds = 45;
-    const cdEl = document.getElementById('countdown');
+    const cdEl = getElement('countdown');
     if (!cdEl) return;
     
     clearInterval(countdownInterval);
@@ -116,14 +119,13 @@ function loadSavedSettings() {
     const savedTheme = localStorage.getItem('alwaha_theme');
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
-        const checkbox = document.getElementById('themeCheckbox');
+        const checkbox = getElement('themeCheckbox');
         if (checkbox) checkbox.checked = true;
     }
     
     // Language
     const savedLang = localStorage.getItem('alwaha_lang');
     if (savedLang === 'en') {
-        document.documentElement.setAttribute('lang', 'en');
         currentLang = 'en';
         updateLanguage('en');
     }
@@ -138,7 +140,7 @@ function setupEventListeners() {
     document.querySelectorAll('.category-card').forEach(card => {
         card.addEventListener('click', function() {
             const targetId = this.dataset.target;
-            const target = document.getElementById(targetId);
+            const target = getElement(targetId);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
@@ -148,7 +150,7 @@ function setupEventListeners() {
     });
     
     // Search input
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = getElement('searchInput');
     if (searchInput) {
         let searchTimeout;
         searchInput.addEventListener('input', function() {
@@ -160,16 +162,16 @@ function setupEventListeners() {
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            const productModal = document.getElementById('productModal');
+            const productModal = getElement('productModal');
             if (productModal && productModal.classList.contains('open')) closeProductModal();
             
-            const checkoutModal = document.getElementById('checkoutModal');
+            const checkoutModal = getElement('checkoutModal');
             if (checkoutModal && checkoutModal.classList.contains('open')) closeCheckout();
             
-            const cartSidebar = document.getElementById('cartSidebar');
+            const cartSidebar = getElement('cartSidebar');
             if (cartSidebar && cartSidebar.classList.contains('open')) toggleCart();
             
-            const profileModal = document.getElementById('profileModal');
+            const profileModal = getElement('profileModal');
             if (profileModal && profileModal.classList.contains('open')) closeProfileModal();
         }
     });
@@ -182,7 +184,7 @@ function setupEventListeners() {
             this.classList.add('selected');
             const radio = this.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
-            validateCheckoutForm();
+            Orders.validateForm();
         });
     });
 
@@ -194,18 +196,22 @@ function setupEventListeners() {
             const radio = this.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
             
-            const deliveryTimeInput = document.getElementById('deliveryTimeInput');
-            const deliveryTime = document.getElementById('deliveryTime');
+            const deliveryTimeInput = getElement('deliveryTimeInput');
+            const deliveryTime = getElement('deliveryTime');
             if (radio && radio.value === 'وقت محدد') {
-                deliveryTimeInput.classList.add('show');
-                deliveryTime.required = true;
-                Orders.setMinDeliveryTime();
+                if (deliveryTimeInput) deliveryTimeInput.classList.add('show');
+                if (deliveryTime) {
+                    deliveryTime.required = true;
+                    Orders.setMinDeliveryTime();
+                }
             } else {
-                deliveryTimeInput.classList.remove('show');
-                deliveryTime.required = false;
-                deliveryTime.value = '';
+                if (deliveryTimeInput) deliveryTimeInput.classList.remove('show');
+                if (deliveryTime) {
+                    deliveryTime.required = false;
+                    deliveryTime.value = '';
+                }
             }
-            validateCheckoutForm();
+            Orders.validateForm();
         });
     });
 
@@ -225,12 +231,21 @@ function setupEventListeners() {
     }
     
     // Theme toggle
-    const themeCheckbox = document.getElementById('themeCheckbox');
+    const themeCheckbox = getElement('themeCheckbox');
     if (themeCheckbox) {
         themeCheckbox.addEventListener('change', function() {
             toggleTheme();
         });
     }
+    
+    // Form validation on input
+    const formInputs = ['custName', 'custPhone', 'custAddress', 'deliveryTime'];
+    formInputs.forEach(id => {
+        const el = getElement(id);
+        if (el) {
+            el.addEventListener('input', Orders.validateForm);
+        }
+    });
 }
 
 // ============================================================
@@ -241,7 +256,7 @@ function setupAdminAccess() {
     let logoClickCount = 0;
     let clickTimer = null;
     
-    const logoTrigger = document.getElementById('logoTrigger');
+    const logoTrigger = getElement('logoTrigger');
     if (logoTrigger) {
         logoTrigger.addEventListener('click', function(e) {
             e.preventDefault();
@@ -257,7 +272,7 @@ function setupAdminAccess() {
                 if (password === 'QQZ#154p') {
                     window.location.href = 'admin.html';
                 } else if (password !== null) {
-                    showToast('❌ كلمة المرور غير صحيحة!', 'error', '⚠️');
+                    showToast('❌ كلمة المرور غير صحيحة!', 'error');
                 }
                 logoClickCount = 0;
             }
@@ -270,8 +285,8 @@ function setupAdminAccess() {
 // ============================================================
 
 function toggleCart() {
-    const sidebar = document.getElementById('cartSidebar');
-    const overlay = document.getElementById('cartOverlay');
+    const sidebar = getElement('cartSidebar');
+    const overlay = getElement('cartOverlay');
     if (!sidebar || !overlay) return;
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
@@ -279,18 +294,18 @@ function toggleCart() {
 }
 
 function toggleSearch() {
-    const box = document.getElementById('searchToggle');
+    const box = getElement('searchToggle');
     if (!box) return;
     box.classList.toggle('active');
-    const input = document.getElementById('searchInput');
+    const input = getElement('searchInput');
     if (box.classList.contains('active')) {
         setTimeout(() => input?.focus(), 100);
     }
 }
 
 function toggleSideMenu() {
-    const overlay = document.getElementById('sideMenuOverlay');
-    const menu = document.getElementById('sideMenu');
+    const overlay = getElement('sideMenuOverlay');
+    const menu = getElement('sideMenu');
     if (!overlay || !menu) return;
     overlay.classList.toggle('open');
     menu.classList.toggle('open');
@@ -299,38 +314,42 @@ function toggleSideMenu() {
 
 function toggleTheme() {
     const html = document.documentElement;
-    const checkbox = document.getElementById('themeCheckbox');
+    const checkbox = getElement('themeCheckbox');
     const isDark = html.getAttribute('data-theme') === 'dark';
     
     if (isDark) {
         html.removeAttribute('data-theme');
         if (checkbox) checkbox.checked = false;
-        showToast(`${currentLang === 'en' ? 'Light mode' : 'الوضع النهاري'}`, 'success', '☀️');
+        showToast(
+            currentLang === 'en' ? 'Light mode' : 'الوضع النهاري',
+            'success',
+            '☀️'
+        );
     } else {
         html.setAttribute('data-theme', 'dark');
         if (checkbox) checkbox.checked = true;
-        showToast(`${currentLang === 'en' ? 'Dark mode' : 'الوضع الليلي'}`, 'success', '🌙');
+        showToast(
+            currentLang === 'en' ? 'Dark mode' : 'الوضع الليلي',
+            'success',
+            '🌙'
+        );
     }
     localStorage.setItem('alwaha_theme', isDark ? 'light' : 'dark');
 }
 
 function filterProducts() {
-    Products.render(currentSort, document.getElementById('searchInput')?.value || '');
+    const searchInput = getElement('searchInput');
+    Products.render(currentSort, searchInput?.value || '');
 }
 
 function applySort() {
-    currentSort = document.getElementById('sortFilter')?.value || 'default';
-    Products.render(currentSort, document.getElementById('searchInput')?.value || '');
+    currentSort = getValue('sortFilter') || 'default';
+    const searchInput = getElement('searchInput');
+    Products.render(currentSort, searchInput?.value || '');
 }
 
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function updateSideMenuCartCount() {
-    const count = Cart.getUniqueCount();
-    const el = document.getElementById('sideMenuCartCount');
-    if (el) el.textContent = count;
 }
 
 // ============================================================
@@ -350,7 +369,7 @@ function toggleLang() {
         showToast('العربية', 'success', '🌍');
     }
     localStorage.setItem('alwaha_lang', currentLang);
-    Products.render(currentSort, document.getElementById('searchInput')?.value || '');
+    Products.render(currentSort, getValue('searchInput') || '');
     Cart.updateUI();
 }
 
@@ -362,35 +381,51 @@ function updateLanguage(lang) {
     if (logoText) logoText.innerHTML = isEn ? 'Al-Waha 🌱' : 'الواحة 🌱';
     
     // Search
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = getElement('searchInput');
     if (searchInput) searchInput.placeholder = isEn ? 'Search...' : 'ابحث...';
     
     // Hero
     const heroTitle = document.querySelector('.hero .hero-title');
     if (heroTitle) heroTitle.innerHTML = isEn ? 'Al-Waha Store' : 'متجر الواحة';
+    
     const heroSubtitle = document.querySelector('.hero .hero-subtitle');
     if (heroSubtitle) heroSubtitle.innerHTML = isEn ? 'Fresh fruits & vegetables from nature' : 'خضروات وفاكهة طازجة من قلب الطبيعة';
     
     // Floating checkout
-    const floatingCheckoutText = document.getElementById('floatingCheckoutText');
+    const floatingCheckoutText = getElement('floatingCheckoutText');
     if (floatingCheckoutText) floatingCheckoutText.textContent = isEn ? 'Checkout' : 'شراء';
 
     // Categories
-    const categoriesTitle = document.getElementById('categoriesTitle');
+    const categoriesTitle = getElement('categoriesTitle');
     if (categoriesTitle) categoriesTitle.innerHTML = `<i class="fas fa-th-large"></i> ${isEn ? 'Categories' : 'الأقسام'}`;
-    document.getElementById('catFruitTitle').textContent = isEn ? 'Fruits' : 'فاكهة';
-    document.getElementById('catVegTitle').textContent = isEn ? 'Vegetables' : 'خضروات';
-    document.getElementById('catOffersTitle').textContent = isEn ? 'Offers' : 'عروض';
+    
+    const catFruit = getElement('catFruitTitle');
+    if (catFruit) catFruit.textContent = isEn ? 'Fruits' : 'فاكهة';
+    
+    const catVeg = getElement('catVegTitle');
+    if (catVeg) catVeg.textContent = isEn ? 'Vegetables' : 'خضروات';
+    
+    const catOffers = getElement('catOffersTitle');
+    if (catOffers) catOffers.textContent = isEn ? 'Offers' : 'عروض';
 
     // Products
-    document.getElementById('productsTitle').innerHTML = `<i class="fas fa-box"></i> ${isEn ? 'Our Products' : 'منتجاتنا'}`;
-    document.getElementById('fruitsSubTitle').innerHTML = `<i class="fas fa-apple-alt"></i> ${isEn ? 'Fruits' : 'الفاكهة'}`;
-    document.getElementById('vegSubTitle').innerHTML = `<i class="fas fa-carrot"></i> ${isEn ? 'Vegetables' : 'الخضروات'}`;
-    document.getElementById('offersSubTitle').innerHTML = `<i class="fas fa-tag"></i> ${isEn ? 'Offers & Discounts' : 'العروض والخصومات'}`;
+    const productsTitle = getElement('productsTitle');
+    if (productsTitle) productsTitle.innerHTML = `<i class="fas fa-box"></i> ${isEn ? 'Our Products' : 'منتجاتنا'}`;
+    
+    const fruitsSub = getElement('fruitsSubTitle');
+    if (fruitsSub) fruitsSub.innerHTML = `<i class="fas fa-apple-alt"></i> ${isEn ? 'Fruits' : 'الفاكهة'}`;
+    
+    const vegSub = getElement('vegSubTitle');
+    if (vegSub) vegSub.innerHTML = `<i class="fas fa-carrot"></i> ${isEn ? 'Vegetables' : 'الخضروات'}`;
+    
+    const offersSub = getElement('offersSubTitle');
+    if (offersSub) offersSub.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? 'Offers & Discounts' : 'العروض والخصومات'}`;
 
     // Sort
-    document.getElementById('sortLabel').textContent = isEn ? 'Sort:' : 'ترتيب:';
-    const sortFilter = document.getElementById('sortFilter');
+    const sortLabel = getElement('sortLabel');
+    if (sortLabel) sortLabel.textContent = isEn ? 'Sort:' : 'ترتيب:';
+    
+    const sortFilter = getElement('sortFilter');
     if (sortFilter) {
         const options = sortFilter.options;
         if (options[0]) options[0].textContent = isEn ? 'Default' : 'الافتراضي';
@@ -400,8 +435,11 @@ function updateLanguage(lang) {
     }
 
     // Offers
-    document.getElementById('offersTitle').innerHTML = `<i class="fas fa-tag"></i> ${isEn ? "Today's Offers" : 'عروض اليوم'}`;
-    document.getElementById('offersDesc').textContent = isEn ? '20% off on all seasonal fruits' : 'خصم 20% على جميع الفواكه الموسمية';
+    const offersTitle = getElement('offersTitle');
+    if (offersTitle) offersTitle.innerHTML = `<i class="fas fa-tag"></i> ${isEn ? "Today's Offers" : 'عروض اليوم'}`;
+    
+    const offersDesc = getElement('offersDesc');
+    if (offersDesc) offersDesc.textContent = isEn ? '20% off on all seasonal fruits' : 'خصم 20% على جميع الفواكه الموسمية';
     
     // Countdown
     const cdItems = document.querySelectorAll('.countdown .cd-item span');
@@ -412,35 +450,56 @@ function updateLanguage(lang) {
     }
 
     // Contact
-    document.getElementById('contactTitle').innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
-    document.getElementById('contactSub').textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
+    const contactTitle = getElement('contactTitle');
+    if (contactTitle) contactTitle.innerHTML = `<i class="fas fa-phone"></i> ${isEn ? 'Contact Us' : 'تواصل معنا'}`;
+    
+    const contactSub = getElement('contactSub');
+    if (contactSub) contactSub.textContent = isEn ? "We're here to help" : 'نحن هنا لخدمتك';
 
     // Cart
-    const cartTotalHeader = document.getElementById('cartTotalHeader');
+    const cartTotalHeader = getElement('cartTotalHeader');
     if (cartTotalHeader) {
-        const totalPrice = document.getElementById('cartTotalPrice');
+        const totalPrice = getElement('cartTotalPrice');
         cartTotalHeader.innerHTML = `
             <span id="cartHeaderTotal">${totalPrice ? totalPrice.textContent : '0 ج.م'}</span>
             <small>${isEn ? 'Total without delivery fee' : 'المجموع بدون قيمة التوصيل'}</small>
         `;
     }
+    
     const checkoutSmall = document.querySelector('.cart-header .btn-checkout-small');
     if (checkoutSmall) checkoutSmall.innerHTML = `<i class="fas fa-credit-card"></i> ${isEn ? 'Checkout' : 'شراء'}`;
-    document.getElementById('labelTotal').textContent = isEn ? 'Total' : 'المجموع';
+    
+    const labelTotal = getElement('labelTotal');
+    if (labelTotal) labelTotal.textContent = isEn ? 'Total' : 'المجموع';
+    
     const totalNote = document.querySelector('.cart-total-note');
     if (totalNote) totalNote.textContent = isEn ? '* Total without delivery fee' : '* المجموع بدون قيمة التوصيل';
 
     // Checkout
-    document.getElementById('checkoutTitle').innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
-    document.getElementById('checkoutSub').textContent = isEn ? 'Fill in your details' : 'املأ بياناتك لإتمام الطلب';
+    const checkoutTitle = getElement('checkoutTitle');
+    if (checkoutTitle) checkoutTitle.innerHTML = `<i class="fas fa-clipboard-check"></i> ${isEn ? 'Confirm Order' : 'تأكيد الطلب'}`;
+    
+    const checkoutSub = getElement('checkoutSub');
+    if (checkoutSub) checkoutSub.textContent = isEn ? 'Fill in your details' : 'املأ بياناتك لإتمام الطلب';
 
     // Labels
-    document.getElementById('labelCustName').innerHTML = `${isEn ? 'Full Name' : 'الاسم الكامل'} <span class="required">*</span>`;
-    document.getElementById('labelCustPhone').innerHTML = `${isEn ? 'Phone Number' : 'رقم الجوال'} <span class="required">*</span>`;
-    document.getElementById('labelCustAddress').innerHTML = `${isEn ? 'Address Details' : 'معلومات المكان'} <span class="required">*</span>`;
-    document.getElementById('labelCustNotes').textContent = isEn ? 'Notes' : 'ملاحظات';
-    document.getElementById('labelDeliveryTime').innerHTML = `${isEn ? 'Delivery Time' : 'وقت التوصيل'} <span class="required">*</span>`;
-    document.getElementById('labelPaymentMethod').innerHTML = `${isEn ? 'Payment Method' : 'طريقة الدفع'} <span class="required">*</span>`;
+    const labelCustName = getElement('labelCustName');
+    if (labelCustName) labelCustName.innerHTML = `${isEn ? 'Full Name' : 'الاسم الكامل'} <span class="required">*</span>`;
+    
+    const labelCustPhone = getElement('labelCustPhone');
+    if (labelCustPhone) labelCustPhone.innerHTML = `${isEn ? 'Phone Number' : 'رقم الجوال'} <span class="required">*</span>`;
+    
+    const labelCustAddress = getElement('labelCustAddress');
+    if (labelCustAddress) labelCustAddress.innerHTML = `${isEn ? 'Address Details' : 'معلومات المكان'} <span class="required">*</span>`;
+    
+    const labelCustNotes = getElement('labelCustNotes');
+    if (labelCustNotes) labelCustNotes.textContent = isEn ? 'Notes' : 'ملاحظات';
+    
+    const labelDeliveryTime = getElement('labelDeliveryTime');
+    if (labelDeliveryTime) labelDeliveryTime.innerHTML = `${isEn ? 'Delivery Time' : 'وقت التوصيل'} <span class="required">*</span>`;
+    
+    const labelPaymentMethod = getElement('labelPaymentMethod');
+    if (labelPaymentMethod) labelPaymentMethod.innerHTML = `${isEn ? 'Payment Method' : 'طريقة الدفع'} <span class="required">*</span>`;
 
     // Delivery options
     const deliveryLabels = document.querySelectorAll('#deliveryOptions label');
@@ -463,12 +522,18 @@ function updateLanguage(lang) {
         `;
     }
 
-    document.getElementById('btnConfirmOrder').innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
-    document.getElementById('btnCancelOrder').textContent = isEn ? 'Cancel' : 'إلغاء';
+    const btnConfirm = getElement('btnConfirmOrder');
+    if (btnConfirm) btnConfirm.innerHTML = `<i class="fas fa-check-circle"></i> ${isEn ? 'Confirm Order' : 'تأكيد الشراء'}`;
+    
+    const btnCancel = getElement('btnCancelOrder');
+    if (btnCancel) btnCancel.textContent = isEn ? 'Cancel' : 'إلغاء';
 
     // Modal
-    document.getElementById('labelWeight').textContent = isEn ? 'Weight (kg):' : 'الوزن (كجم):';
-    document.getElementById('modalAddBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${isEn ? 'Add' : 'إضافة'}`;
+    const labelWeight = getElement('labelWeight');
+    if (labelWeight) labelWeight.textContent = isEn ? 'Weight (kg):' : 'الوزن (كجم):';
+    
+    const modalAddBtn = getElement('modalAddBtn');
+    if (modalAddBtn) modalAddBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${isEn ? 'Add' : 'إضافة'}`;
 
     // Share
     const shareLinks = document.querySelectorAll('.share-popup a');
@@ -502,77 +567,22 @@ function updateLanguage(lang) {
         `;
     }
 
-    document.getElementById('couponLabel').textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
-    document.getElementById('couponCode').placeholder = isEn ? 'Enter code' : 'أدخل الكود';
+    const couponLabel = getElement('couponLabel');
+    if (couponLabel) couponLabel.textContent = isEn ? 'Have a coupon?' : 'هل لديك كوبون خصم؟';
+    
+    const couponCode = getElement('couponCode');
+    if (couponCode) couponCode.placeholder = isEn ? 'Enter code' : 'أدخل الكود';
+    
     const couponBtn = document.querySelector('.coupon-row .coupon-btn');
     if (couponBtn) couponBtn.textContent = isEn ? 'Apply' : 'تطبيق';
 }
-
-// ============================================================
-// TOAST
-// ============================================================
-
-function showToast(message, type = 'success', icon = '') {
-    const container = document.getElementById('toastContainer');
-    if (!container) {
-        alert(message);
-        return;
-    }
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    const defaultIcon = icon ? icon : (type === 'success' ? '✅' : '⚠️');
-    toast.innerHTML = `
-        <span class="toast-icon">${defaultIcon}</span>
-        <span class="toast-msg">${message}</span>
-        <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 3000);
-}
-
-// ============================================================
-// GLOBAL EXPORTS (مهم جداً - هذا هو سبب عدم عمل الأزرار)
-// ============================================================
-
-// تصدير جميع الدوال المستخدمة في HTML
-window.toggleLang = toggleLang;
-window.filterProducts = filterProducts;
-window.applySort = applySort;
-window.toggleCart = toggleCart;
-window.toggleSearch = toggleSearch;
-window.toggleSideMenu = toggleSideMenu;
-window.toggleTheme = toggleTheme;
-window.scrollToTop = scrollToTop;
-window.showToast = showToast;
-window.openAuthModal = openAuthModal;
-window.closeAuthModal = closeAuthModal;
-window.switchAuthTab = switchAuthTab;
-window.handleLogin = handleLogin;
-window.handleSignup = handleSignup;
-window.handleForgotPassword = handleForgotPassword;
-window.handleGoogleLogin = handleGoogleLogin;
-window.closeProfileModal = closeProfileModal;
-window.copyShareLink = copyShareLink;
-window.saveProfile = saveProfile;
-window.shareStore = shareStore;
-window.shareProduct = shareProduct;
-window.addFromModal = addFromModal;
-window.openCheckout = openCheckout;
-window.closeCheckout = closeCheckout;
-window.confirmOrder = confirmOrder;
-window.applyCoupon = applyCoupon;
-window.toggleSharePopup = toggleSharePopup;
-window.changeModalWeight = changeModalWeight;
-window.openProductModal = openProductModal;
-window.closeProductModal = closeProductModal;
-window.validateCheckoutForm = validateCheckoutForm;
 
 // ============================================================
 // AUTH MODAL FUNCTIONS
 // ============================================================
 
 function openAuthModal() {
-    const authModal = document.getElementById('authModal');
+    const authModal = getElement('authModal');
     if (authModal) {
         authModal.classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -581,7 +591,7 @@ function openAuthModal() {
 }
 
 function closeAuthModal() {
-    const authModal = document.getElementById('authModal');
+    const authModal = getElement('authModal');
     if (authModal) {
         authModal.classList.remove('open');
         document.body.style.overflow = '';
@@ -595,29 +605,31 @@ function switchAuthTab(tab) {
     document.querySelectorAll('.auth-form').forEach(form => {
         form.classList.toggle('active', form.id === (tab === 'login' ? 'loginForm' : 'signupForm'));
     });
-    const loginError = document.getElementById('loginError');
+    
+    const loginError = getElement('loginError');
     if (loginError) loginError.classList.remove('show');
-    const signupError = document.getElementById('signupError');
+    
+    const signupError = getElement('signupError');
     if (signupError) signupError.classList.remove('show');
 }
 
 function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('loginEmail')?.value || '';
-    const password = document.getElementById('loginPassword')?.value || '';
+    const email = getValue('loginEmail');
+    const password = getValue('loginPassword');
     Auth.loginWithEmail(email, password);
 }
 
 function handleSignup(e) {
     e.preventDefault();
-    const name = document.getElementById('signupName')?.value || '';
-    const email = document.getElementById('signupEmail')?.value || '';
-    const password = document.getElementById('signupPassword')?.value || '';
+    const name = getValue('signupName');
+    const email = getValue('signupEmail');
+    const password = getValue('signupPassword');
     Auth.signupWithEmail(email, password, name);
 }
 
 function handleForgotPassword() {
-    const email = document.getElementById('loginEmail')?.value || '';
+    const email = getValue('loginEmail');
     Auth.resetPassword(email);
 }
 
@@ -630,7 +642,7 @@ function handleGoogleLogin() {
 // ============================================================
 
 function closeProfileModal() {
-    const profileModal = document.getElementById('profileModal');
+    const profileModal = getElement('profileModal');
     if (profileModal) {
         profileModal.classList.remove('open');
         document.body.style.overflow = '';
@@ -642,23 +654,29 @@ function copyShareLink() {
 }
 
 function saveProfile() {
-    const name = document.getElementById('profileDisplayName')?.value?.trim();
-    const phone = document.getElementById('profilePhone')?.value?.trim();
-    const address = document.getElementById('profileAddress')?.value?.trim();
+    const name = getValue('profileDisplayName').trim();
+    const phone = getValue('profilePhone').trim();
+    const address = getValue('profileAddress').trim();
     
     if (!name) {
-        showToast('⚠️ الاسم مطلوب', 'error');
+        showToast(
+            currentLang === 'en' ? '⚠️ Name is required' : '⚠️ الاسم مطلوب',
+            'error'
+        );
         return;
     }
     
     const user = Auth.getUser();
     if (!user) {
-        showToast('⚠️ يجب تسجيل الدخول أولاً', 'error');
+        showToast(
+            currentLang === 'en' ? '⚠️ Please login first' : '⚠️ يجب تسجيل الدخول أولاً',
+            'error'
+        );
         return;
     }
     
     try {
-        if (typeof supabaseClient !== 'undefined') {
+        if (isSupabaseAvailable()) {
             supabaseClient
                 .from('users')
                 .update({
@@ -682,12 +700,18 @@ function saveProfile() {
                     localStorage.setItem('alwaha_address', address || '');
                     
                     UI.updateForLoggedInUser();
-                    showToast('✅ تم حفظ التغييرات', 'success');
+                    showToast(
+                        currentLang === 'en' ? '✅ Saved successfully' : '✅ تم حفظ التغييرات',
+                        'success'
+                    );
                     closeProfileModal();
                 })
                 .catch(error => {
                     console.error('❌ Error saving profile:', error);
-                    showToast('حدث خطأ في الحفظ', 'error');
+                    showToast(
+                        currentLang === 'en' ? 'Error saving' : 'حدث خطأ في الحفظ',
+                        'error'
+                    );
                 });
         } else {
             const userData = Auth.getUserData();
@@ -702,12 +726,18 @@ function saveProfile() {
             localStorage.setItem('alwaha_address', address || '');
             
             UI.updateForLoggedInUser();
-            showToast('✅ تم حفظ التغييرات', 'success');
+            showToast(
+                currentLang === 'en' ? '✅ Saved successfully' : '✅ تم حفظ التغييرات',
+                'success'
+            );
             closeProfileModal();
         }
     } catch (error) {
         console.error('❌ Error saving profile:', error);
-        showToast('حدث خطأ في الحفظ', 'error');
+        showToast(
+            currentLang === 'en' ? 'Error saving' : 'حدث خطأ في الحفظ',
+            'error'
+        );
     }
 }
 
@@ -764,9 +794,44 @@ function validateCheckoutForm() {
 // ============================================================
 
 window.addEventListener('scroll', function() {
-    const btn = document.getElementById('backToTop');
+    const btn = getElement('backToTop');
     if (btn) btn.classList.toggle('show', window.scrollY > 400);
 });
+
+// ============================================================
+// EXPORT ALL FUNCTIONS
+// ============================================================
+
+window.toggleLang = toggleLang;
+window.filterProducts = filterProducts;
+window.applySort = applySort;
+window.toggleCart = toggleCart;
+window.toggleSearch = toggleSearch;
+window.toggleSideMenu = toggleSideMenu;
+window.toggleTheme = toggleTheme;
+window.scrollToTop = scrollToTop;
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.switchAuthTab = switchAuthTab;
+window.handleLogin = handleLogin;
+window.handleSignup = handleSignup;
+window.handleForgotPassword = handleForgotPassword;
+window.handleGoogleLogin = handleGoogleLogin;
+window.closeProfileModal = closeProfileModal;
+window.copyShareLink = copyShareLink;
+window.saveProfile = saveProfile;
+window.shareStore = shareStore;
+window.shareProduct = shareProduct;
+window.addFromModal = addFromModal;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.confirmOrder = confirmOrder;
+window.applyCoupon = applyCoupon;
+window.toggleSharePopup = toggleSharePopup;
+window.changeModalWeight = changeModalWeight;
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
+window.validateCheckoutForm = validateCheckoutForm;
 
 console.log('✅ All functions exported successfully');
 console.log('📦 Current products count:', Products.getData().length); 

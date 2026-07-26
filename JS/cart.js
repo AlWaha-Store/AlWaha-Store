@@ -14,10 +14,13 @@ const Cart = {
         try {
             const saved = localStorage.getItem(this.STORAGE_KEY);
             if (saved) {
-                this.items = JSON.parse(saved);
-                if (!Array.isArray(this.items)) this.items = [];
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    this.items = parsed;
+                }
             }
         } catch (e) {
+            console.warn('⚠️ Error loading cart:', e);
             this.items = [];
         }
     },
@@ -26,16 +29,15 @@ const Cart = {
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.items));
         } catch (e) {
-            console.warn('⚠️ Error saving cart locally:', e);
+            console.warn('⚠️ Error saving cart:', e);
         }
         
         if (Auth.isLoggedIn()) {
             this.saveToSupabase();
         }
         
-        // تحديث عداد السلة في القائمة الجانبية
-        const sideMenuCount = document.getElementById('sideMenuCartCount');
-        if (sideMenuCount) sideMenuCount.textContent = this.getUniqueCount();
+        this.updateUI();
+        this.updateSideMenuCount();
     },
 
     // ============================================================
@@ -44,11 +46,10 @@ const Cart = {
     
     async saveToSupabase() {
         const user = Auth.getUser();
-        if (!user) return;
+        if (!user || !isSupabaseAvailable()) return;
         
         try {
-            if (typeof supabaseClient === 'undefined') return;
-            
+            // حذف السلة القديمة
             await supabaseClient
                 .from('cart')
                 .delete()
@@ -56,6 +57,7 @@ const Cart = {
             
             if (this.items.length === 0) return;
             
+            // إضافة العناصر الجديدة
             const cartItems = this.items.map(item => ({
                 user_id: user.id,
                 product_id: item.id,
@@ -65,6 +67,7 @@ const Cart = {
             
             const { error } = await supabaseClient.from('cart').insert(cartItems);
             if (error) throw error;
+            
         } catch (error) {
             console.error('❌ Error saving cart to Supabase:', error);
         }
@@ -72,11 +75,9 @@ const Cart = {
 
     async syncFromSupabase() {
         const user = Auth.getUser();
-        if (!user) return;
+        if (!user || !isSupabaseAvailable()) return;
         
         try {
-            if (typeof supabaseClient === 'undefined') return;
-            
             const { data, error } = await supabaseClient
                 .from('cart')
                 .select('*')
@@ -99,25 +100,19 @@ const Cart = {
                     .filter(Boolean);
                 
                 if (cloudCart.length > 0) {
-                    if (this.items.length > 0) {
-                        const merged = [...cloudCart];
-                        this.items.forEach(localItem => {
-                            const existing = merged.find(c => c.id === localItem.id);
-                            if (existing) {
-                                existing.qty += localItem.qty;
-                                existing.weight = (existing.weight + localItem.weight) / 2;
-                            } else {
-                                merged.push(localItem);
-                            }
-                        });
-                        this.items = merged;
-                    } else {
-                        this.items = cloudCart;
-                    }
-                    
+                    // دمج السلة المحلية مع السلة السحابية
+                    const merged = [...cloudCart];
+                    this.items.forEach(localItem => {
+                        const existing = merged.find(c => c.id === localItem.id);
+                        if (existing) {
+                            existing.qty += localItem.qty;
+                            existing.weight = (existing.weight + localItem.weight) / 2;
+                        } else {
+                            merged.push(localItem);
+                        }
+                    });
+                    this.items = merged;
                     this.saveLocal();
-                    this.updateUI();
-                    console.log('✅ Cart synced from Supabase');
                 }
             }
         } catch (error) {
@@ -131,7 +126,8 @@ const Cart = {
     
     addFromModal() {
         const productId = window._modalProductId;
-        const weight = parseFloat(document.getElementById('modalWeight')?.value) || 1;
+        const weightInput = getElement('modalWeight');
+        const weight = weightInput ? parseFloat(weightInput.value) || 1 : 1;
         
         if (!productId) {
             showToast('⚠️ حدث خطأ، حاول مرة أخرى', 'error');
@@ -149,9 +145,13 @@ const Cart = {
         
         const productName = currentLang === 'en' ? p.nameEn : p.name;
         const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
-        showToast(`${currentLang === 'en' ? 'Added' : 'تم إضافة'} ${weight.toFixed(2)} ${kgLabel} ${productName}`, 'success', '🛒');
+        showToast(
+            `${currentLang === 'en' ? 'Added' : 'تم إضافة'} ${weight.toFixed(2)} ${kgLabel} ${productName}`,
+            'success',
+            '🛒'
+        );
 
-        const btn = document.getElementById('modalAddBtn');
+        const btn = getElement('modalAddBtn');
         if (btn) {
             const orig = btn.innerHTML;
             btn.innerHTML = `<i class="fas fa-check"></i> ${currentLang === 'en' ? 'Added!' : 'تمت الإضافة!'}`;
@@ -188,6 +188,7 @@ const Cart = {
                 nameEn: p.nameEn,
                 emoji: p.emoji,
                 price: p.price,
+                offerPrice: p.offerPrice || null,
                 oldPrice: p.oldPrice || null,
                 weight: weight,
                 qty: 1
@@ -195,7 +196,6 @@ const Cart = {
         }
         
         this.saveLocal();
-        this.updateUI();
         return true;
     },
 
@@ -208,16 +208,23 @@ const Cart = {
         if (this.items[idx].qty <= 0) {
             const name = currentLang === 'en' ? this.items[idx].nameEn : this.items[idx].name;
             this.items.splice(idx, 1);
-            showToast(`${currentLang === 'en' ? 'Removed' : 'تم حذف'} ${name}`, 'error', '🗑️');
+            showToast(
+                `${currentLang === 'en' ? 'Removed' : 'تم حذف'} ${name}`,
+                'error',
+                '🗑️'
+            );
         } else {
             const name = currentLang === 'en' ? this.items[idx].nameEn : this.items[idx].name;
             const totalWeight = this.items[idx].weight * this.items[idx].qty;
             const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
-            showToast(`${name}: ${totalWeight.toFixed(2)} ${kgLabel}`, 'success', '📦');
+            showToast(
+                `${name}: ${totalWeight.toFixed(2)} ${kgLabel}`,
+                'success',
+                '📦'
+            );
         }
         
         this.saveLocal();
-        this.updateUI();
     },
 
     remove(productId) {
@@ -227,14 +234,16 @@ const Cart = {
         const name = currentLang === 'en' ? this.items[idx].nameEn : this.items[idx].name;
         this.items.splice(idx, 1);
         this.saveLocal();
-        this.updateUI();
-        showToast(`${currentLang === 'en' ? 'Removed' : 'تم حذف'} ${name}`, 'error', '🗑️');
+        showToast(
+            `${currentLang === 'en' ? 'Removed' : 'تم حذف'} ${name}`,
+            'error',
+            '🗑️'
+        );
     },
 
     clear() {
         this.items = [];
         this.saveLocal();
-        this.updateUI();
     },
 
     // ============================================================
@@ -248,13 +257,18 @@ const Cart = {
     getTotal() {
         let total = 0;
         this.items.forEach(item => {
-            total += item.price * item.weight * item.qty;
+            const price = item.offerPrice || item.price;
+            total += price * item.weight * item.qty;
         });
         return total;
     },
 
     getItemCount() {
-        return this.items.length;
+        let count = 0;
+        this.items.forEach(item => {
+            count += item.qty;
+        });
+        return count;
     },
 
     getUniqueCount() {
@@ -263,20 +277,35 @@ const Cart = {
         return unique.size;
     },
 
+    getDiscountedTotal(coupon) {
+        let total = this.getTotal();
+        if (coupon) {
+            if (coupon.type === 'percentage') {
+                total = total - (total * coupon.discount / 100);
+            } else {
+                total = Math.max(0, total - coupon.discount);
+            }
+        }
+        return total;
+    },
+
     // ============================================================
     // UI UPDATE
     // ============================================================
     
     updateUI() {
-        const list = document.getElementById('cartItemsList');
-        const fbadge = document.getElementById('floatingBadge');
-        const totalSpan = document.getElementById('cartTotalPrice');
-        const headerTotal = document.getElementById('cartHeaderTotal');
-        const floatingCheckoutBtn = document.getElementById('floatingCheckout');
+        const list = getElement('cartItemsList');
+        const fbadge = getElement('floatingBadge');
+        const totalSpan = getElement('cartTotalPrice');
+        const headerTotal = getElement('cartHeaderTotal');
+        const floatingCheckoutBtn = getElement('floatingCheckout');
+
+        if (!list) return;
 
         const kgLabel = currentLang === 'en' ? 'kg' : 'كجم';
         const currency = currentLang === 'en' ? 'EGP' : 'ج.م';
 
+        // تجميع المنتجات المتكررة
         const grouped = {};
         this.items.forEach(item => {
             const key = `${item.id}`;
@@ -289,11 +318,9 @@ const Cart = {
         });
         const groupedItems = Object.values(grouped);
 
-        if (!list) return;
-
         if (groupedItems.length === 0) {
             list.innerHTML = `
-                <div class="empty-cart-msg" id="emptyCartMsg">
+                <div class="empty-cart-msg">
                     <i class="fas fa-shopping-cart"></i>
                     ${currentLang === 'en' ? 'Your cart is empty' : 'سلتك فارغة'}
                 </div>
@@ -302,6 +329,7 @@ const Cart = {
             if (totalSpan) totalSpan.textContent = `0 ${currency}`;
             if (headerTotal) headerTotal.textContent = `0 ${currency}`;
             if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'none';
+            this.updateSideMenuCount();
             return;
         }
 
@@ -310,12 +338,13 @@ const Cart = {
         
         groupedItems.forEach(item => {
             const totalWeight = item.weight * item.qty;
-            const itemTotal = item.price * totalWeight;
+            const price = item.offerPrice || item.price;
+            const itemTotal = price * totalWeight;
             totalPrice += itemTotal;
             const productName = currentLang === 'en' ? item.nameEn : item.name;
             
             let priceDisplay = `${itemTotal.toFixed(2)} ${currency}`;
-            if (item.oldPrice) {
+            if (item.oldPrice && item.offerPrice) {
                 const oldTotal = item.oldPrice * totalWeight;
                 priceDisplay = `
                     <span style="text-decoration:line-through;color:#999;font-size:13px;">
@@ -352,9 +381,14 @@ const Cart = {
         if (headerTotal) headerTotal.textContent = totalPrice.toFixed(2) + ' ' + currency;
         if (floatingCheckoutBtn) floatingCheckoutBtn.style.display = 'flex';
         
-        // تحديث عداد القائمة الجانبية
-        const sideMenuCount = document.getElementById('sideMenuCartCount');
-        if (sideMenuCount) sideMenuCount.textContent = this.getUniqueCount();
+        this.updateSideMenuCount();
+    },
+
+    updateSideMenuCount() {
+        const sideMenuCount = getElement('sideMenuCartCount');
+        if (sideMenuCount) {
+            sideMenuCount.textContent = this.getUniqueCount();
+        }
     }
 };
 
@@ -362,4 +396,6 @@ const Cart = {
 // EXPORT
 // ============================================================
 
-window.Cart = Cart; 
+window.Cart = Cart;
+
+console.log('✅ Cart module loaded'); 

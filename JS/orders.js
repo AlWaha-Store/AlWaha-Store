@@ -9,10 +9,15 @@ const Orders = {
     
     openCheckout() {
         if (Cart.getItems().length === 0) {
-            showToast(`${currentLang === 'en' ? 'Cart is empty!' : 'سلتك فارغة!'}`, 'error', '⚠️');
+            showToast(
+                currentLang === 'en' ? 'Cart is empty!' : 'سلتك فارغة!',
+                'error',
+                '⚠️'
+            );
             return;
         }
 
+        // تجميع المنتجات
         const grouped = {};
         Cart.getItems().forEach(item => {
             const key = `${item.id}`;
@@ -32,12 +37,13 @@ const Orders = {
         
         groupedItems.forEach(item => {
             const totalWeight = item.weight * item.qty;
-            const itemTotal = item.price * totalWeight;
+            const price = item.offerPrice || item.price;
+            const itemTotal = price * totalWeight;
             total += itemTotal;
             const productName = currentLang === 'en' ? item.nameEn : item.name;
             
             let priceDisplay = `${itemTotal.toFixed(2)} ${currency}`;
-            if (item.oldPrice) {
+            if (item.oldPrice && item.offerPrice) {
                 const oldTotal = item.oldPrice * totalWeight;
                 priceDisplay = `
                     <span style="text-decoration:line-through;color:#999;">
@@ -54,10 +60,11 @@ const Orders = {
         });
         
         const discountedTotal = this.getDiscountedTotal(total);
-        if (appliedCoupon) {
+        if (window.appliedCoupon) {
+            const coupon = window.appliedCoupon;
             summaryHtml += `
                 <div class="cs-item" style="color:#27ae60;border-top:1px dashed #27ae60;padding-top:4px;margin-top:4px;">
-                    <span>💰 خصم ${appliedCoupon.type === 'percentage' ? appliedCoupon.discount + '%' : appliedCoupon.discount + ' ج.م'}</span>
+                    <span>💰 ${currentLang === 'en' ? 'Discount' : 'خصم'} ${coupon.type === 'percentage' ? coupon.discount + '%' : coupon.discount + ' ' + currency}</span>
                     <span>- ${(total - discountedTotal).toFixed(2)} ${currency}</span>
                 </div>
             `;
@@ -72,19 +79,28 @@ const Orders = {
             </div>
         `;
         
-        document.getElementById('checkoutSummary').innerHTML = summaryHtml;
+        const summaryEl = getElement('checkoutSummary');
+        if (summaryEl) summaryEl.innerHTML = summaryHtml;
 
+        // تحميل البيانات المحفوظة
         const savedPhone = localStorage.getItem('alwaha_phone');
         const savedName = localStorage.getItem('alwaha_name');
         const savedAddress = localStorage.getItem('alwaha_address');
         
-        if (savedPhone) document.getElementById('custPhone').value = savedPhone;
-        if (savedName) document.getElementById('custName').value = savedName;
-        if (savedAddress) document.getElementById('custAddress').value = savedAddress;
+        if (savedPhone) setValue('custPhone', savedPhone);
+        if (savedName) setValue('custName', savedName);
+        if (savedAddress) setValue('custAddress', savedAddress);
 
-        document.getElementById('checkoutModal').classList.add('open');
-        document.getElementById('cartSidebar').classList.remove('open');
-        document.getElementById('cartOverlay').classList.remove('active');
+        // فتح النافذة
+        const modal = getElement('checkoutModal');
+        if (modal) modal.classList.add('open');
+        
+        const sidebar = getElement('cartSidebar');
+        if (sidebar) sidebar.classList.remove('open');
+        
+        const overlay = getElement('cartOverlay');
+        if (overlay) overlay.classList.remove('active');
+        
         document.body.style.overflow = 'hidden';
         
         this.validateForm();
@@ -92,10 +108,9 @@ const Orders = {
     },
 
     closeCheckout() {
-        document.getElementById('checkoutModal').classList.remove('open');
+        const modal = getElement('checkoutModal');
+        if (modal) modal.classList.remove('open');
         document.body.style.overflow = '';
-        document.getElementById('cartSidebar').classList.add('open');
-        document.getElementById('cartOverlay').classList.add('active');
     },
 
     // ============================================================
@@ -103,20 +118,16 @@ const Orders = {
     // ============================================================
     
     validateForm() {
-        const nameInput = document.getElementById('custName');
-        const phoneInput = document.getElementById('custPhone');
-        const addressInput = document.getElementById('custAddress');
-        const confirmBtn = document.getElementById('btnConfirmOrder');
-        
-        const nameVal = nameInput ? nameInput.value.trim() : '';
-        const phoneVal = phoneInput ? phoneInput.value.trim() : '';
-        const addressVal = addressInput ? addressInput.value.trim() : '';
+        const nameVal = getValue('custName').trim();
+        const phoneVal = getValue('custPhone').trim();
+        const addressVal = getValue('custAddress').trim();
+        const confirmBtn = getElement('btnConfirmOrder');
 
         const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
         const deliveryType = deliveryRadio ? deliveryRadio.value : 'اسرع وقت';
-        const deliveryTimeInput = document.getElementById('deliveryTime');
-        let isDeliveryTimeValid = true;
+        const deliveryTimeInput = getElement('deliveryTime');
         
+        let isDeliveryTimeValid = true;
         if (deliveryType === 'وقت محدد') {
             isDeliveryTimeValid = deliveryTimeInput && deliveryTimeInput.value !== '';
         }
@@ -142,7 +153,7 @@ const Orders = {
         const now = new Date();
         now.setMinutes(now.getMinutes() + 30);
         const isoString = now.toISOString().slice(0, 16);
-        const deliveryTime = document.getElementById('deliveryTime');
+        const deliveryTime = getElement('deliveryTime');
         if (deliveryTime) {
             deliveryTime.min = isoString;
             const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
@@ -157,21 +168,22 @@ const Orders = {
     // ============================================================
     
     getDiscountedTotal(total) {
-        if (!appliedCoupon) return total;
-        if (appliedCoupon.type === 'percentage') {
-            return total - (total * appliedCoupon.discount / 100);
+        if (!window.appliedCoupon) return total;
+        const coupon = window.appliedCoupon;
+        if (coupon.type === 'percentage') {
+            return total - (total * coupon.discount / 100);
         } else {
-            return Math.max(0, total - appliedCoupon.discount);
+            return Math.max(0, total - coupon.discount);
         }
     },
 
     applyCoupon() {
-        const input = document.getElementById('couponCode');
-        const msg = document.getElementById('couponMessage');
+        const input = getElement('couponCode');
+        const msg = getElement('couponMessage');
         if (!input || !msg) return;
         
         const code = input.value.trim().toUpperCase();
-        const coupons = JSON.parse(localStorage.getItem('alwaha_coupons') || '[]');
+        const coupons = getData('alwaha_coupons');
 
         if (!code) {
             msg.textContent = '⚠️ الرجاء إدخال كود الخصم';
@@ -181,13 +193,13 @@ const Orders = {
 
         const found = coupons.find(c => c.code === code);
         if (found) {
-            appliedCoupon = found;
+            window.appliedCoupon = found;
             msg.textContent = `✅ تم تطبيق كود "${code}" بنجاح! خصم ${found.discount}${found.type === 'percentage' ? '%' : ' ج.م'}`;
             msg.style.color = '#27ae60';
             input.style.borderColor = '#27ae60';
             this.updateCheckoutTotal();
         } else {
-            appliedCoupon = null;
+            window.appliedCoupon = null;
             msg.textContent = '❌ كود غير صحيح أو منتهي الصلاحية';
             msg.style.color = '#e74c3c';
             input.style.borderColor = '#e74c3c';
@@ -215,23 +227,27 @@ const Orders = {
             return;
         }
 
-        const name = document.getElementById('custName')?.value?.trim() || 'عميل';
-        const countryCode = document.getElementById('countryCode')?.value || '20';
-        let phoneInput = document.getElementById('custPhone')?.value?.trim() || '';
-        const address = document.getElementById('custAddress')?.value?.trim() || 'لم يحدد';
-        const notes = document.getElementById('custNotes')?.value?.trim() || '';
+        const name = getValue('custName').trim() || 'عميل';
+        const countryCode = getValue('countryCode') || '20';
+        let phoneInput = getValue('custPhone').trim();
+        const address = getValue('custAddress').trim() || 'لم يحدد';
+        const notes = getValue('custNotes').trim() || '';
+        
         const paymentRadio = document.querySelector('input[name="payment"]:checked');
         const payment = paymentRadio ? paymentRadio.value : 'كاش عند التوصيل';
+        
         const deliveryRadio = document.querySelector('input[name="delivery"]:checked');
         const delivery = deliveryRadio ? deliveryRadio.value : 'اسرع وقت';
-        const deliveryTime = document.getElementById('deliveryTime')?.value || '';
+        const deliveryTime = getValue('deliveryTime');
 
         if (!phoneInput) {
             showToast('أدخل رقم الجوال', 'error');
-            document.getElementById('custPhone')?.focus();
+            const phoneEl = getElement('custPhone');
+            if (phoneEl) phoneEl.focus();
             return;
         }
 
+        // تنظيف رقم الهاتف
         let cleanPhone = phoneInput.replace(/[\s\-\(\)]/g, '');
         let fullPhone = cleanPhone.startsWith('0') ? countryCode + cleanPhone.substring(1) : countryCode + cleanPhone;
 
@@ -248,29 +264,26 @@ const Orders = {
                 nameEn: item.nameEn,
                 emoji: item.emoji,
                 weight: item.weight * item.qty,
-                price: item.price,
+                price: item.offerPrice || item.price,
                 oldPrice: item.oldPrice,
-                total: item.price * item.weight * item.qty
+                total: (item.offerPrice || item.price) * item.weight * item.qty
             })),
             total: total,
             discountedTotal: discountedTotal,
-            coupon: appliedCoupon?.code || null,
+            coupon: window.appliedCoupon?.code || null,
             payment: payment,
             delivery: delivery,
-            deliveryTime: deliveryTime,
+            deliveryTime: deliveryTime || null,
             notes: notes,
             status: 'جديد',
             date: new Date().toISOString(),
-            dateAr: new Date().toLocaleDateString('ar-EG', { 
-                year: 'numeric', month: 'long', day: 'numeric', 
-                hour: '2-digit', minute: '2-digit' 
-            })
+            dateAr: formatDate(new Date())
         };
 
         try {
-            // Save to Supabase
+            // حفظ في Supabase
             const user = Auth.getUser();
-            if (typeof supabaseClient !== 'undefined' && user) {
+            if (isSupabaseAvailable() && user) {
                 const { error } = await supabaseClient
                     .from('orders')
                     .insert([{
@@ -292,30 +305,36 @@ const Orders = {
                 if (error) throw error;
             }
             
-            // Save to localStorage
-            let orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-            orders.unshift({ ...orderData, id: 'ORD-' + Date.now().toString().slice(-8) });
-            localStorage.setItem('alwaha_orders', JSON.stringify(orders));
+            // حفظ في localStorage
+            let orders = getData('alwaha_orders');
+            const newOrder = {
+                ...orderData,
+                id: 'ORD-' + Date.now().toString().slice(-8)
+            };
+            orders.unshift(newOrder);
+            saveData('alwaha_orders', orders);
 
-            // Handle referral
+            // معالجة الإحالة
             await Referral.handleReferral(orderData);
 
-            // Build WhatsApp message
+            // بناء رسالة واتساب
             const shopNumber = '201229156909';
             const msg = this.buildWhatsAppMessage(orderData);
             const whatsappUrl = `https://wa.me/${shopNumber}?text=${encodeURIComponent(msg)}`;
             
-            // Clear cart
+            // مسح السلة
             Cart.clear();
-            appliedCoupon = null;
-            document.getElementById('couponCode').value = '';
-            document.getElementById('couponMessage').textContent = '';
+            window.appliedCoupon = null;
+            setValue('couponCode', '');
+            const couponMsg = getElement('couponMessage');
+            if (couponMsg) couponMsg.textContent = '';
             
-            document.getElementById('checkoutModal').classList.remove('open');
-            document.body.style.overflow = '';
+            this.closeCheckout();
             
             showToast('تم تأكيد طلبك! 🎉', 'success');
-            setTimeout(() => { window.open(whatsappUrl, '_blank'); }, 600);
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 600);
             
         } catch (error) {
             console.error('❌ Error saving order:', error);
@@ -354,9 +373,7 @@ const Orders = {
         msg += `───────────────────\n`;
         msg += `⏱️ *وقت التوصيل:* ${order.delivery}\n`;
         if (order.deliveryTime) {
-            const formattedTime = new Date(order.deliveryTime).toLocaleString(
-                currentLang === 'en' ? 'en-US' : 'ar-EG'
-            );
+            const formattedTime = formatDate(order.deliveryTime, currentLang);
             msg += `📅 *الميعاد:* ${formattedTime}\n`;
         }
         msg += `💳 *طريقة الدفع:* ${order.payment}\n`;
@@ -379,4 +396,6 @@ const Orders = {
 // EXPORT
 // ============================================================
 
-window.Orders = Orders; 
+window.Orders = Orders;
+
+console.log('✅ Orders module loaded'); 

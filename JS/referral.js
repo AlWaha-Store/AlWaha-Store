@@ -11,7 +11,10 @@ const Referral = {
         const user = Auth.getUser();
         
         if (!user) {
-            showToast('⚠️ يجب تسجيل الدخول أولاً للمشاركة', 'error');
+            showToast(
+                currentLang === 'en' ? 'Please login first to share' : '⚠️ يجب تسجيل الدخول أولاً للمشاركة',
+                'error'
+            );
             openAuthModal();
             return;
         }
@@ -35,9 +38,15 @@ const Referral = {
             }).catch(() => {});
         } else {
             navigator.clipboard.writeText(referralLink).then(() => {
-                showToast('✅ تم نسخ رابط المشاركة! شاركه مع أصدقائك', 'success');
+                showToast(
+                    currentLang === 'en' ? '✅ Link copied! Share with friends' : '✅ تم نسخ رابط المشاركة! شاركه مع أصدقائك',
+                    'success'
+                );
             }).catch(() => {
-                showToast(`📋 رابط المشاركة: ${referralLink}`, 'info');
+                showToast(
+                    `📋 ${currentLang === 'en' ? 'Share link:' : 'رابط المشاركة:'} ${referralLink}`,
+                    'info'
+                );
             });
         }
     },
@@ -47,14 +56,20 @@ const Referral = {
     // ============================================================
     
     copyShareLink() {
-        const linkInput = document.getElementById('profileShareLink');
+        const linkInput = getElement('profileShareLink');
         if (linkInput) {
             navigator.clipboard.writeText(linkInput.value).then(() => {
-                showToast('✅ تم نسخ الرابط', 'success');
+                showToast(
+                    currentLang === 'en' ? '✅ Link copied!' : '✅ تم نسخ الرابط',
+                    'success'
+                );
             }).catch(() => {
                 linkInput.select();
                 document.execCommand('copy');
-                showToast('✅ تم نسخ الرابط', 'success');
+                showToast(
+                    currentLang === 'en' ? '✅ Link copied!' : '✅ تم نسخ الرابط',
+                    'success'
+                );
             });
         }
     },
@@ -74,12 +89,16 @@ const Referral = {
             const user = Auth.getUser();
             if (referrerId === user.id) return;
             
-            const orders = JSON.parse(localStorage.getItem('alwaha_orders') || '[]');
-            const userOrders = orders.filter(o => o.phone === orderData.phone || o.customer === orderData.customer);
+            // التحقق من عدم وجود طلبات سابقة لنفس العميل
+            const orders = getData('alwaha_orders');
+            const userOrders = orders.filter(o => 
+                o.phone === orderData.phone || 
+                o.customer === orderData.customer
+            );
             
             if (userOrders.length > 1) return;
             
-            if (typeof supabaseClient !== 'undefined') {
+            if (isSupabaseAvailable()) {
                 const { data: referrerData, error: referrerError } = await supabaseClient
                     .from('users')
                     .select('*')
@@ -100,16 +119,20 @@ const Referral = {
                         })
                         .eq('id', referrerId);
                     
-                    let users = JSON.parse(localStorage.getItem('alwaha_users') || '[]');
+                    // تحديث localStorage
+                    let users = getData('alwaha_users');
                     const userIndex = users.findIndex(u => u.id === referrerId);
                     if (userIndex !== -1) {
                         users[userIndex].referral_points = newPoints;
                         users[userIndex].referral_count = newReferrals;
-                        localStorage.setItem('alwaha_users', JSON.stringify(users));
+                        saveData('alwaha_users', users);
                     }
                     
                     console.log(`✅ Referral point added for ${referrerId}`);
-                    showToast('🎉 تم إضافة نقطة إحالة للمستخدم الذي دعاك!', 'success');
+                    showToast(
+                        currentLang === 'en' ? '🎉 Referral point added!' : '🎉 تم إضافة نقطة إحالة!',
+                        'success'
+                    );
                 }
             }
         } catch (error) {
@@ -122,4 +145,6 @@ const Referral = {
 // EXPORT
 // ============================================================
 
-window.Referral = Referral; 
+window.Referral = Referral;
+
+console.log('✅ Referral module loaded'); 

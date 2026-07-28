@@ -6,7 +6,8 @@ import { t } from '@/app/lib/translations'
 import { supabase } from '@/app/lib/supabase'
 import { Product } from '@/app/types'
 import { ProductCard, ProductModal } from '@/app/components/Product'
-import { Search, Phone, Mail, MapPin, Whatsapp } from 'lucide-react'
+import { Search, Phone, Mail, MapPin } from 'lucide-react'
+import { FaWhatsapp } from 'react-icons/fa'
 import { WHATSAPP_NUMBER, EMAIL } from '@/app/lib/constants'
 
 export default function HomePage() {
@@ -211,7 +212,7 @@ export default function HomePage() {
             rel="noopener noreferrer"
             className="flex flex-col items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/40 transition group"
           >
-            <Whatsapp className="w-8 h-8 text-green-500 group-hover:scale-110 transition" />
+            <FaWhatsapp className="w-8 h-8 text-green-500 group-hover:scale-110 transition" />
             <span className="text-sm font-medium">واتساب</span>
           </a>
           <a
@@ -247,4 +248,4 @@ export default function HomePage() {
       )}
     </div>
   )
-    } 
+} }

@@ -25,6 +25,9 @@ export function ProductCard({ product, onPreview }: ProductCardProps) {
           src={product.image}
           alt={product.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Product'
+          }}
         />
         {product.isOnSale && (
           <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-bounce-slow">
@@ -107,6 +110,9 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
             src={product.image}
             alt={product.name}
             className="w-full h-56 object-cover rounded-lg mb-4"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Product'
+            }}
           />
 
           <h2 className="text-2xl font-aref text-gray-800 dark:text-gray-200 mb-2">

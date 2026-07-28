@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useUIStore } from '@/app/store/ui'
 import { useAuthStore } from '@/app/store/auth'
 import { t } from '@/app/lib/translations'
 import { 
   Menu, Search, Sun, Moon, Globe, Share2, User, LogOut,
-  Award, Users, Package, MapPin, Phone, Mail
+  Award, Users, Package, Phone, Mail, X
 } from 'lucide-react'
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 import { WHATSAPP_NUMBER, EMAIL } from '@/app/lib/constants'
 import { generateReferralCode } from '@/app/lib/utils'
 
@@ -158,7 +157,7 @@ export function Header() {
               {language === 'ar' ? '🇪🇬' : '🇬🇧'}
             </button>
             <button
-              onClick={() => setMenuOpen(true)}
+              onClick={() => setMenuOpen(!isMenuOpen)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
             >
               <Menu className="w-6 h-6" />
@@ -168,81 +167,90 @@ export function Header() {
       </div>
 
       {/* Side Menu */}
-      <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" className="w-80">
-          <div className="space-y-6 mt-8">
-            <h2 className="text-2xl font-aref text-gold">{t('menu', language)}</h2>
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80" onClick={() => setMenuOpen(false)}>
+          <div className="absolute right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 p-6 shadow-xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
             
-            <div className="space-y-4">
-              <button
-                onClick={() => {
-                  toggleSearch()
-                  setMenuOpen(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                <Search className="w-5 h-5" />
-                <span>{t('search', language)}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  toggleTheme()
-                  setMenuOpen(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-                <span>{t('theme', language)} ({theme === 'light' ? t('light', language) : t('dark', language)})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  toggleLanguage()
-                  setMenuOpen(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                <Globe className="w-5 h-5" />
-                <span>{t('language', language)} ({language === 'ar' ? t('arabic', language) : t('english', language)})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  handleShare()
-                  setMenuOpen(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                <Share2 className="w-5 h-5" />
-                <span>{t('share', language)}</span>
-              </button>
-
-              {!isLoggedIn && (
-                <a
-                  href="/login"
-                  className="flex items-center gap-3 w-full p-3 bg-gold text-white rounded-lg hover:bg-gold-dark transition"
+            <div className="space-y-6 mt-12">
+              <h2 className="text-2xl font-aref text-gold">{t('menu', language)}</h2>
+              
+              <div className="space-y-4">
+                <button
+                  onClick={() => {
+                    toggleSearch()
+                    setMenuOpen(false)
+                  }}
+                  className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
                 >
-                  <User className="w-5 h-5" />
-                  <span>{t('signIn', language)}</span>
-                </a>
-              )}
-            </div>
+                  <Search className="w-5 h-5" />
+                  <span>{t('search', language)}</span>
+                </button>
 
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-500">تواصل معنا</p>
-              <div className="flex gap-4 mt-2">
-                <a href={`https://wa.me/20${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer">
-                  <Phone className="w-5 h-5 text-green-500" />
-                </a>
-                <a href={`mailto:${EMAIL}`}>
-                  <Mail className="w-5 h-5 text-red-500" />
-                </a>
+                <button
+                  onClick={() => {
+                    toggleTheme()
+                    setMenuOpen(false)
+                  }}
+                  className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+                >
+                  {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                  <span>{t('theme', language)} ({theme === 'light' ? t('light', language) : t('dark', language)})</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    toggleLanguage()
+                    setMenuOpen(false)
+                  }}
+                  className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+                >
+                  <Globe className="w-5 h-5" />
+                  <span>{t('language', language)} ({language === 'ar' ? t('arabic', language) : t('english', language)})</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleShare()
+                    setMenuOpen(false)
+                  }}
+                  className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span>{t('share', language)}</span>
+                </button>
+
+                {!isLoggedIn && (
+                  <a
+                    href="/login"
+                    className="flex items-center gap-3 w-full p-3 bg-gold text-white rounded-lg hover:bg-gold-dark transition"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>{t('signIn', language)}</span>
+                  </a>
+                )}
+              </div>
+
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500">تواصل معنا</p>
+                <div className="flex gap-4 mt-2">
+                  <a href={`https://wa.me/20${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer">
+                    <Phone className="w-5 h-5 text-green-500" />
+                  </a>
+                  <a href={`mailto:${EMAIL}`}>
+                    <Mail className="w-5 h-5 text-red-500" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      )}
     </header>
   )
-                        } 
+                } 

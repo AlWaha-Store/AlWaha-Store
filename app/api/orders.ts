@@ -7,11 +7,22 @@ export async function GET(request: Request) {
     const userId = searchParams.get('userId')
     const orderId = searchParams.get('id')
 
+    // إذا كان المطلوب جلب طلب واحد محدد برقم الـ ID
+    if (orderId) {
+      const { data, error } = await supabaseServer
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single()
+
+      if (error) throw error
+      return NextResponse.json({ success: true, data })
+    }
+
+    // إذا كان المطلوب جلب قائمة طلبات (سواء لجميع المستخدمين أو لمستخدم معين)
     let query = supabaseServer.from('orders').select('*')
 
-    if (orderId) {
-      query = query.eq('id', orderId).single()
-    } else if (userId) {
+    if (userId) {
       query = query.eq('user_id', userId)
     }
 
@@ -78,4 +89,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-    } 
+}

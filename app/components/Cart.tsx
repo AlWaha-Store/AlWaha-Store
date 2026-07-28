@@ -4,13 +4,11 @@ import { useCartStore } from '@/app/store/cart'
 import { useUIStore } from '@/app/store/ui'
 import { t } from '@/app/lib/translations'
 import { formatPrice, formatWeight } from '@/app/lib/utils'
-import { Sheet, SheetContent } from './ui/sheet'
 import { ShoppingCart, X, Plus, Minus, Trash2, CreditCard } from 'lucide-react'
 import { useState } from 'react'
 import { CheckoutModal } from './Checkout'
 
 export function CartButton() {
-  const { language } = useUIStore()
   const { toggleCart, isCartOpen } = useUIStore()
   const { getTotalItems, getTotalPrice } = useCartStore()
   const totalItems = getTotalItems()
@@ -32,11 +30,14 @@ export function CartButton() {
         </div>
       </button>
 
-      <Sheet open={isCartOpen} onOpenChange={toggleCart}>
-        <SheetContent side="right" className="w-full max-w-md">
-          <CartSidebar />
-        </SheetContent>
-      </Sheet>
+      {/* Simple Cart Sidebar */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80" onClick={toggleCart}>
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-900 shadow-xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <CartSidebar />
+          </div>
+        </div>
+      )}
     </>
   )
 }
@@ -49,7 +50,13 @@ export function CartSidebar() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center h-full p-8">
+        <button
+          onClick={() => useUIStore.getState().toggleCart()}
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
+        >
+          <X className="w-6 h-6" />
+        </button>
         <ShoppingCart className="w-20 h-20 text-gray-300 mb-4" />
         <p className="text-xl text-gray-500">{t('emptyCart', language)}</p>
       </div>
@@ -57,15 +64,23 @@ export function CartSidebar() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-2xl font-aref text-gold">{t('cart', language)}</h2>
-        <button
-          onClick={clearCart}
-          className="text-sm text-red-500 hover:text-red-600 transition"
-        >
-          تفريغ
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={clearCart}
+            className="text-sm text-red-500 hover:text-red-600 transition"
+          >
+            تفريغ
+          </button>
+          <button
+            onClick={() => useUIStore.getState().toggleCart()}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -107,7 +122,7 @@ export function CartSidebar() {
         ))}
       </div>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <div className="flex items-center justify-between mb-4">
           <span className="text-lg font-bold">{t('total', language)}</span>
           <span className="text-2xl font-aref text-gold">{formatPrice(totalPrice)}</span>

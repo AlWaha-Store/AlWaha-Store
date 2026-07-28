@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         const { data: settings, error } = await supabaseServer
           .from('admin_settings')
           .select('allowed_ips')
-          .single()
+          .maybeSingle()
 
         if (!error && settings) {
           const allowedIPs = settings.allowed_ips || []
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       const { data: existing, error: checkError } = await supabaseServer
         .from('admin_settings')
         .select('id')
-        .single()
+        .maybeSingle()
 
       let result
       if (existing) {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       const { data, error } = await supabaseServer
         .from('admin_settings')
         .select('*')
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       return NextResponse.json({ success: true, data })
@@ -86,4 +86,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-               } 
+          } 

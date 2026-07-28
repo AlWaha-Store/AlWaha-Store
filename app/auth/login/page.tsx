@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/app/store/auth'
 import { useUIStore } from '@/app/store/ui'
 import { t } from '@/app/lib/translations'
-import { Mail, Lock, ArrowRight, Google } from 'lucide-react'
+import { Mail, Lock, ArrowRight } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -37,7 +38,7 @@ export default function LoginPage() {
           {t('login', language)}
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-2">
-          مرحباً بعودتك
+          {t('welcomeBack', language)}
         </p>
       </div>
 
@@ -112,7 +113,7 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           className="mt-4 w-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2"
         >
-          <Google className="w-5 h-5" />
+          <FcGoogle className="w-5 h-5" />
           {t('google', language)}
         </button>
       </div>
@@ -128,4 +129,4 @@ export default function LoginPage() {
       </p>
     </div>
   )
-}
+    } 

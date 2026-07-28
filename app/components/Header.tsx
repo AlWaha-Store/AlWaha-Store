@@ -100,7 +100,7 @@ export function Header() {
                         className="w-full mt-2 flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
                       >
                         <LogOut className="w-4 h-4" />
-                        {t('logout', language) || 'تسجيل خروج'}
+                        {t('logout', language)}
                       </button>
                     </div>
                   </div>
@@ -253,4 +253,4 @@ export function Header() {
       )}
     </header>
   )
-}}}
+          } 

@@ -10,8 +10,12 @@ export async function GET(request: Request) {
     let query = supabaseServer.from('coupons').select('*')
 
     if (code) {
-      query = query.eq('code', code.toUpperCase()).single()
-    } else if (userId) {
+      const { data, error } = await query.eq('code', code.toUpperCase()).single()
+      if (error) throw error
+      return NextResponse.json({ success: true, data })
+    }
+
+    if (userId) {
       query = query.eq('user_id', userId)
     }
 
@@ -32,11 +36,12 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { code, discountPercent, expiresAt, userId } = body
 
+    // التحقق من عدم وجود كوبون بنفس الكود
     const { data: existing, error: checkError } = await supabaseServer
       .from('coupons')
       .select('code')
       .eq('code', code.toUpperCase())
-      .single()
+      .maybeSingle()
 
     if (existing) {
       return NextResponse.json(
@@ -123,4 +128,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-  } 
+} 

@@ -184,4 +184,4 @@ export type Language = 'ar' | 'en'
 
 export function t(key: TranslationKey, lang: Language = 'ar'): string {
   return translations[lang][key] || translations.ar[key] || key
-    } 
+    }

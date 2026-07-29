@@ -1,3 +1,4 @@
+// app/types.ts
 // ===== Product Types =====
 export interface Product {
   id: string

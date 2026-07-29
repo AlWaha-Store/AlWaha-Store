@@ -15,12 +15,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[]
-  totalItems: number
-  totalPrice: number
   addItem: (item: Omit<CartItem, 'quantity'>, weight: number) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
-  updateWeight: (id: string, weight: number) => void
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
@@ -30,22 +27,18 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      totalItems: 0,
-      totalPrice: 0,
 
       addItem: (item, weight) => {
         const { items } = get()
         const existingItem = items.find(i => i.id === item.id)
 
         if (existingItem) {
-          const newQuantity = existingItem.quantity + 1
-          const newWeight = existingItem.weight + weight
           const updatedItems = items.map(i =>
             i.id === item.id
               ? {
                   ...i,
-                  quantity: newQuantity,
-                  weight: newWeight,
+                  quantity: i.quantity + 1,
+                  weight: i.weight + weight,
                 }
               : i
           )
@@ -78,14 +71,6 @@ export const useCartStore = create<CartStore>()(
         set({ items: updatedItems })
       },
 
-      updateWeight: (id, weight) => {
-        const { items } = get()
-        const updatedItems = items.map(item =>
-          item.id === id ? { ...item, weight } : item
-        )
-        set({ items: updatedItems })
-      },
-
       clearCart: () => {
         set({ items: [] })
       },
@@ -105,6 +90,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'cart-storage',
+      skipHydration: true,
     }
   )
 ) 

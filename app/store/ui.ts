@@ -17,6 +17,9 @@ interface UIStore {
   setSearchOpen: (open: boolean) => void
 }
 
+// منع استخدام localStorage في السيرفر
+const isBrowser = typeof window !== 'undefined'
+
 export const useUIStore = create<UIStore>()(
   persist(
     (set) => ({
@@ -29,7 +32,9 @@ export const useUIStore = create<UIStore>()(
       toggleTheme: () => {
         set((state) => {
           const newTheme = state.theme === 'light' ? 'dark' : 'light'
-          document.documentElement.classList.toggle('dark')
+          if (isBrowser) {
+            document.documentElement.classList.toggle('dark')
+          }
           return { theme: newTheme }
         })
       },
@@ -66,6 +71,7 @@ export const useUIStore = create<UIStore>()(
     }),
     {
       name: 'ui-storage',
+      skipHydration: true,
     }
   )
 ) 

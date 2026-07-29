@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/app/lib/supabase'
 import { ADMIN_PASSWORD } from '@/app/lib/constants'
@@ -87,4 +86,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-          } 
+    }

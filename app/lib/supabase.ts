@@ -1,201 +1,25 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// تأكد من وجود المتغيرات
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+// لو مش موجودين، استخدم القيم الثابتة (مؤقتاً)
+const url = supabaseUrl || 'https://vxjjlfuxsnjvttpspdar.supabase.co'
+const anonKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4ampsZnV4c25qdnR0cHNwZGFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxMDg5MjIsImV4cCI6MjEwMDY4NDkyMn0.S05umCl-SGTqFayLS6Mc-5g5W8PTUbL0CSvI4FwO6vg'
 
 // Client side (for components)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(url, anonKey)
 
 // Server side (for API routes)
-export const supabaseServer = createClient(supabaseUrl, supabaseServiceKey)
+export const supabaseServer = createClient(
+  url,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4ampsZnV4c25qdnR0cHNwZGFyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTEwODkyMiwiZXhwIjoyMTAwNjg0OTIyfQ.bl1VOmoU8GvyyAYObxyw7tGyn4iPWMGm6aofZA6lvMI'
+)
 
 // For middleware (session checking)
-export const supabaseMiddleware = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabaseMiddleware = createClient(url, anonKey, {
   auth: {
     persistSession: false,
   },
-})
-
-// Types
-export type Database = {
-  public: {
-    Tables: {
-      users: {
-        Row: {
-          id: string
-          email: string
-          name: string
-          phone: string
-          address: string
-          points: number
-          referrals: number
-          orders_count: number
-          is_blocked: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          email: string
-          name: string
-          phone: string
-          address: string
-          points?: number
-          referrals?: number
-          orders_count?: number
-          is_blocked?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          name?: string
-          phone?: string
-          address?: string
-          points?: number
-          referrals?: number
-          orders_count?: number
-          is_blocked?: boolean
-          created_at?: string
-        }
-      }
-      products: {
-        Row: {
-          id: string
-          name: string
-          category: 'fruits' | 'vegetables'
-          price: number
-          image: string
-          weight: number
-          is_on_sale: boolean
-          sale_price?: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          category: 'fruits' | 'vegetables'
-          price: number
-          image: string
-          weight?: number
-          is_on_sale?: boolean
-          sale_price?: number
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          category?: 'fruits' | 'vegetables'
-          price?: number
-          image?: string
-          weight?: number
-          is_on_sale?: boolean
-          sale_price?: number
-          created_at?: string
-        }
-      }
-      orders: {
-        Row: {
-          id: string
-          user_id: string
-          items: any
-          total: number
-          delivery_type: 'express' | 'scheduled'
-          scheduled_time?: string
-          payment_method: 'cash' | 'instapay' | 'wallet'
-          customer_name: string
-          customer_phone: string
-          address: string
-          notes?: string
-          coupon_code?: string
-          discount?: number
-          status: 'pending' | 'confirmed' | 'delivered'
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          items: any
-          total: number
-          delivery_type: 'express' | 'scheduled'
-          scheduled_time?: string
-          payment_method: 'cash' | 'instapay' | 'wallet'
-          customer_name: string
-          customer_phone: string
-          address: string
-          notes?: string
-          coupon_code?: string
-          discount?: number
-          status?: 'pending' | 'confirmed' | 'delivered'
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          items?: any
-          total?: number
-          delivery_type?: 'express' | 'scheduled'
-          scheduled_time?: string
-          payment_method?: 'cash' | 'instapay' | 'wallet'
-          customer_name?: string
-          customer_phone?: string
-          address?: string
-          notes?: string
-          coupon_code?: string
-          discount?: number
-          status?: 'pending' | 'confirmed' | 'delivered'
-          created_at?: string
-        }
-      }
-      coupons: {
-        Row: {
-          id: string
-          code: string
-          discount_percent: number
-          expires_at: string
-          is_active: boolean
-          user_id?: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          code: string
-          discount_percent: number
-          expires_at: string
-          is_active?: boolean
-          user_id?: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          code?: string
-          discount_percent?: number
-          expires_at?: string
-          is_active?: boolean
-          user_id?: string
-          created_at?: string
-        }
-      }
-      admin_settings: {
-        Row: {
-          id: string
-          password: string
-          allowed_ips: string[]
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          password: string
-          allowed_ips?: string[]
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          password?: string
-          allowed_ips?: string[]
-          created_at?: string
-        }
-      }
-    }
-  }
-      } 
+}) 

@@ -8,11 +8,20 @@ export async function GET(request: Request) {
     const category = searchParams.get('category')
     const onSale = searchParams.get('onSale')
 
-    let query = supabaseServer.from('products').select('*')
-
+    // لو فيه ID، جلب منتج واحد مباشرة
     if (id) {
-      query = query.eq('id', id).single()
+      const { data, error } = await supabaseServer
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
+      return NextResponse.json({ success: true, data })
     }
+
+    // بناء الاستعلام
+    let query = supabaseServer.from('products').select('*')
 
     if (category && category !== 'all') {
       query = query.eq('category', category)
@@ -118,4 +127,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-} 
+        } 

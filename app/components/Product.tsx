@@ -169,4 +169,4 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
       </DialogContent>
     </Dialog>
   )
-        } 
+} 

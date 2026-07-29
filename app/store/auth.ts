@@ -26,6 +26,9 @@ interface AuthStore {
   fetchUser: (userId: string) => Promise<void>
 }
 
+// منع استخدام localStorage في السيرفر
+const isBrowser = typeof window !== 'undefined'
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -194,6 +197,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'auth-storage',
+      skipHydration: true,
     }
   )
-) 
+)

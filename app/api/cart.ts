@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { userId, productId, weight, quantity } = body
 
+    // التحقق من وجود المنتج في السلة
     const { data: existing, error: checkError } = await supabaseServer
       .from('cart_items')
       .select('*')
@@ -117,4 +118,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-      } 
+} 

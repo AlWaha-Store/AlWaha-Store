@@ -1,15 +1,27 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useUIStore } from '@/app/store/ui'
-import { useAuthStore } from '@/app/store/auth'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/app/lib/supabase'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const { theme, language } = useUIStore()
-  const { fetchUser } = useAuthStore()
+  const [isMounted, setIsMounted] = useState(false)
 
+  // منع تشغيل أي كود على السيرفر
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // تشغيل الكود بس بعد ما الموقع يتحمل في المتصفح
+  useEffect(() => {
+    if (!isMounted) return
+
+    // استيراد الـ Stores بعد التحميل عشان نتجنب مشاكل السيرفر
+    const { useUIStore } = require('@/app/store/ui')
+    const { useAuthStore } = require('@/app/store/auth')
+
+    const { theme, language } = useUIStore.getState()
+    const { fetchUser } = useAuthStore.getState()
+
     // تطبيق المظهر
     if (theme === 'dark') {
       document.documentElement.classList.add('dark')
@@ -20,10 +32,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // تطبيق اللغة
     document.documentElement.lang = language
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'
-  }, [theme, language])
 
-  useEffect(() => {
-    // التحقق من حالة المستخدم عند التحميل
+    // التحقق من المستخدم
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
@@ -32,7 +42,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
     checkUser()
 
-    // الاستماع لتغييرات المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
@@ -44,7 +53,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [fetchUser])
+  }, [isMounted])
 
   return <>{children}</>
-          } 
+            } 

@@ -1,21 +1,31 @@
-'use client'
+// app/layout.tsx
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './styles/globals.css'
+import { Providers } from './components/Providers'
 
-import { Header } from '@/app/components/Header'
-import { CartButton } from '@/app/components/Cart'
+const inter = Inter({ subsets: ['latin'] })
 
-export default function PublicLayout({
+export const metadata: Metadata = {
+  title: 'الواحة 🌱 - خضروات وفاكهة طازجة',
+  description: 'متجر الواحة لبيع الخضروات والفاكهة الطازجة من قلب الطبيعة',
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50/30 to-gold-50/30 dark:from-gray-900 dark:to-gray-800">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
-      <CartButton />
-    </div>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
+    </html>
   )
 } 
- 

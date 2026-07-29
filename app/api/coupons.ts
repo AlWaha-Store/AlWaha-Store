@@ -7,13 +7,20 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const userId = searchParams.get('userId')
 
-    let query = supabaseServer.from('coupons').select('*')
-
+    // لو فيه كود، جلب كوبون واحد مباشرة
     if (code) {
-      const { data, error } = await query.eq('code', code.toUpperCase()).single()
+      const { data, error } = await supabaseServer
+        .from('coupons')
+        .select('*')
+        .eq('code', code.toUpperCase())
+        .single()
+
       if (error) throw error
       return NextResponse.json({ success: true, data })
     }
+
+    // بناء الاستعلام
+    let query = supabaseServer.from('coupons').select('*')
 
     if (userId) {
       query = query.eq('user_id', userId)
@@ -36,6 +43,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { code, discountPercent, expiresAt, userId } = body
 
+    // التحقق من عدم وجود كوبون بنفس الكود
     const { data: existing, error: checkError } = await supabaseServer
       .from('coupons')
       .select('code')
@@ -127,4 +135,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-         } 
+        } 

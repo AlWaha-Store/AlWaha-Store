@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       .select('*')
       .eq('user_id', userId)
       .eq('product_id', productId)
-      .single()
+      .maybeSingle()
 
     if (checkError && checkError.code !== 'PGRST116') {
       throw checkError
@@ -117,4 +117,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-        } 
+      } 

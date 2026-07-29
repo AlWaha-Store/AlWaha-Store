@@ -36,7 +36,6 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { code, discountPercent, expiresAt, userId } = body
 
-    // التحقق من عدم وجود كوبون بنفس الكود
     const { data: existing, error: checkError } = await supabaseServer
       .from('coupons')
       .select('code')
@@ -128,4 +127,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     )
   }
-} 
+         } 

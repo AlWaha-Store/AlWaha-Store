@@ -7,13 +7,20 @@ export async function GET(request: Request) {
     const userId = searchParams.get('userId')
     const orderId = searchParams.get('id')
 
-    let query = supabaseServer.from('orders').select('*')
-
+    // لو فيه Order ID، جلب طلب واحد مباشرة
     if (orderId) {
-      const { data, error } = await query.eq('id', orderId).single()
+      const { data, error } = await supabaseServer
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single()
+
       if (error) throw error
       return NextResponse.json({ success: true, data })
     }
+
+    // بناء الاستعلام
+    let query = supabaseServer.from('orders').select('*')
 
     if (userId) {
       query = query.eq('user_id', userId)
